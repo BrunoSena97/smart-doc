@@ -1,0 +1,230 @@
+{
+  "caseId": "Mull_DiagnosticError_Case01",
+  "caseTitle": "Elderly Woman with 'Heart Failure'",
+  "patientProfile": {
+    "ageCategory": "Elderly",
+    "language": "Spanish (patient speaks only Spanish)",
+    "socialContext": "Son provides initial history due to language barrier. No interpreter initially present.",
+    "pastMedicalHistory": [
+      { "condition": "Morbid obesity", "details": "" },
+      {
+        "condition": "Diabetes Mellitus",
+        "details": "Type 2 implied by medications (Glipizide, Metformin)"
+      },
+      { "condition": "Hypertension", "details": "" },
+      {
+        "condition": "Rheumatoid arthritis",
+        "details": "Treatment details initially unknown."
+      }
+    ],
+    "medicalRecordAccess": "Most medical records are within another health system."
+  },
+  "initialPresentation": {
+    "sourceOfHistory": "Patient's son",
+    "chiefComplaints": [
+      {
+        "complaint": "Worsening shortness of breath (dyspnea)",
+        "details": "Especially noticeable with exertion."
+      },
+      { "complaint": "Nonproductive cough", "details": "" }
+    ],
+    "historyOfPresentIllness": {
+      "onsetAndDuration": "Shortness of breath gradually increasing over the past 2 months.",
+      "associatedSymptoms": [
+        {
+          "symptom": "Decreased oral intake",
+          "reportedBy": "son",
+          "duration": "Past few weeks"
+        },
+        {
+          "symptom": "Weight loss",
+          "reportedBy": "son",
+          "duration": "Past few weeks"
+        }
+      ],
+      "pertinentNegatives": ["Denies chest pain", "Denies fevers or chills"],
+      "recentMedicalCare": {
+        "event": "Visited Primary Care Physician (PCP) 3 weeks ago for same complaints.",
+        "treatment": "Prescribed a 3-day course of azithromycin.",
+        "outcome": "No improvement."
+      },
+      "travelAndContactHistory": {
+        "travel": "No recent travel.",
+        "contacts": "No known contact with anyone with an infectious disease."
+      }
+    },
+    "medicationsInitial": {
+      "knownMedications": [
+        { "name": "Lisinopril", "dosage": "unknown", "route": "unknown" },
+        { "name": "Atenolol", "dosage": "unknown", "route": "unknown" },
+        { "name": "Glipizide", "dosage": "unknown", "route": "unknown" },
+        { "name": "Metformin", "dosage": "unknown", "route": "unknown" }
+      ],
+      "uncertainty": "Son believes she may be taking other medications but is unsure. Treatment for rheumatoid arthritis is unknown to the son.",
+      "initialResponseIfQueriedAboutRAMeds": "Her son is unsure of what treatment his mother has received for her rheumatoid arthritis, and most of her medical records are within another health system.",
+      "initialResponseIfQueriedAboutOtherMeds": "Her son believes she may be taking others as well but is not sure."
+    },
+    "physicalExaminationInitialED": {
+      "generalAppearance": "Coughing, appears ill.",
+      "vitalSigns": {
+        "temperatureCelsius": 37.7,
+        "temperatureFahrenheit": 99.9,
+        "heartRateBPM": 105,
+        "bloodPressureSystolicmmHg": 140,
+        "bloodPressureDiastolicmmHg": 70,
+        "respiratoryRateBPM": 24,
+        "oxygenSaturationPercentRoomAir": 89
+      },
+      "cardiovascular": {
+        "heartSounds": "Normal.",
+        "jvp": "Cannot be assessed due to obese body habitus."
+      },
+      "respiratory": {
+        "inspection": "Coughing.",
+        "auscultation": "Crackles in all lung fields."
+      },
+      "extremities": {
+        "edema": "No lower-extremity edema.",
+        "perfusion": "Warm and well-perfused."
+      },
+      "musculoskeletal": {
+        "findings": "Deformities of the joints in both hands consistent with rheumatoid arthritis."
+      }
+    },
+    "laboratoryDataInitialED": [
+      {
+        "test": "White Blood Cell Count (WBC)",
+        "value": "13.0 x10^9/L",
+        "interpretation": "Elevated",
+        "referenceRange": "3.7-11.0 x10^9/L"
+      },
+      {
+        "test": "Hemoglobin",
+        "value": "10 g/dL",
+        "interpretation": "Low",
+        "referenceRange": "11.5-15 g/dL"
+      },
+      {
+        "test": "Serum Creatinine",
+        "value": "1.0 mg/dL",
+        "interpretation": "Within normal limits",
+        "referenceRange": "0.7-1.4 mg/dL"
+      },
+      {
+        "test": "Pro-Brain-Type Natriuretic Peptide (pro-BNP)",
+        "value": "> upper limit of normal",
+        "interpretation": "Elevated"
+      }
+    ],
+    "imagingInitialED": {
+      "chestXray": {
+        "impressionSource": "Resident radiologist (preliminary)",
+        "findings": "Consistent with pulmonary vascular congestion."
+      }
+    },
+    "initialDiagnosisAndTreatmentED": {
+      "workingDiagnosisED": "Heart failure exacerbation.",
+      "treatmentOrderedED": ["Intravenous furosemide"]
+    }
+  },
+  "discoverableInformation": {
+    "timelineOfEventsInHospital": [
+      {
+        "day": "Day 1 (ED)",
+        "event": "Patient admitted. IV furosemide given. Echocardiogram ordered."
+      },
+      {
+        "day": "Day 1-2 (Ward)",
+        "event": "Patient's cough and shortness of breath persist despite initial treatment."
+      },
+      {
+        "day": "Day 3 (Ward)",
+        "event": "Worsening oxygenation and cough. Attending radiologist's formal CXR interpretation notes ill-defined, scattered, faint opacities, suggesting possible interstitial pattern. Junior residents suggest primary pulmonary disease but are dismissed by attending. IV corticosteroid, broad-spectrum antibiotic, inhaled bronchodilator added by float team."
+      },
+      {
+        "day": "Day 4 (Ward)",
+        "event": "Medication lists from previous hospitalizations arrive. Echocardiogram results become available. CT chest performed."
+      }
+    ],
+    "criticalDiscoveries": [
+      {
+        "item": "Infliximab use",
+        "details": "Patient had been receiving infliximab for rheumatoid arthritis for the past 3-4 months.",
+        "discoveryPoint": "Hospital day 4, when medication lists from previous hospitalizations arrive.",
+        "triggerForVSPRevelation": [
+          "Student specifically asks about current or past RA treatments.",
+          "Student asks for full medication reconciliation from outside records.",
+          "Student inquires about immunosuppressants or biologic agents.",
+          "After a set number of interactions or 'days' if direct query is too hard for prototype (e.g., 'Outside records have arrived. Would you like to review them?')."
+        ],
+        "importance": "Key immunosuppressant that increases risk for infections like TB."
+      },
+      {
+        "item": "Echocardiogram result",
+        "details": "Normal ejection fraction with no evidence of elevated filling pressures.",
+        "discoveryPoint": "Hospital day 4 (ordered day 1, result delayed).",
+        "triggerForVSPRevelation": [
+          "Student follows up on ordered cardiac investigations.",
+          "Student specifically asks for echocardiogram results.",
+          "If patient not improving on 'heart failure' treatment, student re-evaluates cardiac function."
+        ],
+        "importance": "Contradicts initial working diagnosis of severe heart failure exacerbation."
+      },
+      {
+        "item": "CT Chest findings",
+        "details": "Reticular pattern with innumerable, tiny, 1- to 2-mm pulmonary nodules.",
+        "discoveryPoint": "Hospital day 4.",
+        "triggerForVSPRevelation": [
+          "Student considers alternative diagnoses due to lack of improvement and requests further pulmonary imaging.",
+          "Student asks for CT scan results after normal echo and persistent respiratory symptoms."
+        ],
+        "expandedDifferentialDiagnosisPostCT": [
+          "Hypersensitivity pneumonitis",
+          "Lymphoma",
+          "Fungal infection",
+          "Miliary tuberculosis"
+        ],
+        "importance": "Strongly points away from simple CHF and towards an infiltrative/infectious process."
+      },
+      {
+        "item": "Final CXR interpretation details",
+        "details": "Attending radiologist's interpretation confirmed resident's read but also noted 'ill-defined, scattered, faint opacities,' suggesting a possible interstitial pattern.",
+        "discoveryPoint": "Reviewed by junior residents on hospital day 3.",
+        "triggerForVSPRevelation": [
+          "Student asks for the attending/formal read of the chest X-ray.",
+          "Student probes for more details on the X-ray if initial 'pulmonary vascular congestion' doesn't fit evolving picture."
+        ],
+        "importance": "Subtle sign on initial imaging that could have prompted earlier consideration of alternative diagnoses."
+      }
+    ],
+    "progressionAndOutcome": {
+      "eventsLeadingToFinalDiagnosis": [
+        "Patient moved to negative pressure room after CT findings.",
+        "Pulmonary consultants recommend bronchoscopy.",
+        "During bronchoscopy: patient suffers acute respiratory failure, is intubated, and transferred to MICU.",
+        "In MICU: Saddle pulmonary embolism diagnosed by CT angiography.",
+        "Sputum culture from bronchoscopy (result available one day later): Positive for acid-fast bacilli (AFB)."
+      ],
+      "finalTreatmentInitiated": "Four-drug regimen for tuberculosis.",
+      "finalOutcome": "Patient continued to have a downward course and expired 2 weeks later.",
+      "autopsyFinding": "Miliary tuberculosis."
+    }
+  },
+  "cognitiveBiasConsiderations": {
+    "framingEffect": "ED resident's handoff: 'elderly woman with hypertension, diabetes, and heart failure being admitted for a heart failure exacerbation.'",
+    "anchoringBias": "Initial problem list: 'heart failure without a differential diagnosis,' notes elevated pro-BNP and CXR confirm heart failure.",
+    "confirmationBias": "Team places greater emphasis on elevated pro-BNP and initial CXR than on persisting symptoms or lack of improvement with diuresis.",
+    "diagnosticMomentum": "Diagnosis of heart failure carried forward without sufficient re-evaluation.",
+    "informationWithholdingPointsForVSP": [
+      "Infliximab",
+      "Normal Echocardiogram",
+      "CT scan suggestive of TB"
+    ]
+  },
+  "metacognitivePromptsFromPaper": [
+    "What else can it be?",
+    "Is there anything about the case that does not fit?",
+    "Is it possible that multiple processes are going on?",
+    "Do I need to slow down?"
+  ]
+}

@@ -1,0 +1,144 @@
+
+--- Log Session Started: 2025-05-18 18:05:25 ---
+[2025-05-18 18:05:25]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
+[2025-05-18 18:07:05]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.2600)
+  Student: asdasdasdff
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-18 18:07:22]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.2386)
+  Student: asdaswqe21312df
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-18 18:08:08]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: profile_language (Score: 1.0000)
+  Student: What language does the patient speak?
+  SmartDoc: Spanish (patient speaks only Spanish)
+--------------------
+[2025-05-18 18:09:17]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_chief_complaint (Score: 0.8597)
+  Student: What is the problem today ?
+  SmartDoc: Worsening shortness of breath (dyspnea) (Especially noticeable with exertion.); Nonproductive cough
+--------------------
+[2025-05-18 18:10:51]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_onset_duration_primary (Score: 1.0000)
+  Student: When did the main problem start and how long has it been going on?
+  SmartDoc: Shortness of breath gradually increasing over the past 2 months.
+--------------------
+[2025-05-18 18:11:06]
+  DM State: MEDICATION_REVIEW
+  NLU Intent: meds_current_known (Score: 1.0000)
+  Student: What medications is the patient currently taking?
+  SmartDoc: Lisinopril (dosage: unknown, route: unknown); Atenolol (dosage: unknown, route: unknown); Glipizide (dosage: unknown, route: unknown); Metformin (dosage: unknown, route: unknown)
+--------------------
+[2025-05-18 18:11:31]
+  DM State: INVESTIGATIONS_QUERY
+  NLU Intent: labs_initial_general (Score: 1.0000)
+  Student: What were the results of the initial blood tests?
+  SmartDoc: White Blood Cell Count (WBC): 13.0 x10^9/L (Elevated) [Ref: 3.7-11.0 x10^9/L]; Hemoglobin: 10 g/dL (Low) [Ref: 11.5-15 g/dL]; Serum Creatinine: 1.0 mg/dL (Within normal limits) [Ref: 0.7-1.4 mg/dL]; Pro-Brain-Type Natriuretic Peptide (pro-BNP): > upper limit of normal (Elevated)
+--------------------
+[2025-05-18 18:11:46]
+  DM State: INVESTIGATIONS_QUERY
+  NLU Intent: imaging_cxr_initial (Score: 1.0000)
+  Student: What did the initial chest X-ray show?
+  SmartDoc: Chest X-ray (source: Resident radiologist (preliminary)): Consistent with pulmonary vascular congestion.
+--------------------
+[2025-05-18 18:12:17]
+  DM State: INVESTIGATIONS_QUERY
+  NLU Intent: discoverable_infliximab_query (Score: 1.0000)
+  Student: Is the patient on any specific treatments for rheumatoid arthritis like biologics or Infliximab?
+  SmartDoc: Regarding Infliximab use: Patient had been receiving infliximab for rheumatoid arthritis for the past 3-4 months. (This was found: Hospital day 4, when medication lists from previous hospitalizations arrive.)
+--------------------
+[2025-05-18 18:14:05]
+  DM State: CLOSING
+  NLU Intent: general_thank_you_conclude (Score: 1.0000)
+  Student: Thank you, I have all the information I need.
+  SmartDoc: Thank you for the interview. This concludes the current simulation.
+--------------------
+[2025-05-18 18:14:21]
+  DM State: CLOSING
+  Student: quit
+  SmartDoc: Session ended by user.
+--------------------
+
+--- Log Session Started: 2025-05-19 08:57:26 ---
+[2025-05-19 08:57:26]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
+[2025-05-19 09:02:11]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.4216)
+  Student: bye
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-19 09:02:15]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.4216)
+  Student: bye
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-19 09:02:51]
+  DM State: CLOSING
+  NLU Intent: general_thank_you_conclude (Score: 0.8825)
+  Student: Thank you, i've got every information that i need
+  SmartDoc: Thank you for the interview. This concludes the current simulation.
+--------------------
+[2025-05-19 09:02:56]
+  DM State: CLOSING
+  NLU Intent: intent_not_understood (Score: 0.4216)
+  Student: bye
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-19 09:02:59]
+  DM State: CLOSING
+  Student: quit
+  SmartDoc: Session ended by user.
+--------------------
+
+--- Log Session Started: 2025-05-19 09:03:12 ---
+[2025-05-19 09:03:12]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
+[2025-05-19 09:07:06]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: general_greet (Score: 1.0000)
+  Student: hello
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
+[2025-05-19 09:07:19]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.6641)
+  Student: What is your main complain today
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-05-19 09:07:43]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_chief_complaint (Score: 1.0000)
+  Student: What's the main problem today?
+  SmartDoc: Worsening shortness of breath (dyspnea) (Especially noticeable with exertion.); Nonproductive cough
+--------------------
+[2025-05-19 09:13:28]
+  DM State: INVESTIGATIONS_QUERY
+  NLU Intent: imaging_cxr_initial (Score: 0.9201)
+  Student: what did the chest x-ray show
+  SmartDoc: Chest X-ray (source: Resident radiologist (preliminary)): Consistent with pulmonary vascular congestion.
+--------------------
+[2025-05-19 09:23:34]
+  DM State: INVESTIGATIONS_QUERY
+  Student: quit
+  SmartDoc: Session ended by user.
+--------------------
