@@ -40,8 +40,8 @@ try:
     print("SmartDoc Components Initialized Successfully.")
 
 except Exception as e:
-    print(f"CRITICAL ERROR during initialization: {e}")
-    kb_manager = nlu_service = dm_manager = logger = nlg_service = None
+    logger.critical(f"CRITICAL ERROR during initialization: {e}")
+    kb_manager = nlu_service = dm_manager = nlg_service = None
 
 # --- Routes remain the same, no changes needed below this line ---
 
