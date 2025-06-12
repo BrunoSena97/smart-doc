@@ -17,19 +17,19 @@ class NLGService:
         self.chat_endpoint = f"{self.base_url}/api/chat"
         self.is_initialized = False
 
-        print(f"NLGService: Initializing for model '{self.model_name}' on Ollama.")
+        logger.info(f"NLGService: Initializing for model '{self.model_name}' on Ollama.")
 
         # Check if the Ollama server is reachable
         try:
             response = requests.head(self.base_url)
             if response.status_code == 200:
-                print("NLGService: Ollama server is reachable.")
+                logger.info("NLGService: Ollama server is reachable.")
                 self.is_initialized = True
             else:
-                print(f"NLGService Error: Ollama server at {self.base_url} is not reachable (status code: {response.status_code}).")
+                logger.error(f"NLGService Error: Ollama server at {self.base_url} is not reachable (status code: {response.status_code}).")
         except requests.ConnectionError:
-            print(f"NLGService Error: Could not connect to Ollama server at {self.base_url}.")
-            print("Please ensure the Ollama application is running.")
+            logger.error(f"NLGService Error: Could not connect to Ollama server at {self.base_url}.")
+            logger.error("Please ensure the Ollama application is running.")
 
     def generate_response(self, structured_info: dict, max_new_tokens=100, temperature=0.7, do_sample=True):
         if not self.is_initialized:
