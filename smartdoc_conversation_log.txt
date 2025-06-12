@@ -149,3 +149,80 @@
   Student: System: [Session Start]
   SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
 --------------------
+
+--- Log Session Started: 2025-06-12 13:57:09 ---
+[2025-06-12 13:57:09]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
+[2025-06-12 13:57:31]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: intent_not_understood (Score: 0.5654)
+  Student: Hello ! What brings you here today ?
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-06-12 13:58:57]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  NLU Intent: profile_age (Score: 1.0000)
+  Student: How old is the patient ?
+  SmartDoc: Elderly
+--------------------
+
+--- Log Session Started: 2025-06-12 14:12:37 ---
+
+--- Log Session Started: 2025-06-12 15:10:10 ---
+[2025-06-12 15:10:31]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello. I'm here to talk about my mother's case. It's regarding 'Elderly Woman with 'Heart Failure''. How would you like to begin?
+--------------------
+[2025-06-12 15:12:29]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_chief_complaint (Score: 1.0000)
+  Student: What's the main problem today ?
+  SmartDoc: Worsening shortness of breath (dyspnea) (Especially noticeable with exertion.); Nonproductive cough
+--------------------
+
+--- Log Session Started: 2025-06-12 15:24:02 ---
+[2025-06-12 15:24:14]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hola. I’m here to discuss my mother’s case, which is about ‘Elderly Woman with ‘Heart Failure’’.
+--------------------
+[2025-06-12 15:24:33]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_chief_complaint (Score: 0.9717)
+  Student: What is the main problem today ?
+  SmartDoc: “She’s been having more trouble breathing, especially when she walks. And she’s coughing, but it’s not bringing up anything.”
+--------------------
+[2025-06-12 15:24:47]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_chief_complaint (Score: 0.9717)
+  Student: What is the main problem today ?
+  SmartDoc: “She’s been having trouble breathing, especially when she walks. And she’s coughing, but it’s not bringing up anything.”
+--------------------
+[2025-06-12 15:25:11]
+  DM State: HPI_GATHERING
+  NLU Intent: intent_not_understood (Score: 0.5772)
+  Student: What is the chief complain ?
+  SmartDoc: I'm sorry, I didn't quite understand that. Could you please rephrase your question?
+--------------------
+[2025-06-12 15:25:29]
+  DM State: HPI_GATHERING
+  NLU Intent: meds_other_meds_initial_query (Score: 0.8263)
+  Student: Is she on any medication ?
+  SmartDoc: “My mother thinks someone else might be giving her medicine.”
+--------------------
+[2025-06-12 15:26:25]
+  DM State: HPI_GATHERING
+  NLU Intent: meds_other_meds_initial_query (Score: 0.8263)
+  Student: Is she on any medication ?
+  SmartDoc: “My mother thinks someone else might be giving her medicine.”
+--------------------
+[2025-06-12 15:27:13]
+  DM State: HPI_GATHERING
+  NLU Intent: hpi_onset_duration_primary (Score: 0.9635)
+  Student: When did the main problem start and how long has it been going on?"
+  SmartDoc: “She’s been having trouble breathing. It started getting worse slowly over the last two months.”
+--------------------
