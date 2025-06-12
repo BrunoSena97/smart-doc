@@ -63,22 +63,45 @@
 
 **IV. Planned Immediate Next Steps (Prototype Refinement - Phase 2B)**
 
-The current working prototype is a strong foundation. The immediate next steps focus on refining its core functionalities before layering on the more complex cognitive evaluation features:
+The current working prototype (Version 0.1) is a strong foundation. The immediate next steps focus on refining its core functionalities and introducing advanced NLG capabilities before layering on the more complex cognitive evaluation features:
 
 1.  **NLU Robustness & SBERT Performance Tuning:**
-    - Systematically test and optimize the SBERT similarity `cutoff_value`.
-    - Expand and refine `canonical_question_mappings` (add more `variations`, ensure clarity of canonical questions) based on test conversations and log analysis to improve match accuracy.
+
+    - Systematically test and optimize the SBERT similarity `cutoff_value` for intent matching.
+    - Expand and refine `canonical_question_mappings` (add more `variations`, ensure clarity of canonical questions) based on test conversations and log analysis to improve SBERT's match accuracy.
     - Improve handling of truly out-of-scope or ambiguous questions beyond a simple "I don't understand."
+
 2.  **Dialogue Management (DM) Enhancements:**
+
     - Develop comprehensive state transition logic in the `DialogueManager` for all defined `DialogueState`s, ensuring smooth and logical progression through the interview.
-    - Refine and make more robust the logic for revealing "discoverable" information, potentially incorporating multi-step reveals or checks based on conversation history (e.g., student has to ask a follow-up after an initial evasive answer).
+    - Refine and make more robust the logic for revealing "discoverable" information, potentially incorporating multi-step reveals or checks based on conversation history.
     - Explore adding simple contextual memory to the DM (e.g., remembering the last entity discussed) to handle simple follow-up clarifications more naturally.
+
 3.  **Interaction Flow & Basic Usability Testing:**
+
     - Conduct thorough self-testing by role-playing as a student through the entire `case01.json` scenario.
-    - Recruit 1-2 peers (fellow students) for informal usability testing, observe their interactions, and gather feedback on clarity, ease of use, and perceived naturalness.
+    - Recruit 1-2 peers (fellow students) for informal usability testing, observe their interactions, and gather feedback on clarity, ease of use, and perceived naturalness (this will be especially important with the new NLG module).
     - Use logs to identify common points of failure, confusion, or awkward interactions.
-4.  **Introduction of Basic Metacognitive Prompts:**
-    - Integrate 1-2 simple, pre-defined metacognitive prompts (from the list in `case01.json`, e.g., "What else can this be?") to be triggered by the `DialogueManager` at specific, logical points in the conversation (e.g., after initial data gathering is complete). This is a preliminary step towards the full metacognition goal.
+
+4.  **Enhanced Logging:**
+
+    - Ensure the `SystemLogger` captures detailed information suitable for advanced analysis, including NLU confidence, precise DM state changes, information requested from the KB, and the raw input to/output from the new NLG module. This rich data is essential for debugging the NLG component and for later cognitive bias analysis.
+
+5.  **Implement and Evaluate a Natural Language Generation (NLG) Module:**
+    - **Goal:** To make the Virtual Standardized Patient's dialogue more human-like, less scripted, and more engaging, moving beyond directly outputting formatted strings from the `KnowledgeBaseManager` or fixed scripted responses.
+    - **Method:**
+      - Develop a new NLG module (e.g., `nlg_service.py`).
+      - This module will utilize a Large Language Model (LLM) to generate the VSP's responses.
+      - The `DialogueManager`, after determining the core information to convey (based on NLU input, current state, and data fetched from `KnowledgeBaseManager`), will pass this structured information or a "response intent" to the NLG module.
+      - The NLG module will then use the LLM to craft a natural language sentence or paragraph conveying that information, ensuring it's phrased appropriately for a patient (or their son, in this case). This approach is a form of "informed generation" or Retrieval Augmented Generation (RAG) lite, where the LLM's creativity is grounded by factual data from the case.
+    - **Initial Approach & Evaluation:**
+      - Attempt to run a suitable open-source LLM locally (e.g., using libraries like Hugging Face Transformers with models such as Llama, Mistral, or smaller distilled versions) for this NLG task. This allows for greater control and avoids external API costs during initial development.
+      - Key evaluation criteria for the local LLM will be:
+        - **Response Quality:** Naturalness, coherence, appropriate tone for a patient/son.
+        - **Factual Accuracy (Crucial):** Ensuring the LLM accurately represents the information provided by the `DialogueManager` without hallucinating new medical facts or deviating from the `case01.json` content. This will require careful prompt engineering.
+        - **Performance:** Latency of response generation.
+        - **Resource Consumption:** CPU/GPU/RAM requirements for local execution.
+    - **Contingency Plan:** If the performance (quality, speed, or resource demands) of the locally run LLM is found to be insufficient for a good user experience during this phase, the architecture will be designed to allow for switching to an online LLM service provider (e.g., OpenAI API, Anthropic API, Google Gemini API) for the NLG component, while still ensuring the LLM is provided with the same grounding information from the `DialogueManager`.
 
 ---
 

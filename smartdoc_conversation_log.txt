@@ -142,3 +142,10 @@
   Student: quit
   SmartDoc: Session ended by user.
 --------------------
+
+--- Log Session Started: 2025-05-29 00:04:56 ---
+[2025-05-29 00:04:56]
+  DM State: CHIEF_COMPLAINT_EXPLORATION
+  Student: System: [Session Start]
+  SmartDoc: Hello, I am SmartDoc, your virtual patient assistant for this clinical scenario. This case is: 'Elderly Woman with 'Heart Failure''. The patient's history will be provided by their son. How would you like to begin?
+--------------------
