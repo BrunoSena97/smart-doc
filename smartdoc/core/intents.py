@@ -1,4 +1,25 @@
-canonical_question_mappings = [
+import json
+import os
+from smartdoc.utils.logger import sys_logger
+from smartdoc.config.settings import config
+
+def load_canonical_question_mappings(filepath=None):
+    """Load canonical question mappings from JSON file."""
+    filepath = filepath or config.CANONICAL_MAPPINGS_FILE
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        mappings = data.get("canonical_question_mappings", [])
+        sys_logger.log_system("info", f"Loaded {len(mappings)} canonical question mappings from {filepath}")
+        return mappings
+    except Exception as e:
+        sys_logger.log_system("error", f"Failed to load canonical question mappings from {filepath}: {e}")
+        sys_logger.log_system("info", "Falling back to hardcoded mappings")
+        return _get_hardcoded_mappings()
+
+def _get_hardcoded_mappings():
+    """Fallback hardcoded mappings for when JSON file is not available."""
+    return [
     # === Patient Profile ===
     {
         "id": "profile_age",
@@ -323,25 +344,10 @@ canonical_question_mappings = [
         "variations": ["I think I'm done with the interview.", "Thanks for your time."],
         "action_type": "generic_response_or_state_change",
         "target_details": {"response_key": "acknowledgement_and_closing", "next_state_suggestion": "CLOSING"},
-        "expected_dialogue_state": ["REASSESSMENT", "INVESTIGATIONS_QUERY", "PHYSICAL_EXAM_QUERY", "REVIEW_OF_SYSTEMS"] # etc.
-    },
-    # Social History (example, assuming data might not be directly in initial JSON for some)
-    {
-        "id": "social_smoking",
-        "canonical_question": "Does the patient smoke?",
-        "variations": ["Any history of tobacco use?"],
-        "action_type": "provide_scripted_response", # Or fetch if you add detailed SH to JSON
-        "target_details": {"response_key": "social_history_smoking_not_reported_by_son"},
-        "expected_dialogue_state": ["SOCIAL_HISTORY_GATHERING"]
-    },
-    # Family History (example)
-    {
-        "id": "family_history_general",
-        "canonical_question": "Is there any relevant family medical history?",
-        "variations": ["Any diseases run in the family?"],
-        "action_type": "provide_scripted_response", # Or fetch if you add detailed FH to JSON
-        "target_details": {"response_key": "family_history_not_detailed_by_son"},
-        "expected_dialogue_state": ["FAMILY_HISTORY_GATHERING"]
+        "expected_dialogue_state": ["REASSESSMENT", "INVESTIGATIONS_QUERY", "PHYSICAL_EXAM_QUERY", "REVIEW_OF_SYSTEMS"]
     }
 ]
+
+# Load canonical question mappings from JSON file with fallback to hardcoded
+canonical_question_mappings = load_canonical_question_mappings()
 

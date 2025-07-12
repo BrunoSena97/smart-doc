@@ -1,4 +1,4 @@
-# system_logger.py
+# logger.py - Centralized logging system for SmartDoc
 import datetime
 
 class SystemLogger:
@@ -34,3 +34,37 @@ class SystemLogger:
             print(f"Error writing to log file: {e}")
             # Optionally disable further logging attempts
             # self.logfile_path = None
+
+    def log_system(self, level, message):
+        """
+        Logs a system-level message (info, error, debug, etc.).
+        """
+        if not self.logfile_path:
+            return
+
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_entry = f"[{timestamp}] [{level.upper()}] {message}\n"
+            with open(self.logfile_path, 'a', encoding='utf-8') as f:
+                f.write(log_entry)
+        except IOError as e:
+            print(f"Error writing to log file: {e}")
+
+
+# Singleton instance for system logs
+sys_logger = SystemLogger(logfile_path="system_log.txt")
+
+def info(message):
+    sys_logger.log_system("info", message)
+
+def error(message):
+    sys_logger.log_system("error", message)
+
+def debug(message):
+    sys_logger.log_system("debug", message)
+
+def warning(message):
+    sys_logger.log_system("warning", message)
+
+def critical(message):
+    sys_logger.log_system("critical", message)

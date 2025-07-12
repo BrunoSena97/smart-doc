@@ -1,30 +1,58 @@
 import json
+from smartdoc.utils.logger import sys_logger  # Use the singleton system logger
+from smartdoc.config.settings import config
+from smartdoc.utils.exceptions import KnowledgeBaseError
 
 class KnowledgeBaseManager:
     """
     Manages loading and accessing patient case data from a JSON knowledge base.
     """
-    def __init__(self, filepath="case01.json"):
+    def __init__(self, filepath=None):
         """
         Initializes the KnowledgeBaseManager by loading the JSON data from the given filepath.
 
         Args:
-            filepath (str): The path to the JSON knowledge base file.
+            filepath (str): The path to the JSON knowledge base file. Defaults to config value.
         """
+        self.filepath = filepath or config.CASE_FILE
         self.kb = None
+
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            self._load_knowledge_base()
+        except Exception as e:
+            sys_logger.log_system("error", f"Failed to initialize KnowledgeBaseManager: {e}")
+            raise KnowledgeBaseError(f"Knowledge base initialization failed: {e}")
+
+    def _load_knowledge_base(self):
+        """Load and validate the knowledge base file."""
+        try:
+            with open(self.filepath, 'r', encoding='utf-8') as f:
                 self.kb = json.load(f)
+
             if self.kb is None:
-                print(f"Error: Knowledge base at {filepath} is empty or could not be parsed correctly.")
-            # else:
-                # print(f"Knowledge base '{self.get_case_title()}' loaded successfully.")
+                raise KnowledgeBaseError(f"Knowledge base at {self.filepath} is empty or could not be parsed correctly.")
+
+            # Basic validation
+            required_sections = ["caseId", "caseTitle", "patientProfile", "initialPresentation"]
+            missing_sections = [section for section in required_sections if section not in self.kb]
+
+            if missing_sections:
+                sys_logger.log_system("warning", f"Knowledge base missing sections: {missing_sections}")
+
+            sys_logger.log_system("info", f"Knowledge base loaded successfully from {self.filepath}")
+
         except FileNotFoundError:
-            print(f"Error: Knowledge base file not found at {filepath}")
-            # You might want to raise an exception or handle this more gracefully
-        except json.JSONDecodeError:
-            print(f"Error: Could not decode JSON from {filepath}. Check file format.")
-            # You might want to raise an exception
+            error_msg = f"Knowledge base file not found at {self.filepath}"
+            sys_logger.log_system("error", error_msg)
+            raise KnowledgeBaseError(error_msg)
+        except json.JSONDecodeError as e:
+            error_msg = f"Could not decode JSON from {self.filepath}. Check file format. Error: {e}"
+            sys_logger.log_system("error", error_msg)
+            raise KnowledgeBaseError(error_msg)
+        except Exception as e:
+            error_msg = f"Unexpected error loading knowledge base: {e}"
+            sys_logger.log_system("error", error_msg)
+            raise KnowledgeBaseError(error_msg)
 
     def is_loaded(self):
         """Checks if the knowledge base was loaded successfully."""
@@ -32,7 +60,7 @@ class KnowledgeBaseManager:
 
     def _get_nested_value(self, keys, default=None):
         """
-        Safely retrieves a nested value from the knowledge base.
+        Safely retrieves a nested value from the knowledge base with enhanced error handling.
 
         Args:
             keys (list or str): A list of keys representing the path to the value,
@@ -43,21 +71,25 @@ class KnowledgeBaseManager:
             The requested value, or the default if not found.
         """
         if not self.is_loaded():
+            sys_logger.log_system("warning", "Attempted to access knowledge base before it was loaded")
             return default
-        
+
         if isinstance(keys, str):
             keys = [keys] # Treat single string as a list with one key
 
         data = self.kb
         try:
             for key in keys:
-                if isinstance(data, list): # Handle lists if a key is an index (not used here but good practice)
+                if isinstance(data, list): # Handle lists if a key is an index
                     data = data[int(key)]
                 else:
                     data = data[key]
             return data
-        except (KeyError, TypeError, IndexError):
-            # print(f"Warning: Path {keys} not found in knowledge base.")
+        except (KeyError, TypeError, IndexError, ValueError) as e:
+            sys_logger.log_system("debug", f"Key path {keys} not found in knowledge base: {e}")
+            return default
+        except Exception as e:
+            sys_logger.log_system("warning", f"Unexpected error accessing key path {keys}: {e}")
             return default
 
     # --- General Case Information ---
@@ -78,7 +110,7 @@ class KnowledgeBaseManager:
         if pmh:
             return [f"{item['condition']}" + (f" ({item['details']})" if item.get('details') else "") for item in pmh]
         return ["No past medical history available."]
-        
+
     def get_medical_record_access_info(self):
         return self._get_nested_value(["patientProfile", "medicalRecordAccess"])
 
@@ -92,14 +124,14 @@ class KnowledgeBaseManager:
         if complaints:
             return "; ".join([f"{c['complaint']}" + (f" ({c['details']})" if c.get('details') else "") for c in complaints])
         return "No chief complaints listed."
-        
+
     def get_hpi_item(self, item_key, sub_key=None):
         """Gets a specific item from the historyOfPresentIllness section."""
         base_path = ["initialPresentation", "historyOfPresentIllness", item_key]
         if sub_key:
             return self._get_nested_value(base_path + [sub_key])
         return self._get_nested_value(base_path)
-        
+
     def get_hpi_onset_and_duration(self):
         return self.get_hpi_item("onsetAndDuration")
 
@@ -108,7 +140,7 @@ class KnowledgeBaseManager:
         if symptoms:
             return "; ".join([f"{s['symptom']} ({s.get('duration', 'duration not specified')}, reported by {s.get('reportedBy', 'N/A')})" for s in symptoms])
         return "No specific associated symptoms listed beyond chief complaints."
-        
+
     def get_hpi_pertinent_negatives(self):
         negatives = self.get_hpi_item("pertinentNegatives", [])
         return ", ".join(negatives) if negatives else "No pertinent negatives listed."
@@ -128,7 +160,7 @@ class KnowledgeBaseManager:
 
     def get_initial_response_for_ra_meds(self):
         return self._get_nested_value(["initialPresentation", "medicationsInitial", "initialResponseIfQueriedAboutRAMeds"])
-        
+
     def get_initial_response_for_other_meds(self):
         return self._get_nested_value(["initialPresentation", "medicationsInitial", "initialResponseIfQueriedAboutOtherMeds"])
 
@@ -196,7 +228,7 @@ class KnowledgeBaseManager:
     def get_timeline_events(self):
         """Returns the timeline of events in hospital."""
         return self._get_nested_value(["discoverableInformation", "timelineOfEventsInHospital"], [])
-        
+
     def get_progression_and_outcome(self, key=None):
         if key:
             return self._get_nested_value(["discoverableInformation", "progressionAndOutcome", key])
@@ -234,7 +266,7 @@ if __name__ == "__main__":
             print(f"  Item: {infliximab_info.get('item')}")
             print(f"  Details: {infliximab_info.get('details')}")
             print(f"  Importance: {infliximab_info.get('importance')}")
-        
+
         print(f"\nMetacognitive Prompts: {kb_manager.get_metacognitive_prompts()}")
     else:
         print("Knowledge base could not be loaded. Check errors above.")

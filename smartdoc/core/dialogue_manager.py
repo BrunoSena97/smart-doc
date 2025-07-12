@@ -1,8 +1,9 @@
 # dialogue_manager.py (Fully refactored to use NLGService)
 
-from dialogue_fsm import DialogueState
-from knowledge_base_manager import KnowledgeBaseManager
-from nlg_service import NLGService # <-- Import the NLG service
+from smartdoc.core.state_machine import DialogueState
+from smartdoc.services.knowledge_manager import KnowledgeBaseManager
+from smartdoc.services.nlg import NLGService  # <-- Import the NLG service
+from smartdoc.utils.logger import sys_logger      # <-- Import the system logger
 
 class DialogueManager:
     """
@@ -39,7 +40,7 @@ class DialogueManager:
         """
         self.current_state = self.initial_state
         self.revealed_discoveries.clear()
-        print("DM Debug: Dialogue state has been reset.")
+        sys_logger.log_system("debug", "DM Debug: Dialogue state has been reset.")
 
     def get_vsp_response(self, nlu_output: dict) -> str:
         """
@@ -55,7 +56,10 @@ class DialogueManager:
         action_type = nlu_output.get("action_type")
         target_details = nlu_output.get("target_details")
 
-        print(f"DM Debug: Current State='{self.current_state}', NLU Intent='{intent_id}', Action='{action_type}'")
+        sys_logger.log_system(
+            "debug",
+            f"DM Debug: Current State='{self.current_state}', NLU Intent='{intent_id}', Action='{action_type}'"
+        )
 
         # --- 1. Handle simple, non-LLM cases first for efficiency ---
         if intent_id in ["nlu_error_model_not_loaded", "empty_input", "intent_not_understood"]:
@@ -67,9 +71,15 @@ class DialogueManager:
 
         if action_type == "fetch_from_kb":
             kb_method_name = target_details.get("method")
+            method_args = target_details.get("args", [])  # Get arguments from mapping
             if hasattr(self.kb_manager, kb_method_name):
                 method_to_call = getattr(self.kb_manager, kb_method_name)
-                kb_data = method_to_call() # Assuming no args for simplicity, adjust if needed
+                # Call method with arguments if provided
+                if method_args:
+                    kb_data = method_to_call(*method_args)
+                else:
+                    kb_data = method_to_call()
+
                 if isinstance(kb_data, list):
                     data_to_convey = "; ".join(map(str, kb_data)) if kb_data else ""
                 elif kb_data is not None:
@@ -97,7 +107,10 @@ class DialogueManager:
 
         # --- 3. Call the NLG Service to generate the final response ---
         if data_to_convey:
-            print(f"DM Debug: Sending to NLG -> action='{nlg_action}', data='{data_to_convey}'")
+            sys_logger.log_system(
+                "debug",
+                f"DM Debug: Sending to NLG -> action='{nlg_action}', data='{data_to_convey}'"
+            )
             structured_nlg_input = {"action": nlg_action, "data": data_to_convey}
             response = self.nlg_service.generate_response(structured_nlg_input)
         else:
@@ -111,7 +124,10 @@ class DialogueManager:
             self.current_state = DialogueState.HPI_GATHERING
         # ... (add all other state transition rules here) ...
 
-        print(f"DM Debug: Final VSP response='{response}', Next State='{self.current_state}'")
+        sys_logger.log_system(
+            "debug",
+            f"DM Debug: Final VSP response='{response}', Next State='{self.current_state}'"
+        )
         return response
 
     def get_current_state(self):
