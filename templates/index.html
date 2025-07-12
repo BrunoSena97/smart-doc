@@ -1,47 +1,108 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>SmartDoc Clinical Simulation</title> <!-- Changed Title -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDoc Clinical Simulation</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  </head>
-  <body>
-    <h1>SmartDoc Clinical Simulation</h1> <!-- Changed Header -->
-    <h3>A simulated clinical interview using an LLM-powered virtual patient.</h3> <!-- Changed Sub-Header -->
-    <div>
-      <div id="chatbox">
-        <!-- **** CHANGE #1: Use the variable from Flask for the initial message **** -->
-        <p class="botText"><span>{{ initial_bot_message }}</span></p>
-      </div>
-      <div id="userInput">
-        <input id="textInput" type="text" name="msg" placeholder="Ask a question...">
-        <input id="buttonInput" type="submit" value="Send">
-      </div>
-      <script>
-        function getBotResponse() {
-          var rawText = $("#textInput").val();
-          var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
-          $("#textInput").val("");
-          $("#chatbox").append(userHtml);
-          document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
-          $.get("/get", { msg: rawText }).done(function(data) {
-            // **** CHANGE #2: Get the response from the JSON object ****
-            var botHtml = '<p class="botText"><span>' + data.response + '</span></p>';
-            $("#chatbox").append(botHtml);
-            document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
-          });
-        }
-        $("#textInput").keypress(function(e) {
-            if ((e.which == 13) && document.getElementById("textInput").value != "" ){
-                getBotResponse();
-            }
-        });
-        $("#buttonInput").click(function() {
-            if (document.getElementById("textInput").value != "") {
-                getBotResponse();
-            }
-        })
-      </script>
+</head>
+<body>
+    <div class="chat-container">
+        <header>SmartDoc Clinical Simulation</header>
+
+        <main id="chatbox" class="chat-log">
+            <!-- Initial bot message from Flask will be here -->
+            <div class="message bot-message">
+                <div class="avatar bot-avatar">
+                    <!-- SVG for a medical cross icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                </div>
+                <div class="message-bubble">
+                    <span>{{ initial_bot_message }}</span>
+                </div>
+            </div>
+        </main>
+
+        <div class="chat-input-area">
+            <form id="chat-form" class="chat-input-form">
+                <textarea id="chat-input" placeholder="Ask a question..." rows="1"></textarea>
+                <button type="submit" id="send-button">
+                    <!-- SVG for a send icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z"/></svg>
+                </button>
+            </form>
+        </div>
     </div>
-  </body>
+
+    <script>
+        $(document).ready(function() {
+            const chatLog = $('#chatbox');
+            const chatInput = $('#chat-input');
+            const chatForm = $('#chat-form');
+
+            // Function to scroll chat to the bottom
+            function scrollToBottom() {
+                chatLog.scrollTop(chatLog[0].scrollHeight);
+            }
+
+            // Function to append a new message and scroll
+            function appendMessage(html) {
+                chatLog.append(html);
+                scrollToBottom();
+            }
+
+            // Function to handle sending a message
+            function sendMessage() {
+                const userInput = chatInput.val().trim();
+                if (userInput === "") {
+                    return;
+                }
+
+                // Display user's message
+                const userHtml = `
+                    <div class="message user-message">
+                        <div class="avatar user-avatar">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"/></svg>
+                        </div>
+                        <div class="message-bubble">
+                            <span>${userInput}</span>
+                        </div>
+                    </div>`;
+                appendMessage(userHtml);
+                chatInput.val("");
+                chatInput.css('height', 'auto'); // Reset height after sending
+
+                // Get bot response via AJAX
+                $.get("/get", { msg: userInput }).done(function(data) {
+                    const botHtml = `
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                            </div>
+                            <div class="message-bubble">
+                                <span>${data.response}</span>
+                            </div>
+                        </div>`;
+                    appendMessage(botHtml);
+                });
+            }
+
+            // Event handler for form submission (handles both button click and Enter)
+            chatForm.on('submit', function(e) {
+                e.preventDefault(); // Prevent page reload
+                sendMessage();
+            });
+
+            // Auto-grow textarea as user types
+            chatInput.on('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Scroll to bottom on initial load
+            scrollToBottom();
+        });
+    </script>
+</body>
 </html>

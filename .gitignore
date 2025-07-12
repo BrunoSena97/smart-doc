@@ -36,6 +36,12 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# logs
+logs/
+*.log
+smartdoc_conversation_log.txt
+system_log.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -179,3 +185,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+old_structure/
+
+

@@ -1,161 +1,244 @@
-**Project Documentation: SmartDoc - Virtual Patient Simulation for Medical Education**
+# SmartDoc: Hybrid AI System for Virtual Standardized Patient Interactions
 
-- **Project Title:** SmartDoc
-- **Version:** 0.1 (Initial Working Prototype with SBERT NLU)
-- **Date:** May 20, 2025
-- **Overall Thesis Goal:** To develop and evaluate an AI-powered system (SmartDoc) to simulate clinical scenarios, primarily for first-year medical specialization students. The system aims to assess and provide feedback on cognitive biases during medical interviews and promote metacognitive skills, leveraging Natural Language Processing and potentially Large Language Models (LLMs).
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.0%2B-green.svg)](https://flask.palletsprojects.com)
+[![License](https://img.shields.io/badge/License-Academic-orange.svg)](LICENSE)
+
+> A dissertation project combining rule-based dialogue management with Large Language Model based natural language generation for medical education.
+
+## 🎯 Project Overview
+
+SmartDoc is an innovative hybrid AI system designed to create realistic virtual standardized patient interactions for medical education. The system combines the reliability of rule-based dialogue management with the natural language capabilities of modern Large Language Models (LLMs).
+
+### Key Features
+- **Hybrid Architecture**: Rule-based dialogue flow with LLM-powered responses
+- **Medical Education Focus**: Specifically designed for clinical interview training
+- **Multi-language Support**: Handles language barriers in patient interactions
+- **Bias Detection**: Built-in research capabilities for educational bias analysis
+- **Real-time Web Interface**: User-friendly Flask-based web application
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     SmartDoc System                        │
+├─────────────────────────────────────────────────────────────┤
+│  Student Input → NLU → Dialogue Manager → Knowledge Base   │
+│                   ↓                                         │
+│  Web Interface ← NLG ← Response Generation ← Information    │
+│                   ↓                                         │
+│              System Logger (Research Data)                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Technical Components
+- **NLU Service**: SBERT (all-MiniLM-L6-v2) for intent recognition
+- **Dialogue Manager**: Finite State Machine with 13 clinical interview states
+- **Knowledge Base**: JSON-structured patient case data
+- **NLG Service**: Ollama + Gemma 3 4B for natural response generation
+- **Logging System**: Dual conversation/system logging for research analysis
+
+## 📁 Project Structure
+
+```
+smart-doc/
+├── 📄 main.py                    # Application entry point
+├── 📄 requirements.txt           # Python dependencies
+├── 📄 README.md                  # This file
+├── 📂 data/                      # Organized data directory
+│   ├── 📂 cases/                 # Patient case files
+│   │   └── 📄 case01.json       # Elderly woman with heart failure
+│   └── 📂 mappings/              # NLU intent mappings
+│       └── 📄 case01_canonical_question_mappings.json
+├── 📂 smartdoc/                  # Main Python package
+│   ├── 📂 config/                # Configuration management
+│   │   └── 📄 settings.py       # Centralized configuration
+│   ├── 📂 core/                  # Core dialogue components
+│   │   ├── 📄 dialogue_manager.py  # Main dialogue logic
+│   │   ├── 📄 state_machine.py     # FSM states and transitions
+│   │   └── 📄 intents.py           # Intent loading and processing
+│   ├── 📂 services/              # AI and external services
+│   │   ├── 📄 nlu.py            # Natural Language Understanding
+│   │   ├── 📄 nlg.py            # Natural Language Generation
+│   │   └── 📄 knowledge_manager.py  # Knowledge base operations
+│   ├── 📂 utils/                 # Utility functions
+│   │   ├── 📄 logger.py         # Comprehensive logging system
+│   │   └── 📄 exceptions.py     # Custom exception hierarchy
+│   └── 📂 web/                   # Web interface
+│       └── 📄 app.py            # Flask application
+├── 📂 static/                    # CSS and static assets
+│   └── 📄 style.css
+├── 📂 templates/                 # HTML templates
+│   ├── 📄 index.html
+│   └── 📄 error.html
+└── 📂 docs/                      # Comprehensive documentation
+    ├── 📄 technical-architecture.md
+    ├── 📄 dissertation-structure.md
+    └── 📄 methodology.md
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Python**: 3.8 or higher
+- **Ollama**: For LLM inference
+- **Git**: For version control
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/BrunoSena97/smart-doc.git
+   cd smart-doc
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv env
+   source env/bin/activate  # On Windows: env\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up Ollama with Gemma model**
+   ```bash
+   # Install Ollama (see https://ollama.ai)
+   ollama serve
+   ollama pull gemma3:4b-it-q4_K_M
+   ```
+
+5. **Configure environment (optional)**
+   ```bash
+   cp .env.example .env
+   # Edit .env file with your preferences
+   ```
+
+### Running the Application
+
+```bash
+python main.py
+```
+
+The web interface will be available at `http://localhost:5000`
+
+## ⚙️ Configuration
+
+SmartDoc uses a centralized configuration system with environment variable support:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SMARTDOC_FLASK_HOST` | `127.0.0.1` | Flask server host |
+| `SMARTDOC_FLASK_PORT` | `5000` | Flask server port |
+| `SMARTDOC_CASE_FILE` | `data/cases/case01.json` | Patient case data file |
+| `SMARTDOC_CANONICAL_MAPPINGS_FILE` | `data/mappings/case01_canonical_question_mappings.json` | NLU mappings |
+| `SMARTDOC_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
+| `SMARTDOC_SBERT_MODEL` | `all-MiniLM-L6-v2` | SBERT model for NLU |
+| `SMARTDOC_LOG_LEVEL` | `INFO` | System logging level |
+
+## 🧪 Usage Example
+
+1. **Start the application**
+   ```bash
+   python main.py
+   ```
+
+2. **Open browser** to `http://localhost:5000`
+
+3. **Begin clinical interview**
+   - Ask about patient history: *"What is the patient's chief complaint?"*
+   - Explore symptoms: *"Tell me about the onset of shortness of breath"*
+   - Review medications: *"What medications is she currently taking?"*
+   - Request exam findings: *"What were the vital signs?"*
+
+4. **System responds** as patient's son providing realistic medical information
+
+## 🔬 Research Features
+
+### Conversation Logging
+- **Dual Logging**: Separate conversation and system logs
+- **Research Data**: Detailed interaction tracking for bias analysis
+- **Performance Metrics**: Response times, intent recognition accuracy
+
+### Bias Detection Framework
+- **Built-in Analytics**: Conversation pattern analysis
+- **Educational Metrics**: Learning outcome tracking
+- **Diagnostic Reasoning**: Critical thinking assessment
+
+## 🏥 Medical Case: Elderly Woman with Heart Failure
+
+The system includes a comprehensive medical case featuring:
+- **Patient Profile**: Elderly, Spanish-speaking woman
+- **Presentation**: Shortness of breath and cough
+- **Complexity**: Multiple comorbidities (diabetes, hypertension, RA)
+- **Learning Objectives**: Diagnostic reasoning, cultural sensitivity
+- **Discoverable Information**: Critical details revealed through proper questioning
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+- **Technical Architecture**: System design and components
+- **Dissertation Structure**: Academic framework and methodology
+- **Literature Review**: Research background and related work
+- **Project Timeline**: Development phases and milestones
+
+## 🔧 Development
+
+### Adding New Cases
+1. Create new case file in `data/cases/`
+2. Create corresponding mappings in `data/mappings/`
+3. Update configuration to point to new files
+
+### Extending Functionality
+- **New Intents**: Add to canonical question mappings
+- **New States**: Extend the finite state machine
+- **New Services**: Add to `smartdoc/services/`
+
+### Testing
+```bash
+# Test configuration loading
+python -c "from smartdoc.config.settings import config; print('✅ Config loaded')"
+
+# Test knowledge base
+python -c "from smartdoc.services.knowledge_manager import KnowledgeBaseManager; kb = KnowledgeBaseManager(); print(f'✅ Case loaded: {kb.get_case_title()}')"
+
+# Test NLU
+python -c "from smartdoc.core.intents import canonical_question_mappings; print(f'✅ Loaded {len(canonical_question_mappings)} intents')"
+```
+
+## 📊 Performance
+
+- **Response Time**: Target <2 seconds for user interactions
+- **Accuracy**: 70%+ similarity threshold for intent matching
+- **Scalability**: Stateless design supports horizontal scaling
+- **Resource Usage**: Optimized for standard development hardware
+
+## 🤝 Contributing
+
+This is a dissertation project. For academic collaboration or questions:
+- Review the technical documentation in `docs/`
+- Check the methodology and research framework
+- Contact the author for research collaboration
+
+## 📄 License
+
+This project is part of a Master's dissertation in Software Engineering. All rights reserved for academic purposes.
+
+## 👨‍💻 Author
+
+**Bruno Sena**
+Master's in Software Engineering
+*Hybrid AI Systems for Medical Education*
+
+## 🙏 Acknowledgments
+
+- **SBERT**: Sentence transformers for semantic understanding
+- **Ollama**: Local LLM inference platform
+- **Flask**: Web framework for user interface
+- **Medical Education Community**: For use case validation
 
 ---
 
-**I. Current Project Status & Achievements (as of Version 0.1)**
-
-- **Functional Command-Line Prototype:** A Python-based prototype capable of simulating a turn-based clinical interview via a command-line interface (e.g., Git Bash) has been successfully developed and tested.
-- **Modular Architecture:** The system is built with distinct, interacting modules for knowledge management, natural language understanding, dialogue management, and logging.
-- **Semantic NLU Implemented:** Natural Language Understanding (NLU) leverages the Sentence Transformers (SBERT) library to understand student queries based on semantic similarity to a predefined set of canonical questions, inspired by approaches like OSCEBot[cite: 2, 3]. This allows for more flexible query interpretation than simple keyword spotting.
-- **Structured Knowledge Base:** A detailed clinical case ("Elderly Woman with 'Heart Failure'" from Mull_DiagnosticError.pdf, now `case01.json`) has been formalized into a structured JSON format. The `KnowledgeBaseManager` can load and serve this information.
-- **Dialogue Flow Management:** A Finite State Machine (FSM) defined in `DialogueState` guides the basic flow of the clinical interview (e.g., Introduction, HPI, PMH, Investigations). The `DialogueManager` implements this FSM.
-- **Discoverable Information Mechanism:** The system can withhold and later reveal critical "discoverable" pieces of information based on student queries that semantically match triggers for these items.
-- **Interaction Logging:** A `SystemLogger` is in place to record conversation turns, NLU outputs, and dialogue states for debugging and future analysis.
-- **Canonical Question Mapping:** A comprehensive list of `canonical_question_mappings` has been created, linking natural language questions to specific data points in the knowledge base or system actions. This list is central to the SBERT-based NLU.
-
----
-
-**II. Current System Capabilities (Version 0.1)**
-
-- **Simulate Clinical Interview:** The system can engage in a text-based dialogue, playing the role of a Virtual Standardized Patient (VSP) whose information is provided by a family member (the son in `case01.json`).
-- **Understand Student Queries Semantically:** Using SBERT, the system can interpret a variety of student phrasings and map them to the most relevant piece of information or VSP action.
-- **Provide Case-Specific Information:** Responds to queries by fetching relevant data from the `case01.json` knowledge base (e.g., patient history, symptoms, initial lab/exam findings).
-- **Manage Dialogue Flow:** Transitions through predefined stages of a clinical interview (Introduction, HPI, PMH, etc.).
-- **Reveal Critical Findings:** If the student asks questions that semantically align with triggers for "discoverable" information (e.g., Infliximab use, Echo results), the system can provide this information.
-- **Handle Basic Misunderstandings:** If a student's query does not achieve a sufficient similarity score with any canonical question, the VSP can ask the student to rephrase.
-- **Log Interactions:** All turns of the conversation, along with NLU confidence and dialogue state, are logged for review.
-
----
-
-**III. Module Breakdown (Version 0.1)**
-
-1.  **`case01.json` (Knowledge Base Content):**
-    - **Purpose:** Stores all data for the specific clinical scenario.
-    - **Key Content:** Patient profile, initial presentation (HPI, meds, exam, labs, imaging), discoverable information (with triggers), cognitive bias examples, metacognitive prompts.
-2.  **`dialogue_fsm_data.py` (NLU Mapping Data):**
-    - **Purpose:** Stores the `canonical_question_mappings` list.
-    - **Key Content:** A list of dictionaries, where each entry maps `canonical_question`(s) (and `variations`) to an `id`, `action_type` (e.g., `Workspace_from_kb`, `trigger_discoverable`), and `target_details` (for `KnowledgeBaseManager` or `DialogueManager` actions). This data drives the SBERT NLU.
-3.  **`dialogue_state.py` (FSM Definitions):**
-    - **Purpose:** Defines the explicit states of the clinical interview's Finite State Machine.
-    - **Key Content:** `DialogueState` class with constants like `INTRODUCTION`, `HPI_GATHERING`, `INVESTIGATIONS_QUERY`, `CLOSING`, etc.
-4.  **`knowledge_base_manager.py` (`KnowledgeBaseManager` class):**
-    - **Purpose:** Loads, manages, and provides structured access to `case01.json`.
-    - **Key Functionalities:** Loads JSON at initialization; provides getter methods for specific data points (e.g., `get_chief_complaints()`, `get_specific_lab_result_initial()`, `get_discoverable_item_details()`). Abstracts the raw JSON structure from other modules.
-5.  **`nlu_service.py` (`NLUService` class):**
-    - **Purpose:** Processes student's free-text input to determine intent and target information using SBERT.
-    - **Key Functionalities:** Loads a pre-trained SBERT model; pre-computes embeddings for all canonical questions (from `dialogue_fsm_data.py`); compares student query embedding against canonical embeddings using cosine similarity; returns a structured output (intent ID, action type, target details, score) if similarity exceeds a cutoff, or an "intent_not_understood" otherwise.
-6.  **`dialogue_manager.py` (`DialogueManager` class):**
-    - **Purpose:** The "brain" of the VSP; manages conversation flow, state transitions, response generation, and logic for revealing information.
-    - **Key Functionalities:** Maintains current dialogue state (FSM); processes NLU output; uses `action_type` to interact with `KnowledgeBaseManager` or trigger scripted responses; implements logic for revealing discoverable items (currently basic, needs refinement); determines next dialogue state.
-7.  **`system_logger.py` (`SystemLogger` class):**
-    - **Purpose:** Logs interactions to a file for debugging, testing, and future analysis.
-    - **Key Functionalities:** Initializes a log file; provides a method to log student input, VSP response, timestamp, current dialogue state, and NLU output details (intent, score).
-8.  **`main.py` (Main Application Script):**
-    - **Purpose:** Orchestrates the system, initializes modules, and runs the command-line user interaction loop.
-    - **Key Functionalities:** Sets up all services; takes student input; passes input to NLU; passes NLU output to DM; prints VSP response; calls logger; handles session exit.
-
----
-
-**IV. Planned Immediate Next Steps (Prototype Refinement - Phase 2B)**
-
-The current working prototype (Version 0.1) is a strong foundation. The immediate next steps focus on refining its core functionalities and introducing advanced NLG capabilities before layering on the more complex cognitive evaluation features:
-
-1.  **NLU Robustness & SBERT Performance Tuning:**
-
-    - Systematically test and optimize the SBERT similarity `cutoff_value` for intent matching.
-    - Expand and refine `canonical_question_mappings` (add more `variations`, ensure clarity of canonical questions) based on test conversations and log analysis to improve SBERT's match accuracy.
-    - Improve handling of truly out-of-scope or ambiguous questions beyond a simple "I don't understand."
-
-2.  **Dialogue Management (DM) Enhancements:**
-
-    - Develop comprehensive state transition logic in the `DialogueManager` for all defined `DialogueState`s, ensuring smooth and logical progression through the interview.
-    - Refine and make more robust the logic for revealing "discoverable" information, potentially incorporating multi-step reveals or checks based on conversation history.
-    - Explore adding simple contextual memory to the DM (e.g., remembering the last entity discussed) to handle simple follow-up clarifications more naturally.
-
-3.  **Interaction Flow & Basic Usability Testing:**
-
-    - Conduct thorough self-testing by role-playing as a student through the entire `case01.json` scenario.
-    - Recruit 1-2 peers (fellow students) for informal usability testing, observe their interactions, and gather feedback on clarity, ease of use, and perceived naturalness (this will be especially important with the new NLG module).
-    - Use logs to identify common points of failure, confusion, or awkward interactions.
-
-4.  **Enhanced Logging:**
-
-    - Ensure the `SystemLogger` captures detailed information suitable for advanced analysis, including NLU confidence, precise DM state changes, information requested from the KB, and the raw input to/output from the new NLG module. This rich data is essential for debugging the NLG component and for later cognitive bias analysis.
-
-5.  **Implement and Evaluate a Natural Language Generation (NLG) Module:**
-    - **Goal:** To make the Virtual Standardized Patient's dialogue more human-like, less scripted, and more engaging, moving beyond directly outputting formatted strings from the `KnowledgeBaseManager` or fixed scripted responses.
-    - **Method:**
-      - Develop a new NLG module (e.g., `nlg_service.py`).
-      - This module will utilize a Large Language Model (LLM) to generate the VSP's responses.
-      - The `DialogueManager`, after determining the core information to convey (based on NLU input, current state, and data fetched from `KnowledgeBaseManager`), will pass this structured information or a "response intent" to the NLG module.
-      - The NLG module will then use the LLM to craft a natural language sentence or paragraph conveying that information, ensuring it's phrased appropriately for a patient (or their son, in this case). This approach is a form of "informed generation" or Retrieval Augmented Generation (RAG) lite, where the LLM's creativity is grounded by factual data from the case.
-    - **Initial Approach & Evaluation:**
-      - Attempt to run a suitable open-source LLM locally (e.g., using libraries like Hugging Face Transformers with models such as Llama, Mistral, or smaller distilled versions) for this NLG task. This allows for greater control and avoids external API costs during initial development.
-      - Key evaluation criteria for the local LLM will be:
-        - **Response Quality:** Naturalness, coherence, appropriate tone for a patient/son.
-        - **Factual Accuracy (Crucial):** Ensuring the LLM accurately represents the information provided by the `DialogueManager` without hallucinating new medical facts or deviating from the `case01.json` content. This will require careful prompt engineering.
-        - **Performance:** Latency of response generation.
-        - **Resource Consumption:** CPU/GPU/RAM requirements for local execution.
-    - **Contingency Plan:** If the performance (quality, speed, or resource demands) of the locally run LLM is found to be insufficient for a good user experience during this phase, the architecture will be designed to allow for switching to an online LLM service provider (e.g., OpenAI API, Anthropic API, Google Gemini API) for the NLG component, while still ensuring the LLM is provided with the same grounding information from the `DialogueManager`.
-
----
-
-**V. Long-Term Goal: Cognitive Bias & Metacognition Module Integration**
-
-The ultimate aim of the "SmartDoc" thesis project is to evaluate cognitive biases and provide metacognitive support. The refined prototype (after Phase 2B) will serve as the platform for this.
-
-**A. Vision for Cognitive Bias Evaluation & Metacognitive Support:**
-
-- **Bias Identification:** The system aims to identify patterns in student interaction that may suggest the influence of common cognitive biases (e.g., anchoring, confirmation bias, premature closure). This would be based on the sequence of questions asked, information ignored, timing of queries relative to information revealed, and potentially direct articulations of thought if prompted.
-- **Metacognitive Prompting:** Beyond simple pre-defined prompts, the system will aim to provide tailored metacognitive questions or feedback to encourage students to reflect on their diagnostic process, consider alternatives, and identify potential flaws in their reasoning.
-- **Feedback Mechanism:** Provide students with insights into their decision-making process, highlighting moments where biases might have played a role or where metacognitive reflection could have been beneficial. This could be a post-simulation report initially.
-
-**B. Plan for Integrating Cognitive Bias & Metacognition Modules:**
-
-1.  **Prerequisite: Rich Data Collection & Feature Engineering (from refined prototype logs):**
-
-    - The detailed logs from the refined prototype (Phase 2B) are crucial. These logs (student query, NLU intent/score, DM state, VSP response, timestamps, revealed info) will be the primary data source.
-    - **Feature Engineering:** Identify specific features from the logs that could indicate biases. Examples:
-      - _Anchoring:_ Student repeatedly asks questions related to an initial (possibly incorrect) hypothesis, even after conflicting data is presented.
-      - _Confirmation Bias:_ Student primarily seeks data confirming their working hypothesis and neglects questions that might refute it.
-      - _Premature Closure:_ Student attempts to conclude the interview or offer a diagnosis very early, before sufficient data (especially discoverable items) has been gathered.
-      - Ratio of questions about confirming vs. disconfirming evidence.
-      - Sequence of information access.
-
-2.  **Bias Detection Module(s) - Iterative Approach:**
-
-    - **Initial Rule-Based Heuristics:** Start by implementing rules based on known patterns from the literature and the specific `case01.json` scenario. For example: "IF student asks <3 questions about alternative diagnoses after initial data suggests 'heart failure' AND Pro-BNP is high AND CXR suggests congestion, THEN flag potential anchoring."
-    - **Machine Learning / LLM Integration (Thesis Core):**
-      - **Supervised Learning (if data can be annotated):** If you can collect and annotate a dataset of student interactions (labeling segments with potential biases), you could train a classifier.
-      - **LLM for Transcript Analysis:** Use an LLM (e.g., fine-tuned or with sophisticated prompting) to analyze the full dialogue transcript (from logs) or segments of it. The LLM could be asked to:
-        - Identify if the student's questioning pattern aligns with known definitions of specific cognitive biases.
-        - Assess if the student adequately explored critical information paths.
-        - Determine if the student responded appropriately to new (especially conflicting) information.
-      - This LLM module would take the interaction log as input and output a "bias score" or a qualitative assessment.
-
-3.  **Metacognitive Prompting & Feedback Generation Module:**
-
-    - **Dynamic Prompt Generation:** Based on the output of the Bias Detection Module, an LLM could be used to generate more context-specific and nuanced metacognitive prompts in real-time (advanced) or for a post-simulation report.
-      - _Example:_ If potential anchoring is detected, instead of a generic "What else?", the LLM could help craft: "You've gathered strong evidence for X. Given that the patient also presented with Y (which is less typical for X), what other possibilities might explain the full picture?"
-    - **Feedback Report:** Develop a module to synthesize findings (from bias detection, information gathered, etc.) into a structured feedback report for the student post-simulation.
-
-4.  **Integration with `DialogueManager`:**
-    - The `DialogueManager` might need to be enhanced to:
-      - Send interaction data to the Bias Detection Module periodically or at the end of the session.
-      - Receive signals or flags from the Bias Detection Module.
-      - Trigger specific metacognitive prompts (either pre-defined or dynamically generated by the Feedback Generation Module) at appropriate times based on these signals or pre-defined triggers in the FSM.
-
----
-
-**VI. Evolution Towards Thesis Goals**
-
-This phased approach, starting with a robust rule-based VSP (now enhanced with SBERT NLU) and iteratively improving it, directly supports the core thesis objectives. The refined prototype will:
-
-- Provide a reliable platform for collecting high-quality student interaction data.
-- Serve as a baseline against which LLM-driven enhancements (for NLU, DM, bias detection, or feedback) can be compared and evaluated.
-- Allow for the systematic and controlled introduction of LLM components into specific modules, making the development and evaluation process more manageable.
+*This project represents a novel approach to medical education technology, combining the reliability of rule-based systems with the naturalness of modern language models.*
