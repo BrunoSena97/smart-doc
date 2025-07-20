@@ -239,6 +239,14 @@ class KnowledgeBaseManager:
 
     def get_metacognitive_prompts(self):
         return self._get_nested_value("metacognitivePromptsFromPaper", [])
+    
+    def get_case_data(self):
+        """Return the full case data for bias evaluation."""
+        return self.case_data
+    
+    def get_bias_triggers(self):
+        """Get bias trigger configuration from case data."""
+        return self._get_nested_value("biasTriggers", {})
 
 
 # --- Example Usage (for testing this module directly) ---

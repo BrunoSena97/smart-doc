@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDoc - Admin Settings</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: var(--chat-background);
+            min-height: 100vh;
+        }
+        
+        .settings-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.4rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 0;
+        }
+        
+        .nav-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .settings-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(45, 106, 159, 0.25);
+        }
+        
+        .form-input[type="number"] {
+            width: 200px;
+        }
+        
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #245a8a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-test {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-test:hover {
+            background-color: #218838;
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-online {
+            background-color: #28a745;
+        }
+        
+        .status-offline {
+            background-color: #dc3545;
+        }
+        
+        .current-config {
+            background-color: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .config-label {
+            font-weight: 500;
+        }
+        
+        .config-value {
+            color: #666;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="settings-header">
+            <a href="/" class="nav-button">← Back to Chat</a>
+            SmartDoc Admin Settings
+        </div>
+        
+        <!-- Current Status Section -->
+        <div class="settings-section">
+            <h2 class="section-title">System Status</h2>
+            <div class="current-config">
+                <div class="config-item">
+                    <span class="config-label">Ollama Server:</span>
+                    <span>
+                        <span class="status-indicator {{ 'status-online' if ollama_status else 'status-offline' }}"></span>
+                        {{ 'Online' if ollama_status else 'Offline' }}
+                    </span>
+                </div>
+                <div class="config-item">
+                    <span class="config-label">Current Model:</span>
+                    <span class="config-value">{{ current_config.OLLAMA_MODEL }}</span>
+                </div>
+                <div class="config-item">
+                    <span class="config-label">Base URL:</span>
+                    <span class="config-value">{{ current_config.OLLAMA_BASE_URL }}</span>
+                </div>
+                <div class="config-item">
+                    <span class="config-label">Max Tokens:</span>
+                    <span class="config-value">{{ current_config.NLG_MAX_TOKENS }}</span>
+                </div>
+                <div class="config-item">
+                    <span class="config-label">Temperature:</span>
+                    <span class="config-value">{{ current_config.NLG_TEMPERATURE }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        {% if message %}
+        <div class="alert alert-{{ message_type }}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <!-- Ollama Configuration Section -->
+        <div class="settings-section">
+            <h2 class="section-title">Ollama Model Configuration</h2>
+            
+            <form id="settings-form" method="POST" action="/admin/settings">
+                <div class="form-group">
+                    <label for="ollama_base_url" class="form-label">Ollama Base URL</label>
+                    <input type="url" 
+                           id="ollama_base_url" 
+                           name="ollama_base_url" 
+                           class="form-input"
+                           value="{{ current_config.OLLAMA_BASE_URL }}"
+                           required>
+                    <div class="form-help">The URL where your Ollama server is running (e.g., http://localhost:11434)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ollama_model" class="form-label">Model Name</label>
+                    <input type="text" 
+                           id="ollama_model" 
+                           name="ollama_model" 
+                           class="form-input"
+                           value="{{ current_config.OLLAMA_MODEL }}"
+                           required>
+                    <div class="form-help">The name of the Ollama model to use (e.g., gemma3:4b-it-q4_K_M, llama3.2:3b, mistral:latest)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nlg_max_tokens" class="form-label">Max Tokens</label>
+                    <input type="number" 
+                           id="nlg_max_tokens" 
+                           name="nlg_max_tokens" 
+                           class="form-input"
+                           value="{{ current_config.NLG_MAX_TOKENS }}"
+                           min="1" 
+                           max="4096"
+                           required>
+                    <div class="form-help">Maximum number of tokens for model responses (1-4096)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nlg_temperature" class="form-label">Temperature</label>
+                    <input type="number" 
+                           id="nlg_temperature" 
+                           name="nlg_temperature" 
+                           class="form-input"
+                           value="{{ current_config.NLG_TEMPERATURE }}"
+                           min="0.0" 
+                           max="2.0" 
+                           step="0.1"
+                           required>
+                    <div class="form-help">Controls randomness in responses (0.0 = deterministic, 2.0 = very random)</div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                    <button type="button" id="test-connection" class="btn btn-test">Test Connection</button>
+                    <a href="/" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Available Models Section -->
+        <div class="settings-section">
+            <h2 class="section-title">Available Models</h2>
+            <div id="models-list">
+                <p>Click "Load Models" to see available Ollama models...</p>
+            </div>
+            <button type="button" id="load-models" class="btn btn-secondary">Load Models</button>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Test connection functionality
+            $('#test-connection').click(function() {
+                const button = $(this);
+                const originalText = button.text();
+                button.text('Testing...').prop('disabled', true);
+
+                const baseUrl = $('#ollama_base_url').val();
+                const model = $('#ollama_model').val();
+
+                $.ajax({
+                    url: '/admin/test-connection',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ollama_base_url: baseUrl,
+                        ollama_model: model
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            showAlert('Connection successful! Model is working.', 'success');
+                        } else {
+                            showAlert('Connection failed: ' + response.error, 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showAlert('Connection test failed: ' + error, 'error');
+                    },
+                    complete: function() {
+                        button.text(originalText).prop('disabled', false);
+                    }
+                });
+            });
+
+            // Load available models
+            $('#load-models').click(function() {
+                const button = $(this);
+                const originalText = button.text();
+                button.text('Loading...').prop('disabled', true);
+
+                const baseUrl = $('#ollama_base_url').val();
+
+                $.ajax({
+                    url: '/admin/list-models',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ollama_base_url: baseUrl
+                    }),
+                    success: function(response) {
+                        if (response.success && response.models.length > 0) {
+                            let modelsHtml = '<div style="max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 1rem;">';
+                            response.models.forEach(function(model) {
+                                modelsHtml += `
+                                    <div style="padding: 0.5rem; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background-color 0.2s;" 
+                                         onclick="selectModel('${model.name}')">
+                                        <strong>${model.name}</strong><br>
+                                        <small style="color: #666;">Size: ${model.size || 'Unknown'} | Modified: ${model.modified_at || 'Unknown'}</small>
+                                    </div>
+                                `;
+                            });
+                            modelsHtml += '</div>';
+                            $('#models-list').html(modelsHtml);
+                        } else {
+                            $('#models-list').html('<p style="color: #666;">No models found or connection failed.</p>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#models-list').html('<p style="color: #dc3545;">Failed to load models: ' + error + '</p>');
+                    },
+                    complete: function() {
+                        button.text(originalText).prop('disabled', false);
+                    }
+                });
+            });
+
+            // Form validation
+            $('#settings-form').submit(function(e) {
+                const temperature = parseFloat($('#nlg_temperature').val());
+                const maxTokens = parseInt($('#nlg_max_tokens').val());
+                
+                if (temperature < 0 || temperature > 2) {
+                    e.preventDefault();
+                    showAlert('Temperature must be between 0.0 and 2.0', 'error');
+                    return;
+                }
+                
+                if (maxTokens < 1 || maxTokens > 4096) {
+                    e.preventDefault();
+                    showAlert('Max tokens must be between 1 and 4096', 'error');
+                    return;
+                }
+            });
+        });
+
+        function selectModel(modelName) {
+            $('#ollama_model').val(modelName);
+            showAlert('Model selected: ' + modelName, 'success');
+        }
+
+        function showAlert(message, type) {
+            // Remove existing alerts
+            $('.alert').remove();
+            
+            // Create new alert
+            const alertHtml = `<div class="alert alert-${type}">${message}</div>`;
+            $('.settings-header').after(alertHtml);
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(function() {
+                    $('.alert-success').fadeOut();
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

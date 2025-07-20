@@ -23,22 +23,32 @@ class SessionLogger:
         }
         sys_logger.log_system("info", f"Started new session: {self.session_data['session_id']}")
 
-    def log_interaction(self, intent_id: str, user_query: str, vsp_response: str, nlu_output: Dict = None):
+    def log_interaction(self, intent_id: str, user_query: str, vsp_response: str, 
+                       nlu_output: Dict = None, dialogue_state: str = None):
         """Log a single interaction between user and VSP."""
         interaction = {
             "intent_id": intent_id,
             "user_query": user_query,
             "vsp_response": vsp_response,
             "timestamp": datetime.now().isoformat(),
-            "nlu_output": nlu_output or {}
+            "nlu_output": nlu_output or {},
+            "dialogue_state": dialogue_state or "UNKNOWN"
         }
 
         self.session_data["interactions"].append(interaction)
+        
+        # Update current state
+        if dialogue_state:
+            self.session_data["current_state"] = dialogue_state
 
-        # Check for bias after each interaction
+        # Check for bias after each interaction (enhanced)
         self._check_for_biases()
 
-        sys_logger.log_system("debug", f"Logged interaction: {intent_id}")
+        sys_logger.log_system("debug", f"Logged interaction: {intent_id} in state {dialogue_state}")
+    
+    def get_session_data(self):
+        """Get the full session data for bias analysis."""
+        return self.session_data
 
     def _check_for_biases(self):
         """Simple bias detection based on interaction patterns."""

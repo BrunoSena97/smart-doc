@@ -104,6 +104,38 @@ class SmartDocConfig:
 
         return True
 
+    def update_ollama_settings(self, base_url: str, model: str, max_tokens: int, temperature: float) -> bool:
+        """Update Ollama-related settings dynamically."""
+        try:
+            # Validate inputs
+            if not base_url or not model:
+                raise ValueError("Base URL and model are required")
+            
+            if not (0.0 <= temperature <= 2.0):
+                raise ValueError("Temperature must be between 0.0 and 2.0")
+            
+            if not (1 <= max_tokens <= 4096):
+                raise ValueError("Max tokens must be between 1 and 4096")
+            
+            # Update the settings
+            self.OLLAMA_BASE_URL = base_url
+            self.OLLAMA_MODEL = model
+            self.NLG_MAX_TOKENS = max_tokens
+            self.NLG_TEMPERATURE = temperature
+            
+            return True
+        except Exception as e:
+            raise ValueError(f"Failed to update settings: {e}")
+
+    def get_ollama_settings(self) -> dict:
+        """Get current Ollama settings as a dictionary."""
+        return {
+            "base_url": self.OLLAMA_BASE_URL,
+            "model": self.OLLAMA_MODEL,
+            "max_tokens": self.NLG_MAX_TOKENS,
+            "temperature": self.NLG_TEMPERATURE
+        }
+
 # Global configuration instance
 config = SmartDocConfig.from_env()
 

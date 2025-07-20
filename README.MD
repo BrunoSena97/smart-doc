@@ -16,6 +16,7 @@ SmartDoc is an innovative hybrid AI system designed to create realistic virtual 
 - **Multi-language Support**: Handles language barriers in patient interactions
 - **Bias Detection**: Built-in research capabilities for educational bias analysis
 - **Real-time Web Interface**: User-friendly Flask-based web application
+- **Admin Settings**: Web-based configuration management for Ollama models
 
 ## 🏗️ Architecture
 
@@ -154,6 +155,29 @@ SmartDoc uses a centralized configuration system with environment variable suppo
    - Request exam findings: *"What were the vital signs?"*
 
 4. **System responds** as patient's son providing realistic medical information
+
+## ⚙️ Admin Settings Interface
+
+SmartDoc includes a web-based admin interface for real-time configuration management:
+
+### Accessing Admin Settings
+- Navigate to `http://localhost:8080/admin/settings`
+- Or click "⚙️ Admin Settings" in the main interface navigation
+
+### Features
+- **Real-time Configuration**: Update Ollama model settings without restart
+- **Connection Testing**: Verify Ollama server connectivity and model availability
+- **Model Management**: Browse and select from available Ollama models
+- **Live Validation**: Immediate feedback on configuration changes
+- **System Status**: Monitor Ollama server and service health
+
+### Configurable Settings
+- **Ollama Model**: Change between different language models (e.g., `gemma3:4b-it-q4_K_M`, `llama3.2:3b`)
+- **Server URL**: Configure Ollama server endpoint
+- **Response Parameters**: Adjust max tokens (1-4096) and temperature (0.0-2.0)
+- **Service Reinitialization**: Automatic NLG service restart with new settings
+
+For detailed instructions, see [Admin Settings Documentation](docs/ADMIN_SETTINGS.md).
 
 ## 🔬 Research Features
 
