@@ -31,7 +31,8 @@ class DialogueManager:
             "nlu_error_model_not_loaded": "I'm having trouble understanding due to an NLU model issue. Please try again later.",
             "empty_input": "I didn't receive any input. Could you please ask a question?",
             "acknowledgement_and_closing": "Thank you for the interview. This concludes the current simulation.",
-            "no_info_available": "I don't have specific information on that right now."
+            "no_info_available": "I don't have specific information on that right now.",
+            "clarification_request": "I'm not sure I understand. Could you please clarify what you'd like to know?"
         }
 
     def reset_state(self):

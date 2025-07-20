@@ -12,7 +12,7 @@ class SmartDocConfig:
 
     # Knowledge Base Configuration
     CASE_FILE: str = "data/cases/case01.json"
-    CANONICAL_MAPPINGS_FILE: str = "data/mappings/case01_canonical_question_mappings.json"
+    CANONICAL_MAPPINGS_FILE: str = "data/mappings/case01_advanced_enhanced.json"
 
     # NLU Configuration
     SBERT_MODEL: str = "all-MiniLM-L6-v2"
