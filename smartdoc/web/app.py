@@ -4,28 +4,29 @@ from flask import Flask, render_template, request, jsonify
 from smartdoc.core.state_machine import DialogueState
 from smartdoc.services.knowledge_manager import KnowledgeBaseManager
 from smartdoc.core.intents import canonical_question_mappings
-from smartdoc.services.nlu import NLUService
+from smartdoc.services.llm_intent_classifier import LLMIntentClassifier  # <-- New LLM Intent Classifier
 from smartdoc.core.dialogue_manager import DialogueManager
 from smartdoc.utils.logger import SystemLogger
 from smartdoc.services.nlg import NLGService  # <-- IMPORT THE NEW SERVICE
 from smartdoc.utils.logger import sys_logger      # <-- Import the system logger singleton
 from smartdoc.config.settings import config
 from smartdoc.utils.exceptions import SmartDocError, KnowledgeBaseError, NLUError, NLGError
+from smartdoc.utils.session_logger import get_current_session, start_new_session  # <-- Add session logging
 
 # --- 1. Initialize the Flask App ---
 import os
 # Set template and static folder paths relative to project root
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-app = Flask(__name__, 
+app = Flask(__name__,
            template_folder=os.path.join(project_root, 'templates'),
            static_folder=os.path.join(project_root, 'static'))
 
 # --- 2. Initialize All SmartDoc Components (ONCE at startup) ---
-kb_manager = nlu_service = dm_manager = nlg_service = logger = None
+kb_manager = llm_intent_classifier = dm_manager = nlg_service = logger = None
 
 def initialize_components():
     """Initialize all SmartDoc components with enhanced error handling."""
-    global kb_manager, nlu_service, dm_manager, nlg_service, logger
+    global kb_manager, llm_intent_classifier, dm_manager, nlg_service, logger
 
     try:
         sys_logger.log_system("info", "Initializing SmartDoc Components for the Web App...")
@@ -36,9 +37,18 @@ def initialize_components():
         if not kb_manager.is_loaded():
             raise KnowledgeBaseError("Could not load knowledge base.")
 
-        # NLU Service
-        sys_logger.log_system("info", f"Initializing NLU with model: {config.SBERT_MODEL}")
-        nlu_service = NLUService(mappings_data=canonical_question_mappings)
+        # LLM Intent Classifier (replacing NLU Service)
+        sys_logger.log_system("info", f"Initializing LLM Intent Classifier with model: {config.OLLAMA_MODEL}")
+        llm_intent_classifier = LLMIntentClassifier()
+
+        # Test the LLM connection with a simple classification
+        try:
+            test_result = llm_intent_classifier.classify_intent("test connection")
+            sys_logger.log_system("info", f"LLM Intent Classifier test successful: {test_result['intent_id']}")
+        except Exception as llm_error:
+            sys_logger.log_system("warning", f"LLM Intent Classifier test failed: {llm_error}")
+            sys_logger.log_system("warning", "Continuing with fallback intent classification...")
+            # Continue anyway - we'll handle LLM errors gracefully in classify_intent method
 
         # Initialize the NLG Service
         sys_logger.log_system("info", f"Initializing NLG with Ollama model: {config.OLLAMA_MODEL}")
@@ -69,13 +79,16 @@ if not initialize_components():
 
 @app.route("/")
 def home():
-    """Home route with enhanced error handling."""
+    """Home route with enhanced error handling and session tracking."""
     if not dm_manager:
         error_msg = "SmartDoc application is not initialized. Please check the server logs."
         sys_logger.log_system("error", f"Home route accessed but system not initialized")
         return render_template("error.html", error_message=error_msg), 500
 
     try:
+        # Start a new session for bias tracking
+        session_logger = start_new_session()
+
         dm_manager.reset_state()
         initial_nlu_output = {
             "intent_id": "general_greet",
@@ -83,6 +96,14 @@ def home():
             "target_details": {"response_key": "greeting_response"}
         }
         initial_bot_message = dm_manager.get_vsp_response(initial_nlu_output)
+
+        # Log the initial interaction
+        session_logger.log_interaction(
+            intent_id="general_greet",
+            user_query="[Session Start]",
+            vsp_response=initial_bot_message,
+            nlu_output=initial_nlu_output
+        )
 
         if logger:
             logger.log_interaction("System: [Session Start]", initial_bot_message, dm_manager.get_current_state())
@@ -96,7 +117,7 @@ def home():
 @app.route("/get")
 def get_bot_response():
     """Get bot response route with enhanced error handling."""
-    if not dm_manager or not nlu_service:
+    if not dm_manager or not llm_intent_classifier:
         return jsonify({
             "response": "Error: SmartDoc is not initialized.",
             "error": True
@@ -117,26 +138,60 @@ def get_bot_response():
                 logger.log_interaction(user_input, response_text, dm_manager.get_current_state())
             return jsonify({"response": response_text, "session_ended": True})
 
-        # Process user input
-        nlu_output = nlu_service.process_input(user_input)
+        # Process user input with LLM Intent Classifier
+        intent_output = llm_intent_classifier.classify_intent(user_input)
+
+        # Use the structured output from LLM Intent Classifier directly
+        nlu_output = {
+            "intent_id": intent_output["intent_id"],
+            "confidence": intent_output["confidence"],
+            "explanation": intent_output.get("explanation", ""),
+            "action_type": intent_output.get("action_type", "generic_response_or_state_change"),
+            "target_details": intent_output.get("target_details", {"response_key": "intent_not_understood"})
+        }
+
         vsp_response = dm_manager.get_vsp_response(nlu_output)
 
-        # Log interaction
+        # Get current session for bias tracking
+        session_logger = get_current_session()
+
+        # Log interaction with bias detection
+        session_logger.log_interaction(
+            intent_id=nlu_output.get("intent_id", "unknown"),
+            user_query=user_input,
+            vsp_response=vsp_response,
+            nlu_output=nlu_output
+        )
+
+        # Check for bias warnings
+        bias_warning = session_logger.get_latest_bias_warning()
+
+        # Log interaction (existing logger)
         if logger:
             logger.log_interaction(
                 user_input, vsp_response, dm_manager.get_current_state(),
-                nlu_output.get("intent_id"), nlu_output.get("score")
+                nlu_output.get("intent_id"), nlu_output.get("confidence")
             )
 
-        return jsonify({
+        response_data = {
             "response": vsp_response,
             "error": False,
             "debug_info": {
                 "intent_id": nlu_output.get("intent_id"),
-                "confidence": nlu_output.get("score"),
+                "confidence": nlu_output.get("confidence"),
                 "dialogue_state": str(dm_manager.get_current_state())
             } if config.FLASK_DEBUG else None
-        })
+        }
+
+        # Add bias warning if detected
+        if bias_warning:
+            response_data["bias_warning"] = {
+                "type": bias_warning.get("bias_type"),
+                "message": bias_warning.get("message"),
+                "show": True
+            }
+
+        return jsonify(response_data)
 
     except Exception as e:
         sys_logger.log_system("error", f"Error processing user input: {e}")
@@ -149,16 +204,15 @@ def get_bot_response():
 def health_check():
     """Health check endpoint for monitoring."""
     status = {
-        "status": "healthy" if all([kb_manager, nlu_service, dm_manager, nlg_service]) else "unhealthy",
+        "status": "healthy" if all([kb_manager, llm_intent_classifier, dm_manager, nlg_service]) else "unhealthy",
         "components": {
             "knowledge_base": kb_manager is not None and kb_manager.is_loaded(),
-            "nlu_service": nlu_service is not None,
+            "llm_intent_classifier": llm_intent_classifier is not None,
             "dialogue_manager": dm_manager is not None,
             "nlg_service": nlg_service is not None and nlg_service.is_initialized
         },
         "config": {
             "case_file": config.CASE_FILE,
-            "sbert_model": config.SBERT_MODEL,
             "ollama_model": config.OLLAMA_MODEL
         }
     }
@@ -182,7 +236,7 @@ if __name__ == "__main__":
     print(f"Open your browser and go to http://{config.FLASK_HOST}:{config.FLASK_PORT}")
 
     # Final check before starting server
-    if not all([kb_manager, nlu_service, dm_manager, nlg_service]):
+    if not all([kb_manager, llm_intent_classifier, dm_manager, nlg_service]):
         print("WARNING: Some components failed to initialize. Server will start but may not function correctly.")
         print("Check the system logs for details.")
 

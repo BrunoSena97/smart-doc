@@ -29,7 +29,7 @@
       { "complaint": "Nonproductive cough", "details": "" }
     ],
     "historyOfPresentIllness": {
-      "onsetAndDuration": "Shortness of breath gradually increasing over the past 2 months.",
+      "onsetAndDuration": "Shortness of breath gradually increasing over the past 2 months. Most noticeable with exertion.",
       "associatedSymptoms": [
         {
           "symptom": "Decreased oral intake",
@@ -40,13 +40,18 @@
           "symptom": "Weight loss",
           "reportedBy": "son",
           "duration": "Past few weeks"
+        },
+        {
+          "symptom": "Nonproductive cough",
+          "reportedBy": "son and patient",
+          "duration": "Associated with dyspnea over past 2 months"
         }
       ],
       "pertinentNegatives": ["Denies chest pain", "Denies fevers or chills"],
       "recentMedicalCare": {
         "event": "Visited Primary Care Physician (PCP) 3 weeks ago for same complaints.",
-        "treatment": "Prescribed a 3-day course of azithromycin.",
-        "outcome": "No improvement."
+        "treatment": "Prescribed a 3-day course of azithromycin (antibiotic).",
+        "outcome": "No improvement in symptoms."
       },
       "travelAndContactHistory": {
         "travel": "No recent travel.",
@@ -89,6 +94,12 @@
       },
       "musculoskeletal": {
         "findings": "Deformities of the joints in both hands consistent with rheumatoid arthritis."
+      },
+      "abdominal": {
+        "findings": "Not detailed in initial examination due to focus on cardiopulmonary symptoms."
+      },
+      "neurological": {
+        "findings": "Not formally assessed in ED due to respiratory distress focus."
       }
     },
     "laboratoryDataInitialED": [
@@ -139,11 +150,15 @@
       },
       {
         "day": "Day 3 (Ward)",
-        "event": "Worsening oxygenation and cough. Attending radiologist's formal CXR interpretation notes ill-defined, scattered, faint opacities, suggesting possible interstitial pattern. Junior residents suggest primary pulmonary disease but are dismissed by attending. IV corticosteroid, broad-spectrum antibiotic, inhaled bronchodilator added by float team."
+        "event": "Worsening oxygenation and cough. Attending radiologist's formal CXR interpretation notes ill-defined, scattered, faint opacities, suggesting possible interstitial pattern. Junior residents suggest primary pulmonary disease but are dismissed by attending. IV corticosteroid, broad-spectrum antibiotic, inhaled bronchodilator added by float team at night."
       },
       {
         "day": "Day 4 (Ward)",
-        "event": "Medication lists from previous hospitalizations arrive. Echocardiogram results become available. CT chest performed."
+        "event": "Medication lists from previous hospitalizations arrive. Echocardiogram results become available showing normal EF. CT chest performed showing reticular pattern with innumerable tiny nodules."
+      },
+      {
+        "day": "Day 4+ (Ward)",
+        "event": "Patient moved to negative pressure isolation. Bronchoscopy recommended by pulmonary consultants."
       }
     ],
     "criticalDiscoveries": [
@@ -157,7 +172,7 @@
           "Student inquires about immunosuppressants or biologic agents.",
           "After a set number of interactions or 'days' if direct query is too hard for prototype (e.g., 'Outside records have arrived. Would you like to review them?')."
         ],
-        "importance": "Key immunosuppressant that increases risk for infections like TB."
+        "importance": "Key immunosuppressant that increases risk for infections like TB. TNF-alpha inhibitor used for moderate to severe rheumatoid arthritis."
       },
       {
         "item": "Echocardiogram result",

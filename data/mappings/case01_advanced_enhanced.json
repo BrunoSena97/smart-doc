@@ -1,0 +1,1747 @@
+{
+  "canonical_question_mappings": [
+    {
+      "id": "profile_age",
+      "canonical_question": "How old is the patient?",
+      "variations": [
+        "What is the patient's age category?",
+        "Tell me the patient's age.",
+        "How old is she?",
+        "What's her age?",
+        "Is she young or elderly?",
+        "Can you tell me about her age?",
+        "What age group does she fall into?",
+        "How old is your mother?",
+        "What's your mother's age?",
+        "Is your mother elderly?",
+        "Age of the patient?",
+        "Patient age please",
+        "Tell me about her age",
+        "What age is she?",
+        "Can you tell me old is the patient?",
+        "Clinically speaking, how old is the patient?",
+        "Could you explain old is the patient?",
+        "Describe how old is the patient?",
+        "For the medical record, how old is the patient?",
+        "From a medical standpoint, how old is the patient?",
+        "How about old is the patient?",
+        "How old is patient?",
+        "How old is the her?",
+        "How old is the she?",
+        "How old is the the woman?",
+        "How old is the this lady?",
+        "How old is the your mother?",
+        "I need to know old is the patient.",
+        "I'm wondering about old is the patient.",
+        "How old is the patien?",
+        "How old is the pateint?",
+        "How old is the patinet?",
+        "What is the patien's age category?",
+        "What is the pateint's age category?",
+        "What is the patinet's age category?",
+        "Tell me the patien's age.",
+        "Tell me the pateint's age.",
+        "Tell me the patinet's age.",
+        "Age of the patien?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_patient_profile_item",
+        "args": [
+          "ageCategory"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION",
+        "PMH_GATHERING"
+      ]
+    },
+    {
+      "id": "profile_language",
+      "canonical_question": "What language does the patient speak?",
+      "variations": [
+        "Is there a language barrier with the patient?",
+        "Does the patient speak English?",
+        "Can you describe language does the patient speak?",
+        "Can you tell me what language does the patient speak?",
+        "Clinically speaking, what language does the patient speak?",
+        "Could you explain what language does the patient speak?",
+        "For the medical record, what language does the patient speak?",
+        "From a medical standpoint, what language does the patient speak?",
+        "How about what language does the patient speak?",
+        "I need to know language does the patient speak?",
+        "I need to know what language does the patient speak.",
+        "I'm wondering about what language does the patient speak.",
+        "In terms of her health, what language does the patient speak?",
+        "Language patient speak?",
+        "Medically, what language does the patient speak?",
+        "Please explain language does the patient speak?",
+        "Regarding her condition, what language does the patient speak?",
+        "What language does the patien speak?",
+        "What language does the pateint speak?",
+        "What language does the patinet speak?",
+        "Is there a language barrier with the patien?",
+        "Is there a language barrier with the pateint?",
+        "Is there a language barrier with the patinet?",
+        "Does the patien speak english?",
+        "Does the pateint speak english?",
+        "Does the patinet speak english?",
+        "Can you describe language does the patien speak?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_patient_profile_item",
+        "args": [
+          "language"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION"
+      ]
+    },
+    {
+      "id": "profile_social_context_historian",
+      "canonical_question": "Who is providing the history for the patient?",
+      "variations": [
+        "Is the patient alone or with someone?",
+        "Who is giving information about the patient?",
+        "Can you tell me providing the history for the patient?",
+        "Clinically speaking, who is providing the history for the patient?",
+        "Could you explain providing the history for the patient?",
+        "For the medical record, who is providing the history for the patient?",
+        "From a medical standpoint, who is providing the history for the patient?",
+        "How about providing the history for the patient?",
+        "I need to know providing the history for the patient.",
+        "I'm wondering about providing the history for the patient.",
+        "In terms of her health, who is providing the history for the patient?",
+        "Medically, who is providing the history for the patient?",
+        "Providing history patient?",
+        "Providing the history for the patient, right?",
+        "Regarding her condition, who is providing the history for the patient?",
+        "So, providing the history for the patient?",
+        "Tell me who is providing the history for the patient?",
+        "Who is providing the history for the patien?",
+        "Who is providing the history for the pateint?",
+        "Who is providing the history for the patinet?",
+        "Who is providing the histroy for the patient?",
+        "Who is providing the histry for the patient?",
+        "Who is providing the histoy for the patient?",
+        "Is the patien alone or with someone?",
+        "Is the pateint alone or with someone?",
+        "Is the patinet alone or with someone?",
+        "Who is giving information about the patien?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_patient_profile_item",
+        "args": [
+          "socialContext"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION"
+      ]
+    },
+    {
+      "id": "pmh_general",
+      "canonical_question": "What is the patient's past medical history?",
+      "variations": [
+        "Does the patient have any pre-existing medical conditions?",
+        "Tell me about her previous illnesses.",
+        "Can you describe is the patient's past medical history?",
+        "Can you describe the patient's past medical history?",
+        "Can you tell me the patient's past medical history?",
+        "Clinically speaking, what is the patient's past medical history?",
+        "Could you explain the patient's past medical history?",
+        "For the medical record, what is the patient's past medical history?",
+        "From a medical standpoint, what is the patient's past medical history?",
+        "How about the patient's past medical history?",
+        "I need to know is the patient's past medical history?",
+        "I need to know the patient's past medical history.",
+        "I want to know the patient's past medical history?",
+        "I'm wondering about the patient's past medical history.",
+        "In terms of her health, what is the patient's past medical history?",
+        "Medically, what is the patient's past medical history?",
+        "Patient past medical history?",
+        "What is the patien's past medical history?",
+        "What is the pateint's past medical history?",
+        "What is the patinet's past medical history?",
+        "What is the patient's past medical histroy?",
+        "What is the patient's past medical histry?",
+        "What is the patient's past medical histoy?",
+        "Does the patien have any pre-existing medical conditions?",
+        "Does the pateint have any pre-existing medical conditions?",
+        "Does the patinet have any pre-existing medical conditions?",
+        "Can you describe is the patien's past medical history?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_past_medical_history"
+      },
+      "expected_dialogue_state": [
+        "PMH_GATHERING"
+      ]
+    },
+    {
+      "id": "profile_medical_records",
+      "canonical_question": "Are the patient's full medical records available?",
+      "variations": [
+        "Do we have access to her previous medical files?",
+        "Are patient's full medical records available?",
+        "Are the her's full medical records available?",
+        "Are the patient's full medical records available, right?",
+        "Are the she's full medical records available?",
+        "Are the the woman's full medical records available?",
+        "Are the this lady's full medical records available?",
+        "Are the your mother's full medical records available?",
+        "Can you tell me are the patient's full medical records available?",
+        "Clinically speaking, are the patient's full medical records available?",
+        "Could you explain are the patient's full medical records available?",
+        "For the medical record, are the patient's full medical records available?",
+        "From a medical standpoint, are the patient's full medical records available?",
+        "How about are the patient's full medical records available?",
+        "I need to know are the patient's full medical records available.",
+        "I'm wondering about are the patient's full medical records available.",
+        "Are the patien's full medical records available?",
+        "Are the pateint's full medical records available?",
+        "Are the patinet's full medical records available?",
+        "Are patien's full medical records available?",
+        "Are pateint's full medical records available?",
+        "Are patinet's full medical records available?",
+        "Are the patien's full medical records available, right?",
+        "Are the pateint's full medical records available, right?",
+        "Are the patinet's full medical records available, right?",
+        "Can you tell me are the patien's full medical records available?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_medical_record_access_info"
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION",
+        "MEDICATION_REVIEW",
+        "PMH_GATHERING"
+      ]
+    },
+    {
+      "id": "hpi_source_of_history",
+      "canonical_question": "Who is the source of the patient's history?",
+      "variations": [
+        "Can you tell me the source of the patient's history?",
+        "Clinically speaking, who is the source of the patient's history?",
+        "Could you explain the source of the patient's history?",
+        "For the medical record, who is the source of the patient's history?",
+        "From a medical standpoint, who is the source of the patient's history?",
+        "How about the source of the patient's history?",
+        "I need to know the source of the patient's history.",
+        "I'm wondering about the source of the patient's history.",
+        "In terms of her health, who is the source of the patient's history?",
+        "Medically, who is the source of the patient's history?",
+        "Regarding her condition, who is the source of the patient's history?",
+        "So, the source of the patient's history?",
+        "Source patient history?",
+        "Tell me who is the source of the patient's history?",
+        "The source of the patient's history, right?",
+        "Who is the source of the patien's history?",
+        "Who is the source of the pateint's history?",
+        "Who is the source of the patinet's history?",
+        "Who is the source of the patient's histroy?",
+        "Who is the source of the patient's histry?",
+        "Who is the source of the patient's histoy?",
+        "Can you tell me the source of the patien's history?",
+        "Can you tell me the source of the pateint's history?",
+        "Can you tell me the source of the patinet's history?",
+        "Can you tell me the source of the patient's histroy?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_source_of_history"
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION",
+        "CHIEF_COMPLAINT_EXPLORATION"
+      ]
+    },
+    {
+      "id": "hpi_chief_complaint",
+      "canonical_question": "What is the patient's chief complaint?",
+      "variations": [
+        "Why did the patient come to the emergency department?",
+        "What's the main problem today?",
+        "What brought her to the hospital?",
+        "What's wrong with her?",
+        "What are her symptoms?",
+        "What's the primary concern?",
+        "Why is she here?",
+        "What's bothering her?",
+        "What's the main issue?",
+        "Tell me about her complaints",
+        "What symptoms is she having?",
+        "What's her main problem?",
+        "Why did she come in?",
+        "What's going on with her?",
+        "What are her main symptoms?",
+        "Chief complaint please",
+        "Main problem?",
+        "Primary symptoms?",
+        "Can you describe is the patient's chief complaint?",
+        "Can you describe the patient's chief complaint?",
+        "Can you tell me the patient's chief complaint?",
+        "Clinically speaking, what is the patient's chief complaint?",
+        "Could you explain the patient's chief complaint?",
+        "For the medical record, what is the patient's chief complaint?",
+        "From a medical standpoint, what is the patient's chief complaint?",
+        "How about the patient's chief complaint?",
+        "I need to know is the patient's chief complaint?",
+        "I need to know the patient's chief complaint.",
+        "I want to know the patient's chief complaint?",
+        "I'm wondering about the patient's chief complaint.",
+        "In terms of her health, what is the patient's chief complaint?",
+        "Medically, what is the patient's chief complaint?",
+        "Patient chief complaint?",
+        "What is the patien's chief complaint?",
+        "What is the pateint's chief complaint?",
+        "What is the patinet's chief complaint?",
+        "What is the patient's chief complain?",
+        "What is the patient's chief compliant?",
+        "What is the patient's chief compaint?",
+        "Why did the patien come to the emergency department?",
+        "Why did the pateint come to the emergency department?",
+        "Why did the patinet come to the emergency department?",
+        "What are her symtoms?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_chief_complaints"
+      },
+      "expected_dialogue_state": [
+        "CHIEF_COMPLAINT_EXPLORATION"
+      ]
+    },
+    {
+      "id": "hpi_onset_duration_primary",
+      "canonical_question": "When did the main problem start and how long has it been going on?",
+      "variations": [
+        "Tell me about the onset of the shortness of breath.",
+        "How long has the cough been present?",
+        "At what time did the main problem start and how long has it been going on?",
+        "Can you tell me did the main problem start and how long has it been going on?",
+        "Clinically speaking, when did the main problem start and how long has it been going on?",
+        "Could you explain did the main problem start and how long has it been going on?",
+        "Did the main problem start and how long has it been going on, right?",
+        "For the medical record, when did the main problem start and how long has it been going on?",
+        "From a medical standpoint, when did the main problem start and how long has it been going on?",
+        "How about did the main problem start and how long has it been going on?",
+        "I need to know did the main problem start and how long has it been going on.",
+        "I'm wondering about did the main problem start and how long has it been going on.",
+        "In terms of her health, when did the main problem start and how long has it been going on?",
+        "Medically, when did the main problem start and how long has it been going on?",
+        "Regarding her condition, when did the main problem start and how long has it been going on?",
+        "So, did the main problem start and how long has it been going on?",
+        "Tell me when did the main problem start and how long has it been going on?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_hpi_onset_and_duration"
+      },
+      "expected_dialogue_state": [
+        "HPI_GATHERING"
+      ]
+    },
+    {
+      "id": "hpi_associated_symptoms_general",
+      "canonical_question": "Are there any other symptoms associated with the main complaint?",
+      "variations": [
+        "What other symptoms has the patient experienced recently?",
+        "Are there any other complaints associated with the main complaint?",
+        "Are there any other issues associated with the main complaint?",
+        "Are there any other problems associated with the main complaint?",
+        "Are there any other symptoms associated main complaint?",
+        "Are there any other symptoms associated with the main complaint, right?",
+        "Are there any other what's bothering her associated with the main complaint?",
+        "Can you tell me are there any other symptoms associated with the main complaint?",
+        "Clinically speaking, are there any other symptoms associated with the main complaint?",
+        "Could you explain are there any other symptoms associated with the main complaint?",
+        "For the medical record, are there any other symptoms associated with the main complaint?",
+        "From a medical standpoint, are there any other symptoms associated with the main complaint?",
+        "How about are there any other symptoms associated with the main complaint?",
+        "I need to know are there any other symptoms associated with the main complaint.",
+        "I'm wondering about are there any other symptoms associated with the main complaint.",
+        "In terms of her health, are there any other symptoms associated with the main complaint?",
+        "Are there any other symtoms associated with the main complaint?",
+        "Are there any other symptms associated with the main complaint?",
+        "Are there any other synptoms associated with the main complaint?",
+        "Are there any other symptoms associated with the main complain?",
+        "Are there any other symptoms associated with the main compliant?",
+        "Are there any other symptoms associated with the main compaint?",
+        "What other symptoms has the patien experienced recently?",
+        "What other symptoms has the pateint experienced recently?",
+        "What other symptoms has the patinet experienced recently?",
+        "What other symtoms has the patient experienced recently?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_hpi_associated_symptoms"
+      },
+      "expected_dialogue_state": [
+        "HPI_GATHERING",
+        "REVIEW_OF_SYSTEMS"
+      ]
+    },
+    {
+      "id": "hpi_pertinent_negatives",
+      "canonical_question": "What symptoms does the patient deny?",
+      "variations": [
+        "Has the patient had any chest pain, fevers, or chills recently?",
+        "Can you describe symptoms does the patient deny?",
+        "Can you tell me what symptoms does the patient deny?",
+        "Clinically speaking, what symptoms does the patient deny?",
+        "Could you explain what symptoms does the patient deny?",
+        "For the medical record, what symptoms does the patient deny?",
+        "From a medical standpoint, what symptoms does the patient deny?",
+        "How about what symptoms does the patient deny?",
+        "I need to know symptoms does the patient deny?",
+        "I need to know what symptoms does the patient deny.",
+        "I'm wondering about what symptoms does the patient deny.",
+        "In terms of her health, what symptoms does the patient deny?",
+        "Medically, what symptoms does the patient deny?",
+        "Please explain symptoms does the patient deny?",
+        "Regarding her condition, what symptoms does the patient deny?",
+        "So, what symptoms does the patient deny?",
+        "What symptoms does the patien deny?",
+        "What symptoms does the pateint deny?",
+        "What symptoms does the patinet deny?",
+        "What symtoms does the patient deny?",
+        "What symptms does the patient deny?",
+        "What synptoms does the patient deny?",
+        "Has the patien had any chest pain, fevers, or chills recently?",
+        "Has the pateint had any chest pain, fevers, or chills recently?",
+        "Has the patinet had any chest pain, fevers, or chills recently?",
+        "Can you describe symptoms does the patien deny?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_hpi_pertinent_negatives"
+      },
+      "expected_dialogue_state": [
+        "HPI_GATHERING",
+        "REVIEW_OF_SYSTEMS"
+      ]
+    },
+    {
+      "id": "hpi_recent_medical_care",
+      "canonical_question": "Has the patient sought any medical attention for these complaints recently?",
+      "variations": [
+        "Did she see her primary care physician recently?",
+        "Any recent treatments for these symptoms?",
+        "Can you tell me has the patient sought any medical attention for these complaints recently?",
+        "Clinically speaking, has the patient sought any medical attention for these complaints recently?",
+        "Could you explain has the patient sought any medical attention for these complaints recently?",
+        "For the medical record, has the patient sought any medical attention for these complaints recently?",
+        "From a medical standpoint, has the patient sought any medical attention for these complaints recently?",
+        "Has patient sought any medical attention these complaints recently?",
+        "Has the her sought any medical attention for these complaints recently?",
+        "Has the patient sought any medical attention for these complaints recently, right?",
+        "Has the she sought any medical attention for these complaints recently?",
+        "Has the the woman sought any medical attention for these complaints recently?",
+        "Has the this lady sought any medical attention for these complaints recently?",
+        "Has the your mother sought any medical attention for these complaints recently?",
+        "How about has the patient sought any medical attention for these complaints recently?",
+        "I need to know has the patient sought any medical attention for these complaints recently.",
+        "I'm wondering about has the patient sought any medical attention for these complaints recently.",
+        "Has the patien sought any medical attention for these complaints recently?",
+        "Has the pateint sought any medical attention for these complaints recently?",
+        "Has the patinet sought any medical attention for these complaints recently?",
+        "Has the patient sought any medical attention for these complains recently?",
+        "Has the patient sought any medical attention for these compliants recently?",
+        "Has the patient sought any medical attention for these compaints recently?",
+        "Any recent treatments for these symtoms?",
+        "Any recent treatments for these symptms?",
+        "Any recent treatments for these synptoms?",
+        "Any recent treatmens for these symptoms?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_hpi_recent_medical_care"
+      },
+      "expected_dialogue_state": [
+        "HPI_GATHERING",
+        "PMH_GATHERING"
+      ]
+    },
+    {
+      "id": "hpi_travel_contacts",
+      "canonical_question": "Has the patient traveled recently or had any known sick contacts?",
+      "variations": [
+        "Any recent travel history?",
+        "Exposure to infectious diseases?",
+        "Can you tell me has the patient traveled recently or had any known sick contacts?",
+        "Clinically speaking, has the patient traveled recently or had any known sick contacts?",
+        "Could you explain has the patient traveled recently or had any known sick contacts?",
+        "For the medical record, has the patient traveled recently or had any known sick contacts?",
+        "From a medical standpoint, has the patient traveled recently or had any known sick contacts?",
+        "Has patient traveled recently or had any known sick contacts?",
+        "Has the her traveled recently or had any known sick contacts?",
+        "Has the patient traveled recently or had any known sick contacts, right?",
+        "Has the she traveled recently or had any known sick contacts?",
+        "Has the the woman traveled recently or had any known sick contacts?",
+        "Has the this lady traveled recently or had any known sick contacts?",
+        "Has the your mother traveled recently or had any known sick contacts?",
+        "How about has the patient traveled recently or had any known sick contacts?",
+        "I need to know has the patient traveled recently or had any known sick contacts.",
+        "I'm wondering about has the patient traveled recently or had any known sick contacts.",
+        "Has the patien traveled recently or had any known sick contacts?",
+        "Has the pateint traveled recently or had any known sick contacts?",
+        "Has the patinet traveled recently or had any known sick contacts?",
+        "Any recent travel histroy?",
+        "Any recent travel histry?",
+        "Any recent travel histoy?",
+        "Can you tell me has the patien traveled recently or had any known sick contacts?",
+        "Can you tell me has the pateint traveled recently or had any known sick contacts?",
+        "Can you tell me has the patinet traveled recently or had any known sick contacts?",
+        "Clinically speaking, has the patien traveled recently or had any known sick contacts?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_hpi_item",
+        "args": [
+          "travelAndContactHistory"
+        ]
+      },
+      "expected_dialogue_state": [
+        "HPI_GATHERING",
+        "SOCIAL_HISTORY_GATHERING"
+      ]
+    },
+    {
+      "id": "meds_current_known",
+      "canonical_question": "What medications is the patient currently taking?",
+      "variations": [
+        "Can you list her current medications?",
+        "Is she on any regular pills?",
+        "What medicines does she take?",
+        "Tell me about her medications",
+        "What drugs is she on?",
+        "Current medications please",
+        "What pills does she take daily?",
+        "Any medications she's taking?",
+        "List her meds",
+        "What's she taking medication-wise?",
+        "Does she take any pills?",
+        "What prescriptions does she have?",
+        "Tell me her medication list",
+        "What meds is your mother on?",
+        "Any regular medications?",
+        "Current drug therapy?",
+        "What pharmaceuticals is she using?",
+        "Medication history please",
+        "Can you describe medications is the patient currently taking?",
+        "Can you tell me what medications is the patient currently taking?",
+        "Clinically speaking, what medications is the patient currently taking?",
+        "Could you explain what medications is the patient currently taking?",
+        "For the medical record, what medications is the patient currently taking?",
+        "From a medical standpoint, what medications is the patient currently taking?",
+        "How about what medications is the patient currently taking?",
+        "I need to know medications is the patient currently taking?",
+        "I need to know what medications is the patient currently taking.",
+        "I'm wondering about what medications is the patient currently taking.",
+        "In terms of her health, what medications is the patient currently taking?",
+        "Medically, what medications is the patient currently taking?",
+        "Medications patient currently taking?",
+        "Please explain medications is the patient currently taking?",
+        "Regarding her condition, what medications is the patient currently taking?",
+        "What medicatons is the patient currently taking?",
+        "What mediations is the patient currently taking?",
+        "What medicaitons is the patient currently taking?",
+        "What medciations is the patient currently taking?",
+        "What medications is the patien currently taking?",
+        "What medications is the pateint currently taking?",
+        "What medications is the patinet currently taking?",
+        "Can you list her current medicatons?",
+        "Can you list her current mediations?",
+        "Can you list her current medicaitons?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_medications_initial_known"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW"
+      ]
+    },
+    {
+      "id": "meds_uncertainty",
+      "canonical_question": "Is the medication list provided by the son complete?",
+      "variations": [
+        "Are there any other medications the patient might be taking that the son is unsure about?",
+        "Can you tell me is the medication list provided by the son complete?",
+        "Clinically speaking, is the medication list provided by the son complete?",
+        "Could you explain is the medication list provided by the son complete?",
+        "For the medical record, is the medication list provided by the son complete?",
+        "From a medical standpoint, is the medication list provided by the son complete?",
+        "How about is the medication list provided by the son complete?",
+        "I need to know is the medication list provided by the son complete.",
+        "I'm wondering about is the medication list provided by the son complete.",
+        "In terms of her health, is the medication list provided by the son complete?",
+        "Is medication list provided son complete?",
+        "Is the medication list provided by the son complete, right?",
+        "Medically, is the medication list provided by the son complete?",
+        "Medication list provided complete?",
+        "Regarding her condition, is the medication list provided by the son complete?",
+        "So, is the medication list provided by the son complete?",
+        "Is the medicaton list provided by the son complete?",
+        "Is the mediation list provided by the son complete?",
+        "Is the medicaiton list provided by the son complete?",
+        "Is the medciation list provided by the son complete?",
+        "Are there any other medicatons the patient might be taking that the son is unsure about?",
+        "Are there any other mediations the patient might be taking that the son is unsure about?",
+        "Are there any other medicaitons the patient might be taking that the son is unsure about?",
+        "Are there any other medciations the patient might be taking that the son is unsure about?",
+        "Are there any other medications the patien might be taking that the son is unsure about?",
+        "Are there any other medications the pateint might be taking that the son is unsure about?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_medications_initial_uncertainty"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW"
+      ]
+    },
+    {
+      "id": "meds_ra_specific_initial_query",
+      "canonical_question": "What specific medications is the patient taking for her rheumatoid arthritis?",
+      "variations": [
+        "How is her rheumatoid arthritis being treated?",
+        "Is she on any medication for RA?",
+        "Can you describe specific medications is the patient taking for her rheumatoid arthritis?",
+        "Can you tell me what specific medications is the patient taking for her rheumatoid arthritis?",
+        "Clinically speaking, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "Could you explain what specific medications is the patient taking for her rheumatoid arthritis?",
+        "For the medical record, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "From a medical standpoint, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "How about what specific medications is the patient taking for her rheumatoid arthritis?",
+        "I need to know specific medications is the patient taking for her rheumatoid arthritis?",
+        "I need to know what specific medications is the patient taking for her rheumatoid arthritis.",
+        "I'm wondering about what specific medications is the patient taking for her rheumatoid arthritis.",
+        "In terms of her health, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "Medically, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "Please explain specific medications is the patient taking for her rheumatoid arthritis?",
+        "Regarding her condition, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "So, what specific medications is the patient taking for her rheumatoid arthritis?",
+        "What specific medicatons is the patient taking for her rheumatoid arthritis?",
+        "What specific mediations is the patient taking for her rheumatoid arthritis?",
+        "What specific medicaitons is the patient taking for her rheumatoid arthritis?",
+        "What specific medciations is the patient taking for her rheumatoid arthritis?",
+        "What specific medications is the patien taking for her rheumatoid arthritis?",
+        "What specific medications is the pateint taking for her rheumatoid arthritis?",
+        "What specific medications is the patinet taking for her rheumatoid arthritis?",
+        "Is she on any medicaton for ra?",
+        "Is she on any mediation for ra?",
+        "Is she on any medicaiton for ra?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_initial_response_for_ra_meds"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW",
+        "PMH_GATHERING"
+      ]
+    },
+    {
+      "id": "meds_other_meds_initial_query",
+      "canonical_question": "Is the patient taking any other medications apart from the known ones?",
+      "variations": [
+        "Are there any other pills or treatments she receives?",
+        "Can you tell me is the patient taking any other medications apart from the known ones?",
+        "Clinically speaking, is the patient taking any other medications apart from the known ones?",
+        "Could you explain is the patient taking any other medications apart from the known ones?",
+        "For the medical record, is the patient taking any other medications apart from the known ones?",
+        "From a medical standpoint, is the patient taking any other medications apart from the known ones?",
+        "How about is the patient taking any other medications apart from the known ones?",
+        "I need to know is the patient taking any other medications apart from the known ones.",
+        "I'm wondering about is the patient taking any other medications apart from the known ones.",
+        "In terms of her health, is the patient taking any other medications apart from the known ones?",
+        "Is patient taking any other medications apart from known ones?",
+        "Is the her taking any other medications apart from the known ones?",
+        "Is the patient taking any other drugs apart from the known ones?",
+        "Is the patient taking any other medications apart from the known ones, right?",
+        "Is the patient taking any other medicines apart from the known ones?",
+        "Is the patient taking any other meds apart from the known ones?",
+        "Is the patient taking any other medicatons apart from the known ones?",
+        "Is the patient taking any other mediations apart from the known ones?",
+        "Is the patient taking any other medicaitons apart from the known ones?",
+        "Is the patient taking any other medciations apart from the known ones?",
+        "Is the patien taking any other medications apart from the known ones?",
+        "Is the pateint taking any other medications apart from the known ones?",
+        "Is the patinet taking any other medications apart from the known ones?",
+        "Are there any other pills or treatmens she receives?",
+        "Are there any other pills or treaments she receives?",
+        "Are there any other pills or tretments she receives?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_initial_response_for_other_meds"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW"
+      ]
+    },
+    {
+      "id": "meds_allergies",
+      "canonical_question": "Does the patient have any allergies?",
+      "variations": [
+        "Is she allergic to any medications or substances?",
+        "Can you tell me does the patient have any allergies?",
+        "Clinically speaking, does the patient have any allergies?",
+        "Could you explain does the patient have any allergies?",
+        "Does patient have any allergies?",
+        "Does the her have any allergies?",
+        "Does the patient have any allergies, right?",
+        "Does the she have any allergies?",
+        "Does the the woman have any allergies?",
+        "Does the this lady have any allergies?",
+        "Does the your mother have any allergies?",
+        "For the medical record, does the patient have any allergies?",
+        "From a medical standpoint, does the patient have any allergies?",
+        "How about does the patient have any allergies?",
+        "I need to know does the patient have any allergies.",
+        "I'm wondering about does the patient have any allergies.",
+        "Does the patien have any allergies?",
+        "Does the pateint have any allergies?",
+        "Does the patinet have any allergies?",
+        "Is she allergic to any medicatons or substances?",
+        "Is she allergic to any mediations or substances?",
+        "Is she allergic to any medicaitons or substances?",
+        "Is she allergic to any medciations or substances?",
+        "Can you tell me does the patien have any allergies?",
+        "Can you tell me does the pateint have any allergies?",
+        "Can you tell me does the patinet have any allergies?"
+      ],
+      "action_type": "provide_scripted_response",
+      "target_details": {
+        "response_key": "allergies_unknown_or_none_reported_by_son"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW"
+      ]
+    },
+    {
+      "id": "exam_general_appearance",
+      "canonical_question": "What is the patient's general appearance on examination?",
+      "variations": [
+        "How does the patient look generally?",
+        "Can you describe is the patient's general appearance on examination?",
+        "Can you describe the patient's general appearance on examination?",
+        "Can you tell me the patient's general appearance on examination?",
+        "Clinically speaking, what is the patient's general appearance on examination?",
+        "Could you explain the patient's general appearance on examination?",
+        "For the medical record, what is the patient's general appearance on examination?",
+        "From a medical standpoint, what is the patient's general appearance on examination?",
+        "How about the patient's general appearance on examination?",
+        "I need to know is the patient's general appearance on examination?",
+        "I need to know the patient's general appearance on examination.",
+        "I want to know the patient's general appearance on examination?",
+        "I'm wondering about the patient's general appearance on examination.",
+        "In terms of her health, what is the patient's general appearance on examination?",
+        "Medically, what is the patient's general appearance on examination?",
+        "Patient general appearance examination?",
+        "What is the patien's general appearance on examination?",
+        "What is the pateint's general appearance on examination?",
+        "What is the patinet's general appearance on examination?",
+        "What is the patient's general appearance on examinaton?",
+        "What is the patient's general appearance on examiation?",
+        "What is the patient's general appearance on examintion?",
+        "How does the patien look generally?",
+        "How does the pateint look generally?",
+        "How does the patinet look generally?",
+        "Can you describe is the patien's general appearance on examination?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_physical_exam_general_appearance_initial"
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_vital_signs",
+      "canonical_question": "What are the patient's vital signs?",
+      "variations": [
+        "Tell me her vitals.",
+        "What were her temperature, heart rate, blood pressure, respiratory rate, and oxygen saturation?",
+        "Can you describe are the patient's vital signs?",
+        "Can you tell me the patient's vital signs?",
+        "Clinically speaking, what are the patient's vital signs?",
+        "Could you explain the patient's vital signs?",
+        "Describe the patient's vital signs?",
+        "For the medical record, what are the patient's vital signs?",
+        "From a medical standpoint, what are the patient's vital signs?",
+        "How about the patient's vital signs?",
+        "I need to know are the patient's vital signs?",
+        "I need to know the patient's vital signs.",
+        "I'm wondering about the patient's vital signs.",
+        "In terms of her health, what are the patient's vital signs?",
+        "List the patient's vital signs?",
+        "Medically, what are the patient's vital signs?",
+        "Patient vital signs?",
+        "What are the patien's vital signs?",
+        "What are the pateint's vital signs?",
+        "What are the patinet's vital signs?",
+        "Can you describe are the patien's vital signs?",
+        "Can you describe are the pateint's vital signs?",
+        "Can you describe are the patinet's vital signs?",
+        "Can you tell me the patien's vital signs?",
+        "Can you tell me the pateint's vital signs?",
+        "Can you tell me the patinet's vital signs?",
+        "Clinically speaking, what are the patien's vital signs?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_vital_signs_initial"
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_cardiovascular",
+      "canonical_question": "What were the findings on the cardiovascular exam?",
+      "variations": [
+        "How was her heart exam?",
+        "Any murmurs or abnormal heart sounds?",
+        "Was JVP assessed?",
+        "Can you describe were the findings on the cardiovascular exam?",
+        "Can you tell me what were the findings on the cardiovascular exam?",
+        "Clinically speaking, what were the findings on the cardiovascular exam?",
+        "Could you explain what were the findings on the cardiovascular exam?",
+        "Findings cardiovascular exam?",
+        "For the medical record, what were the findings on the cardiovascular exam?",
+        "From a medical standpoint, what were the findings on the cardiovascular exam?",
+        "How about what were the findings on the cardiovascular exam?",
+        "I need to know were the findings on the cardiovascular exam?",
+        "I need to know what were the findings on the cardiovascular exam.",
+        "I'm wondering about what were the findings on the cardiovascular exam.",
+        "In terms of her health, what were the findings on the cardiovascular exam?",
+        "Medically, what were the findings on the cardiovascular exam?",
+        "Please explain were the findings on the cardiovascular exam?",
+        "Regarding her condition, what were the findings on the cardiovascular exam?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_physical_exam_system_initial",
+        "args": [
+          "cardiovascular"
+        ]
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_respiratory",
+      "canonical_question": "What did the respiratory or lung exam show?",
+      "variations": [
+        "Any findings on auscultation of the lungs?",
+        "Were there crackles or wheezes?",
+        "Can you describe did the respiratory or lung exam show?",
+        "Can you tell me what did the respiratory or lung exam show?",
+        "Clinically speaking, what did the respiratory or lung exam show?",
+        "Could you explain what did the respiratory or lung exam show?",
+        "For the medical record, what did the respiratory or lung exam show?",
+        "From a medical standpoint, what did the respiratory or lung exam show?",
+        "How about what did the respiratory or lung exam show?",
+        "I need to know did the respiratory or lung exam show?",
+        "I need to know what did the respiratory or lung exam show.",
+        "I'm wondering about what did the respiratory or lung exam show.",
+        "In terms of her health, what did the respiratory or lung exam show?",
+        "Medically, what did the respiratory or lung exam show?",
+        "Please explain did the respiratory or lung exam show?",
+        "Regarding her condition, what did the respiratory or lung exam show?",
+        "Respiratory lung exam show?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_physical_exam_system_initial",
+        "args": [
+          "respiratory"
+        ]
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_extremities",
+      "canonical_question": "What did the examination of her extremities reveal?",
+      "variations": [
+        "Was there any edema in the lower extremities?",
+        "Can you describe did the examination of her extremities reveal?",
+        "Can you tell me what did the examination of her extremities reveal?",
+        "Clinically speaking, what did the examination of her extremities reveal?",
+        "Could you explain what did the examination of her extremities reveal?",
+        "Examination extremities reveal?",
+        "For the medical record, what did the examination of her extremities reveal?",
+        "From a medical standpoint, what did the examination of her extremities reveal?",
+        "How about what did the examination of her extremities reveal?",
+        "I need to know did the examination of her extremities reveal?",
+        "I need to know what did the examination of her extremities reveal.",
+        "I'm wondering about what did the examination of her extremities reveal.",
+        "In terms of her health, what did the examination of her extremities reveal?",
+        "Medically, what did the examination of her extremities reveal?",
+        "Please explain did the examination of her extremities reveal?",
+        "Regarding her condition, what did the examination of her extremities reveal?",
+        "What did the examinaton of her extremities reveal?",
+        "What did the examiation of her extremities reveal?",
+        "What did the examintion of her extremities reveal?",
+        "Can you describe did the examinaton of her extremities reveal?",
+        "Can you describe did the examiation of her extremities reveal?",
+        "Can you describe did the examintion of her extremities reveal?",
+        "Can you tell me what did the examinaton of her extremities reveal?",
+        "Can you tell me what did the examiation of her extremities reveal?",
+        "Can you tell me what did the examintion of her extremities reveal?",
+        "Clinically speaking, what did the examinaton of her extremities reveal?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_physical_exam_system_initial",
+        "args": [
+          "extremities"
+        ]
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_musculoskeletal",
+      "canonical_question": "Were there any musculoskeletal findings on exam?",
+      "variations": [
+        "Did the exam show any joint deformities related to rheumatoid arthritis?",
+        "Can you tell me were there any musculoskeletal findings on exam?",
+        "Clinically speaking, were there any musculoskeletal findings on exam?",
+        "Could you explain were there any musculoskeletal findings on exam?",
+        "For the medical record, were there any musculoskeletal findings on exam?",
+        "From a medical standpoint, were there any musculoskeletal findings on exam?",
+        "How about were there any musculoskeletal findings on exam?",
+        "I need to know were there any musculoskeletal findings on exam.",
+        "I'm wondering about were there any musculoskeletal findings on exam.",
+        "In terms of her health, were there any musculoskeletal findings on exam?",
+        "Medically, were there any musculoskeletal findings on exam?",
+        "Regarding her condition, were there any musculoskeletal findings on exam?",
+        "So, were there any musculoskeletal findings on exam?",
+        "There musculoskeletal findings exam?",
+        "Were there any musculoskeletal findings exam?",
+        "Were there any musculoskeletal findings on exam, right?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_physical_exam_system_initial",
+        "args": [
+          "musculoskeletal"
+        ]
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ]
+    },
+    {
+      "id": "exam_abdominal_query",
+      "canonical_question": "What were the abdominal exam findings?",
+      "action_type": "provide_scripted_response",
+      "target_details": {
+        "response_key": "abdominal_exam_not_detailed_initially"
+      },
+      "expected_dialogue_state": [
+        "PHYSICAL_EXAM_QUERY"
+      ],
+      "variations": [
+        "Abdominal exam findings?",
+        "Can you describe were the abdominal exam findings?",
+        "Can you tell me what were the abdominal exam findings?",
+        "Clinically speaking, what were the abdominal exam findings?",
+        "Could you explain what were the abdominal exam findings?",
+        "For the medical record, what were the abdominal exam findings?",
+        "From a medical standpoint, what were the abdominal exam findings?",
+        "How about what were the abdominal exam findings?",
+        "I need to know were the abdominal exam findings?",
+        "I need to know what were the abdominal exam findings.",
+        "I'm wondering about what were the abdominal exam findings.",
+        "In terms of her health, what were the abdominal exam findings?",
+        "Medically, what were the abdominal exam findings?",
+        "Please explain were the abdominal exam findings?",
+        "Regarding her condition, what were the abdominal exam findings?"
+      ]
+    },
+    {
+      "id": "labs_initial_general",
+      "canonical_question": "What were the results of the initial blood tests?",
+      "variations": [
+        "Can you summarize the initial lab findings?",
+        "Can you describe were the results of the initial blood tests?",
+        "Can you tell me what were the results of the initial blood tests?",
+        "Clinically speaking, what were the results of the initial blood tests?",
+        "Could you explain what were the results of the initial blood tests?",
+        "For the medical record, what were the results of the initial blood tests?",
+        "From a medical standpoint, what were the results of the initial blood tests?",
+        "How about what were the results of the initial blood tests?",
+        "I need to know were the results of the initial blood tests?",
+        "I need to know what were the results of the initial blood tests.",
+        "I'm wondering about what were the results of the initial blood tests.",
+        "In terms of her health, what were the results of the initial blood tests?",
+        "Medically, what were the results of the initial blood tests?",
+        "Please explain were the results of the initial blood tests?",
+        "Regarding her condition, what were the results of the initial blood tests?",
+        "Results initial blood tests?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_lab_results_initial_all"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "labs_wbc",
+      "canonical_question": "What was the patient's white blood cell count?",
+      "variations": [
+        "Tell me the WBC count.",
+        "Can you describe was the patient's white blood cell count?",
+        "Can you tell me what was the patient's white blood cell count?",
+        "Clinically speaking, what was the patient's white blood cell count?",
+        "Could you explain what was the patient's white blood cell count?",
+        "For the medical record, what was the patient's white blood cell count?",
+        "From a medical standpoint, what was the patient's white blood cell count?",
+        "How about what was the patient's white blood cell count?",
+        "I need to know was the patient's white blood cell count?",
+        "I need to know what was the patient's white blood cell count.",
+        "I'm wondering about what was the patient's white blood cell count.",
+        "In terms of her health, what was the patient's white blood cell count?",
+        "Medically, what was the patient's white blood cell count?",
+        "Patient white blood cell?",
+        "Please explain was the patient's white blood cell count?",
+        "Regarding her condition, what was the patient's white blood cell count?",
+        "What was the patien's white blood cell count?",
+        "What was the pateint's white blood cell count?",
+        "What was the patinet's white blood cell count?",
+        "Can you describe was the patien's white blood cell count?",
+        "Can you describe was the pateint's white blood cell count?",
+        "Can you describe was the patinet's white blood cell count?",
+        "Can you tell me what was the patien's white blood cell count?",
+        "Can you tell me what was the pateint's white blood cell count?",
+        "Can you tell me what was the patinet's white blood cell count?",
+        "Clinically speaking, what was the patien's white blood cell count?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_specific_lab_result_initial",
+        "args": [
+          "White Blood Cell Count"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "labs_hemoglobin",
+      "canonical_question": "What was her hemoglobin level?",
+      "variations": [
+        "Tell me the Hgb.",
+        "Can you describe was her hemoglobin level?",
+        "Can you tell me what was her hemoglobin level?",
+        "Clinically speaking, what was her hemoglobin level?",
+        "Could you explain what was her hemoglobin level?",
+        "For the medical record, what was her hemoglobin level?",
+        "From a medical standpoint, what was her hemoglobin level?",
+        "Hemoglobin level?",
+        "How about what was her hemoglobin level?",
+        "I need to know was her hemoglobin level?",
+        "I need to know what was her hemoglobin level.",
+        "I'm wondering about what was her hemoglobin level.",
+        "In terms of her health, what was her hemoglobin level?",
+        "Medically, what was her hemoglobin level?",
+        "Please explain was her hemoglobin level?",
+        "Regarding her condition, what was her hemoglobin level?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_specific_lab_result_initial",
+        "args": [
+          "Hemoglobin"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "labs_creatinine",
+      "canonical_question": "What was the serum creatinine?",
+      "variations": [
+        "Can you describe was the serum creatinine?",
+        "Can you tell me what was the serum creatinine?",
+        "Clinically speaking, what was the serum creatinine?",
+        "Could you explain what was the serum creatinine?",
+        "For the medical record, what was the serum creatinine?",
+        "From a medical standpoint, what was the serum creatinine?",
+        "How about what was the serum creatinine?",
+        "I need to know was the serum creatinine?",
+        "I need to know what was the serum creatinine.",
+        "I'm wondering about what was the serum creatinine.",
+        "In terms of her health, what was the serum creatinine?",
+        "Medically, what was the serum creatinine?",
+        "Please explain was the serum creatinine?",
+        "Regarding her condition, what was the serum creatinine?",
+        "Serum creatinine?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_specific_lab_result_initial",
+        "args": [
+          "Serum Creatinine"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "labs_pro_bnp",
+      "canonical_question": "What was the pro-BNP level?",
+      "variations": [
+        "Was a pro-BNP measured?",
+        "Can you describe was the pro-bnp level?",
+        "Can you tell me what was the pro-bnp level?",
+        "Clinically speaking, what was the pro-bnp level?",
+        "Could you explain what was the pro-bnp level?",
+        "For the medical record, what was the pro-bnp level?",
+        "From a medical standpoint, what was the pro-bnp level?",
+        "How about what was the pro-bnp level?",
+        "I need to know was the pro-bnp level?",
+        "I need to know what was the pro-bnp level.",
+        "I'm wondering about what was the pro-bnp level.",
+        "In terms of her health, what was the pro-bnp level?",
+        "Medically, what was the pro-bnp level?",
+        "Please explain was the pro-bnp level?",
+        "Regarding her condition, what was the pro-bnp level?",
+        "So, what was the pro-bnp level?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_specific_lab_result_initial",
+        "args": [
+          "Pro-Brain-Type Natriuretic Peptide"
+        ]
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "imaging_cxr_initial",
+      "canonical_question": "What did the initial chest X-ray show?",
+      "variations": [
+        "What were the findings on the first chest film?",
+        "Can you describe did the initial chest x-ray show?",
+        "Can you tell me what did the initial chest x-ray show?",
+        "Clinically speaking, what did the initial chest x-ray show?",
+        "Could you explain what did the initial chest x-ray show?",
+        "For the medical record, what did the initial chest x-ray show?",
+        "From a medical standpoint, what did the initial chest x-ray show?",
+        "How about what did the initial chest x-ray show?",
+        "I need to know did the initial chest x-ray show?",
+        "I need to know what did the initial chest x-ray show.",
+        "I'm wondering about what did the initial chest x-ray show.",
+        "In terms of her health, what did the initial chest x-ray show?",
+        "Initial chest show?",
+        "Medically, what did the initial chest x-ray show?",
+        "Please explain did the initial chest x-ray show?",
+        "Regarding her condition, what did the initial chest x-ray show?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_imaging_results_initial_cxr"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "initial_ed_diagnosis_treatment",
+      "canonical_question": "What was the initial working diagnosis and treatment in the ED?",
+      "variations": [
+        "What did the ED team think was going on and what did they do?",
+        "Can you describe was the initial working diagnosis and treatment in the ed?",
+        "Can you tell me what was the initial working diagnosis and treatment in the ed?",
+        "Clinically speaking, what was the initial working diagnosis and treatment in the ed?",
+        "Could you explain what was the initial working diagnosis and treatment in the ed?",
+        "For the medical record, what was the initial working diagnosis and treatment in the ed?",
+        "From a medical standpoint, what was the initial working diagnosis and treatment in the ed?",
+        "How about what was the initial working diagnosis and treatment in the ed?",
+        "I need to know was the initial working diagnosis and treatment in the ed?",
+        "I need to know what was the initial working diagnosis and treatment in the ed.",
+        "I'm wondering about what was the initial working diagnosis and treatment in the ed.",
+        "In terms of her health, what was the initial working diagnosis and treatment in the ed?",
+        "Initial working diagnosis treatment?",
+        "Medically, what was the initial working diagnosis and treatment in the ed?",
+        "Please explain was the initial working diagnosis and treatment in the ed?",
+        "Regarding her condition, what was the initial working diagnosis and treatment in the ed?",
+        "What was the initial working diagnosis and treatmen in the ed?",
+        "What was the initial working diagnosis and treament in the ed?",
+        "What was the initial working diagnosis and tretment in the ed?",
+        "Can you describe was the initial working diagnosis and treatmen in the ed?",
+        "Can you describe was the initial working diagnosis and treament in the ed?",
+        "Can you describe was the initial working diagnosis and tretment in the ed?",
+        "Can you tell me what was the initial working diagnosis and treatmen in the ed?",
+        "Can you tell me what was the initial working diagnosis and treament in the ed?",
+        "Can you tell me what was the initial working diagnosis and tretment in the ed?",
+        "Clinically speaking, what was the initial working diagnosis and treatmen in the ed?"
+      ],
+      "action_type": "fetch_from_kb",
+      "target_details": {
+        "method": "get_initial_diagnosis_and_treatment_ed"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY",
+        "REASSESSMENT"
+      ]
+    },
+    {
+      "id": "discoverable_infliximab_query",
+      "canonical_question": "Is the patient on any specific treatments for rheumatoid arthritis like biologics or Infliximab?",
+      "variations": [
+        "What is the exact medication for her RA?",
+        "Can we find out about her RA treatment from old records?",
+        "Can you tell me is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Clinically speaking, is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Could you explain is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "For the medical record, is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "From a medical standpoint, is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "How about is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "I need to know is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab.",
+        "I'm wondering about is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab.",
+        "In terms of her health, is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is patient any specific treatments rheumatoid arthritis like biologics or infliximab?",
+        "Is the her on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patient on any specific treatments for rheumatoid arthritis like biologics or infliximab, right?",
+        "Is the she on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the the woman on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the this lady on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patien on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the pateint on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patinet on any specific treatments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patient on any specific treatmens for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patient on any specific treaments for rheumatoid arthritis like biologics or infliximab?",
+        "Is the patient on any specific tretments for rheumatoid arthritis like biologics or infliximab?",
+        "What is the exact medicaton for her ra?",
+        "What is the exact mediation for her ra?",
+        "What is the exact medicaiton for her ra?",
+        "What is the exact medciation for her ra?"
+      ],
+      "action_type": "trigger_discoverable",
+      "target_details": {
+        "discoverable_item_key": "Infliximab use"
+      },
+      "expected_dialogue_state": [
+        "MEDICATION_REVIEW",
+        "REASSESSMENT",
+        "INVESTIGATIONS_QUERY"
+      ]
+    },
+    {
+      "id": "discoverable_echo_query",
+      "canonical_question": "Was an echocardiogram performed and what were its results?",
+      "variations": [
+        "Did the patient get an echo?",
+        "What did the cardiac ultrasound show?",
+        "Can you tell me was an echocardiogram performed and what were its results?",
+        "Clinically speaking, was an echocardiogram performed and what were its results?",
+        "Could you explain was an echocardiogram performed and what were its results?",
+        "Echocardiogram performed results?",
+        "For the medical record, was an echocardiogram performed and what were its results?",
+        "From a medical standpoint, was an echocardiogram performed and what were its results?",
+        "How about was an echocardiogram performed and what were its results?",
+        "I need to know was an echocardiogram performed and what were its results.",
+        "I'm wondering about was an echocardiogram performed and what were its results.",
+        "In terms of her health, was an echocardiogram performed and what were its results?",
+        "Medically, was an echocardiogram performed and what were its results?",
+        "Regarding her condition, was an echocardiogram performed and what were its results?",
+        "So, was an echocardiogram performed and what were its results?",
+        "Was an echocardiogram performed and I need to know were its results?",
+        "Was an echocardiogram performed and can you describe were its results?",
+        "Did the patien get an echo?",
+        "Did the pateint get an echo?",
+        "Did the patinet get an echo?"
+      ],
+      "action_type": "trigger_discoverable",
+      "target_details": {
+        "discoverable_item_key": "Echocardiogram result"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY",
+        "REASSESSMENT"
+      ]
+    },
+    {
+      "id": "discoverable_ct_chest_query",
+      "canonical_question": "Given the ongoing symptoms, was a CT scan of the chest done?",
+      "variations": [
+        "What did the chest CT reveal?",
+        "Any advanced lung imaging?",
+        "Can you tell me given the ongoing symptoms, was a ct scan of the chest done?",
+        "Clinically speaking, given the ongoing symptoms, was a ct scan of the chest done?",
+        "Could you explain given the ongoing symptoms, was a ct scan of the chest done?",
+        "For the medical record, given the ongoing symptoms, was a ct scan of the chest done?",
+        "From a medical standpoint, given the ongoing symptoms, was a ct scan of the chest done?",
+        "Given ongoing symptoms scan?",
+        "Given ongoing symptoms, was ct scan chest done?",
+        "Given the ongoing complaints, was a ct scan of the chest done?",
+        "Given the ongoing issues, was a ct scan of the chest done?",
+        "Given the ongoing problems, was a ct scan of the chest done?",
+        "Given the ongoing symptoms, was a ct scan of the chest done, right?",
+        "Given the ongoing what's bothering her, was a ct scan of the chest done?",
+        "How about given the ongoing symptoms, was a ct scan of the chest done?",
+        "I need to know given the ongoing symptoms, was a ct scan of the chest done.",
+        "I'm wondering about given the ongoing symptoms, was a ct scan of the chest done.",
+        "Given the ongoing symtoms, was a ct scan of the chest done?",
+        "Given the ongoing symptms, was a ct scan of the chest done?",
+        "Given the ongoing synptoms, was a ct scan of the chest done?",
+        "Can you tell me given the ongoing symtoms, was a ct scan of the chest done?",
+        "Can you tell me given the ongoing symptms, was a ct scan of the chest done?",
+        "Can you tell me given the ongoing synptoms, was a ct scan of the chest done?",
+        "Clinically speaking, given the ongoing symtoms, was a ct scan of the chest done?",
+        "Clinically speaking, given the ongoing symptms, was a ct scan of the chest done?",
+        "Clinically speaking, given the ongoing synptoms, was a ct scan of the chest done?",
+        "Could you explain given the ongoing symtoms, was a ct scan of the chest done?"
+      ],
+      "action_type": "trigger_discoverable",
+      "target_details": {
+        "discoverable_item_key": "CT Chest findings"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY",
+        "REASSESSMENT"
+      ]
+    },
+    {
+      "id": "discoverable_final_cxr_details_query",
+      "canonical_question": "What was the attending radiologist's final interpretation of the chest X-ray?",
+      "variations": [
+        "Were there any subtle findings on the formal CXR report besides congestion?",
+        "Attending radiologist final interpretation?",
+        "Can you describe was the attending radiologist's final interpretation of the chest x-ray?",
+        "Can you tell me what was the attending radiologist's final interpretation of the chest x-ray?",
+        "Clinically speaking, what was the attending radiologist's final interpretation of the chest x-ray?",
+        "Could you explain what was the attending radiologist's final interpretation of the chest x-ray?",
+        "For the medical record, what was the attending radiologist's final interpretation of the chest x-ray?",
+        "From a medical standpoint, what was the attending radiologist's final interpretation of the chest x-ray?",
+        "How about what was the attending radiologist's final interpretation of the chest x-ray?",
+        "I need to know was the attending radiologist's final interpretation of the chest x-ray?",
+        "I need to know what was the attending radiologist's final interpretation of the chest x-ray.",
+        "I'm wondering about what was the attending radiologist's final interpretation of the chest x-ray.",
+        "In terms of her health, what was the attending radiologist's final interpretation of the chest x-ray?",
+        "Medically, what was the attending radiologist's final interpretation of the chest x-ray?",
+        "Please explain was the attending radiologist's final interpretation of the chest x-ray?",
+        "Regarding her condition, what was the attending radiologist's final interpretation of the chest x-ray?"
+      ],
+      "action_type": "trigger_discoverable",
+      "target_details": {
+        "discoverable_item_key": "Final CXR interpretation details"
+      },
+      "expected_dialogue_state": [
+        "INVESTIGATIONS_QUERY",
+        "REASSESSMENT"
+      ]
+    },
+    {
+      "id": "general_greet",
+      "canonical_question": "Hello",
+      "variations": [
+        "Hi",
+        "Good morning",
+        "Can you tell me hello?",
+        "Clinically speaking, hello",
+        "Could you explain hello?",
+        "For the medical record, hello",
+        "From a medical standpoint, hello",
+        "Hello, right?",
+        "How about hello?",
+        "I need to know hello.",
+        "I'm wondering about hello.",
+        "In terms of her health, hello",
+        "Medically, hello",
+        "Regarding her condition, hello",
+        "So, hello?",
+        "What about hello?"
+      ],
+      "action_type": "generic_response_or_state_change",
+      "target_details": {
+        "response_key": "greeting_response",
+        "next_state_suggestion": "CHIEF_COMPLAINT_EXPLORATION"
+      },
+      "expected_dialogue_state": [
+        "INTRODUCTION"
+      ]
+    },
+    {
+      "id": "general_thank_you_conclude",
+      "canonical_question": "Thank you, I have all the information I need.",
+      "variations": [
+        "I think I'm done with the interview.",
+        "Thanks for your time.",
+        "Can you tell me thank you, i have all the information i need?",
+        "Clinically speaking, thank you, i have all the information i need.",
+        "Could you explain thank you, i have all the information i need?",
+        "For the medical record, thank you, i have all the information i need.",
+        "From a medical standpoint, thank you, i have all the information i need.",
+        "How about thank you, i have all the information i need?",
+        "I need to know thank you, i have all the information i need.",
+        "I'm wondering about thank you, i have all the information i need.",
+        "In terms of her health, thank you, i have all the information i need.",
+        "Medically, thank you, i have all the information i need.",
+        "Regarding her condition, thank you, i have all the information i need.",
+        "So, thank you, i have all the information i need?",
+        "Thank information need?",
+        "Thank you, i have all information i need.",
+        "Thank you, i have all the information i need, right?"
+      ],
+      "action_type": "generic_response_or_state_change",
+      "target_details": {
+        "response_key": "acknowledgement_and_closing",
+        "next_state_suggestion": "CLOSING"
+      },
+      "expected_dialogue_state": [
+        "REASSESSMENT",
+        "INVESTIGATIONS_QUERY",
+        "PHYSICAL_EXAM_QUERY",
+        "REVIEW_OF_SYSTEMS"
+      ]
+    },
+    {
+      "id": "social_smoking",
+      "canonical_question": "Does the patient smoke?",
+      "variations": [
+        "Any history of tobacco use?",
+        "Can you tell me does the patient smoke?",
+        "Clinically speaking, does the patient smoke?",
+        "Could you explain does the patient smoke?",
+        "Does patient smoke?",
+        "Does the her smoke?",
+        "Does the patient smoke, right?",
+        "Does the she smoke?",
+        "Does the the woman smoke?",
+        "Does the this lady smoke?",
+        "Does the your mother smoke?",
+        "For the medical record, does the patient smoke?",
+        "From a medical standpoint, does the patient smoke?",
+        "How about does the patient smoke?",
+        "I need to know does the patient smoke.",
+        "I'm wondering about does the patient smoke.",
+        "Does the patien smoke?",
+        "Does the pateint smoke?",
+        "Does the patinet smoke?",
+        "Any histroy of tobacco use?",
+        "Any histry of tobacco use?",
+        "Any histoy of tobacco use?",
+        "Can you tell me does the patien smoke?",
+        "Can you tell me does the pateint smoke?",
+        "Can you tell me does the patinet smoke?",
+        "Clinically speaking, does the patien smoke?"
+      ],
+      "action_type": "provide_scripted_response",
+      "target_details": {
+        "response_key": "social_history_smoking_not_reported_by_son"
+      },
+      "expected_dialogue_state": [
+        "SOCIAL_HISTORY_GATHERING"
+      ]
+    },
+    {
+      "id": "family_history_general",
+      "canonical_question": "Is there any relevant family medical history?",
+      "variations": [
+        "Any diseases run in the family?",
+        "Are there any relevant family medical history?",
+        "Can you tell me is there any relevant family medical history?",
+        "Clinically speaking, is there any relevant family medical history?",
+        "Could you explain is there any relevant family medical history?",
+        "Does she have any relevant family medical history?",
+        "For the medical record, is there any relevant family medical history?",
+        "From a medical standpoint, is there any relevant family medical history?",
+        "Has she had any relevant family medical history?",
+        "How about is there any relevant family medical history?",
+        "I need to know is there any relevant family medical history.",
+        "I'm wondering about is there any relevant family medical history.",
+        "In terms of her health, is there any relevant family medical history?",
+        "Is there any relevant family medical background?",
+        "Is there any relevant family medical before?",
+        "Is there any relevant family medical history, right?",
+        "Is there any relevant family medical histroy?",
+        "Is there any relevant family medical histry?",
+        "Is there any relevant family medical histoy?",
+        "Are there any relevant family medical histroy?",
+        "Are there any relevant family medical histry?",
+        "Are there any relevant family medical histoy?",
+        "Can you tell me is there any relevant family medical histroy?",
+        "Can you tell me is there any relevant family medical histry?",
+        "Can you tell me is there any relevant family medical histoy?",
+        "Clinically speaking, is there any relevant family medical histroy?"
+      ],
+      "action_type": "provide_scripted_response",
+      "target_details": {
+        "response_key": "family_history_not_detailed_by_son"
+      },
+      "expected_dialogue_state": [
+        "FAMILY_HISTORY_GATHERING"
+      ]
+    },
+    {
+      "id": "semantic_general_age_inquiry",
+      "canonical_question": "General inquiry about general age inquiry",
+      "variations": [
+        "Tell me about age",
+        "What about age?",
+        "Regarding age",
+        "About age",
+        "Concerning age",
+        "Age?",
+        "Info on age",
+        "Details about age",
+        "Tell me about old",
+        "What about old?",
+        "Regarding old",
+        "About old",
+        "Concerning old",
+        "Old?",
+        "Info on old",
+        "Details about old",
+        "Tell me about elderly",
+        "What about elderly?",
+        "Regarding elderly",
+        "About elderly"
+      ],
+      "action_type": "semantic_fallback",
+      "target_details": {
+        "primary_intent": "profile_age",
+        "confidence_threshold": 0.6,
+        "semantic_keywords": [
+          "age",
+          "old",
+          "elderly",
+          "young",
+          "years"
+        ]
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "semantic_general_medication_inquiry",
+      "canonical_question": "General inquiry about general medication inquiry",
+      "variations": [
+        "Tell me about medication",
+        "What about medication?",
+        "Regarding medication",
+        "About medication",
+        "Concerning medication",
+        "Medication?",
+        "Info on medication",
+        "Details about medication",
+        "Tell me about pills",
+        "What about pills?",
+        "Regarding pills",
+        "About pills",
+        "Concerning pills",
+        "Pills?",
+        "Info on pills",
+        "Details about pills",
+        "Tell me about drugs",
+        "What about drugs?",
+        "Regarding drugs",
+        "About drugs"
+      ],
+      "action_type": "semantic_fallback",
+      "target_details": {
+        "primary_intent": "meds_current_known",
+        "confidence_threshold": 0.6,
+        "semantic_keywords": [
+          "medication",
+          "pills",
+          "drugs",
+          "medicine",
+          "taking"
+        ]
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "semantic_general_symptom_inquiry",
+      "canonical_question": "General inquiry about general symptom inquiry",
+      "variations": [
+        "Tell me about symptoms",
+        "What about symptoms?",
+        "Regarding symptoms",
+        "About symptoms",
+        "Concerning symptoms",
+        "Symptoms?",
+        "Info on symptoms",
+        "Details about symptoms",
+        "Tell me about complaint",
+        "What about complaint?",
+        "Regarding complaint",
+        "About complaint",
+        "Concerning complaint",
+        "Complaint?",
+        "Info on complaint",
+        "Details about complaint",
+        "Tell me about problem",
+        "What about problem?",
+        "Regarding problem",
+        "About problem"
+      ],
+      "action_type": "semantic_fallback",
+      "target_details": {
+        "primary_intent": "hpi_chief_complaint",
+        "confidence_threshold": 0.6,
+        "semantic_keywords": [
+          "symptoms",
+          "complaint",
+          "problem",
+          "wrong",
+          "bothering"
+        ]
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "semantic_general_history_inquiry",
+      "canonical_question": "General inquiry about general history inquiry",
+      "variations": [
+        "Tell me about history",
+        "What about history?",
+        "Regarding history",
+        "About history",
+        "Concerning history",
+        "History?",
+        "Info on history",
+        "Details about history",
+        "Tell me about past",
+        "What about past?",
+        "Regarding past",
+        "About past",
+        "Concerning past",
+        "Past?",
+        "Info on past",
+        "Details about past",
+        "Tell me about before",
+        "What about before?",
+        "Regarding before",
+        "About before"
+      ],
+      "action_type": "semantic_fallback",
+      "target_details": {
+        "primary_intent": "pmh_general",
+        "confidence_threshold": 0.6,
+        "semantic_keywords": [
+          "history",
+          "past",
+          "before",
+          "background"
+        ]
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "conversation_starter",
+      "canonical_question": "Let's begin the interview",
+      "variations": [
+        "Let's start",
+        "Shall we begin?",
+        "Let's go",
+        "Start interview",
+        "Begin",
+        "Ready to start",
+        "Let's do this",
+        "Start now",
+        "Okay, let's begin",
+        "Ready when you are",
+        "Let's proceed"
+      ],
+      "action_type": "conversation_flow",
+      "target_details": {
+        "flow_type": "initiate",
+        "next_suggested_state": "INTRODUCTION"
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "conversation_continue",
+      "canonical_question": "Continue with more questions",
+      "variations": [
+        "What else?",
+        "More questions",
+        "Continue",
+        "Next",
+        "Go on",
+        "What's next?",
+        "Keep going",
+        "More info",
+        "Tell me more",
+        "Anything else?",
+        "What about other things?",
+        "More details"
+      ],
+      "action_type": "conversation_flow",
+      "target_details": {
+        "flow_type": "continue"
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    },
+    {
+      "id": "conversation_clarification",
+      "canonical_question": "Can you clarify or repeat that?",
+      "variations": [
+        "What?",
+        "Come again?",
+        "Pardon?",
+        "Repeat that",
+        "Say that again",
+        "I didn't catch that",
+        "Could you repeat?",
+        "One more time",
+        "Sorry, what?",
+        "Can you say that again?",
+        "Didn't understand"
+      ],
+      "action_type": "conversation_flow",
+      "target_details": {
+        "flow_type": "clarification"
+      },
+      "expected_dialogue_state": [
+        "ANY"
+      ]
+    }
+  ],
+  "enhancement_metadata": {
+    "original_mappings_count": 39,
+    "semantic_mappings_added": 4,
+    "flow_mappings_added": 3,
+    "typo_variations_added": 253,
+    "total_mappings": 46
+  }
+}
