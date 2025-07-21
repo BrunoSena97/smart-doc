@@ -1,6 +1,8 @@
 """
-Bias Evaluation Tool
-Implements the rule-based bias detection algorithms from the research
+Cognitive Bias Analyzer for SmartDoc Virtual Patient Simulation
+
+This module implements rule-based cognitive bias detection algorithms for clinical
+reasoning assessment, providing real-time and session-level bias analysis.
 """
 
 from typing import Dict, List, Any

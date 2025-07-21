@@ -11,7 +11,7 @@ class SmartDocConfig:
     """
 
     # Knowledge Base Configuration
-    CASE_FILE: str = "data/cases/case01.json"
+    CASE_FILE: str = "data/cases/intent_driven_case.json"
     CANONICAL_MAPPINGS_FILE: str = "data/mappings/case01_advanced_enhanced.json"
 
     # NLU Configuration
@@ -34,6 +34,7 @@ class SmartDocConfig:
     FLASK_HOST: str = "127.0.0.1"
     FLASK_PORT: int = 8080
     FLASK_DEBUG: bool = False
+    SECRET_KEY: str = "smartdoc-dev-key-change-in-production"
 
     # Session Configuration
     SESSION_TIMEOUT_MINUTES: int = 30
@@ -72,6 +73,7 @@ class SmartDocConfig:
             FLASK_HOST=os.getenv('SMARTDOC_FLASK_HOST', cls.FLASK_HOST),
             FLASK_PORT=int(os.getenv('SMARTDOC_FLASK_PORT', cls.FLASK_PORT)),
             FLASK_DEBUG=os.getenv('SMARTDOC_FLASK_DEBUG', str(cls.FLASK_DEBUG)).lower() == 'true',
+            SECRET_KEY=os.getenv('SMARTDOC_SECRET_KEY', cls.SECRET_KEY),
 
             # Session
             SESSION_TIMEOUT_MINUTES=int(os.getenv('SMARTDOC_SESSION_TIMEOUT', cls.SESSION_TIMEOUT_MINUTES)),
@@ -110,19 +112,19 @@ class SmartDocConfig:
             # Validate inputs
             if not base_url or not model:
                 raise ValueError("Base URL and model are required")
-            
+
             if not (0.0 <= temperature <= 2.0):
                 raise ValueError("Temperature must be between 0.0 and 2.0")
-            
+
             if not (1 <= max_tokens <= 4096):
                 raise ValueError("Max tokens must be between 1 and 4096")
-            
+
             # Update the settings
             self.OLLAMA_BASE_URL = base_url
             self.OLLAMA_MODEL = model
             self.NLG_MAX_TOKENS = max_tokens
             self.NLG_TEMPERATURE = temperature
-            
+
             return True
         except Exception as e:
             raise ValueError(f"Failed to update settings: {e}")

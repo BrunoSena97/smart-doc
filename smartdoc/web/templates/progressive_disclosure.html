@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDoc - Virtual Patient Case</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        .vp-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            background-color: var(--chat-background);
+            min-height: 100vh;
+        }
+        
+        .vp-header {
+            background: linear-gradient(135deg, var(--primary-color), #3a7bb8);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        
+        .nav-links {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .case-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .case-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .left-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .right-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 1rem;
+        }
+        
+        .panel-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .panel-content {
+            padding: 1.5rem;
+        }
+        
+        .initial-presentation {
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 1rem;
+        }
+        
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-button:hover:not(.active) {
+            color: var(--text-color);
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .info-block {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .info-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .block-header {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .block-header.revealed {
+            background: #d4edda;
+            border-bottom-color: #c3e6cb;
+        }
+        
+        .block-header.critical {
+            background: #fff3cd;
+            border-bottom-color: #ffeaa7;
+        }
+        
+        .block-header.revealed.critical {
+            background: #d1ecf1;
+            border-bottom-color: #bee5eb;
+        }
+        
+        .block-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .block-status {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-unrevealed { background: #6c757d; }
+        .status-revealed { background: #28a745; }
+        .status-critical { background: #ffc107; }
+        
+        .block-content {
+            padding: 1rem;
+            display: none;
+            line-height: 1.6;
+        }
+        
+        .block-content.revealed {
+            display: block;
+        }
+        
+        .block-teaser {
+            padding: 1rem;
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .block-teaser:hover {
+            color: var(--primary-color);
+        }
+        
+        .reveal-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background 0.3s;
+        }
+        
+        .reveal-button:hover {
+            background: #245a8a;
+        }
+        
+        .working-hypothesis {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hypothesis-form {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(45, 106, 159, 0.25);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #245a8a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .session-stats {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s;
+        }
+        
+        .bias-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .bias-warning-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .hypothesis-timestamp {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+        
+        .block-revealed-info {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            border-top: 1px solid #e9ecef;
+            padding-top: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .right-panel {
+                position: static;
+                order: -1;
+            }
+            
+            .nav-links {
+                position: static;
+                text-align: center;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vp-container">
+        <div class="vp-header">
+            <div class="nav-links">
+                <a href="/">💬 Chat</a>
+                <a href="/admin/settings">⚙️ Settings</a>
+            </div>
+            <div class="case-title">{{ case_data.caseTitle }}</div>
+            <div class="case-subtitle">Virtual Patient Case - Progressive Disclosure</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="panel-header">
+                    Clinical Information
+                </div>
+                <div class="panel-content">
+                    <!-- Initial Presentation -->
+                    <div class="initial-presentation">
+                        <h3 style="margin-top: 0;">Initial Presentation</h3>
+                        <div><strong>Chief Complaint:</strong> {{ case_data.initialPresentation.chiefComplaint }}</div>
+                        <div style="margin-top: 0.5rem;"><strong>History:</strong> {{ case_data.initialPresentation.historyOfPresentIllness }}</div>
+                    </div>
+                    
+                    <!-- Information Categories -->
+                    <div class="section-tabs">
+                        <button class="tab-button active" data-category="all">All Information</button>
+                        <button class="tab-button" data-category="History">History</button>
+                        <button class="tab-button" data-category="PhysicalExam">Physical Exam</button>
+                        <button class="tab-button" data-category="Labs">Labs</button>
+                        <button class="tab-button" data-category="Imaging">Imaging</button>
+                    </div>
+                    
+                    <!-- Information Blocks -->
+                    <div id="information-blocks">
+                        <!-- Blocks will be loaded here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="panel-header">
+                    Your Progress
+                </div>
+                <div class="panel-content">
+                    <!-- Session Statistics -->
+                    <div class="session-stats">
+                        <div class="stat-item">
+                            <span>Information Revealed:</span>
+                            <span id="revealed-count">0 / 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="stat-item" style="margin-top: 1rem;">
+                            <span>Working Hypotheses:</span>
+                            <span id="hypothesis-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Session Time:</span>
+                            <span id="session-time">0m</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bias Warnings -->
+                    <div id="bias-warnings"></div>
+                    
+                    <!-- Working Hypothesis Form -->
+                    <div class="hypothesis-form">
+                        <h4>Add Working Hypothesis</h4>
+                        <div class="form-group">
+                            <label for="hypothesis-input" class="form-label">Differential Diagnosis</label>
+                            <input type="text" id="hypothesis-input" class="form-input" 
+                                   placeholder="Enter your working diagnosis...">
+                        </div>
+                        <div class="form-group">
+                            <label for="reasoning-input" class="form-label">Clinical Reasoning</label>
+                            <textarea id="reasoning-input" class="form-textarea" 
+                                     placeholder="Explain your reasoning..."></textarea>
+                        </div>
+                        <button id="add-hypothesis" class="btn btn-primary">Add Hypothesis</button>
+                    </div>
+                    
+                    <!-- Working Hypotheses List -->
+                    <div id="working-hypotheses">
+                        <h4>Working Hypotheses</h4>
+                        <div id="hypotheses-list">
+                            <!-- Hypotheses will be added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Final Diagnosis -->
+                    <div style="margin-top: 2rem;">
+                        <button id="submit-diagnosis" class="btn btn-success" style="width: 100%;">
+                            Submit Final Diagnosis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = '{{ session_id }}';
+        let currentCategory = 'all';
+        let sessionStartTime = new Date();
+        
+        $(document).ready(function() {
+            loadInformationBlocks();
+            updateSessionStats();
+            setInterval(updateSessionTime, 60000); // Update every minute
+            
+            // Tab switching
+            $('.tab-button').click(function() {
+                $('.tab-button').removeClass('active');
+                $(this).addClass('active');
+                currentCategory = $(this).data('category');
+                loadInformationBlocks();
+            });
+            
+            // Add hypothesis
+            $('#add-hypothesis').click(function() {
+                addWorkingHypothesis();
+            });
+            
+            // Submit final diagnosis
+            $('#submit-diagnosis').click(function() {
+                submitFinalDiagnosis();
+            });
+            
+            // Enter key for hypothesis input
+            $('#hypothesis-input').keypress(function(e) {
+                if (e.which === 13) {
+                    addWorkingHypothesis();
+                }
+            });
+        });
+        
+        function loadInformationBlocks() {
+            $.ajax({
+                url: '/vp/blocks',
+                method: 'GET',
+                data: { 
+                    session_id: sessionId,
+                    category: currentCategory === 'all' ? '' : currentCategory
+                },
+                success: function(response) {
+                    if (response.success) {
+                        displayInformationBlocks(response.blocks);
+                        updateSessionStats();
+                    } else {
+                        showAlert('Error loading information blocks: ' + response.error, 'warning');
+                    }
+                },
+                error: function() {
+                    showAlert('Failed to load information blocks', 'warning');
+                }
+            });
+        }
+        
+        function displayInformationBlocks(blocks) {
+            const container = $('#information-blocks');
+            container.empty();
+            
+            if (blocks.length === 0) {
+                container.html('<p style="text-align: center; color: #6c757d;">No information blocks in this category.</p>');
+                return;
+            }
+            
+            blocks.forEach(function(block) {
+                const blockHtml = createBlockHtml(block);
+                container.append(blockHtml);
+            });
+        }
+        
+        function createBlockHtml(block) {
+            const isRevealed = block.isRevealed;
+            const isCritical = block.isCritical;
+            
+            let headerClass = 'block-header';
+            let statusClass = 'status-unrevealed';
+            let statusText = 'Unrevealed';
+            
+            if (isRevealed) {
+                headerClass += ' revealed';
+                statusClass = 'status-revealed';
+                statusText = 'Revealed';
+            }
+            
+            if (isCritical) {
+                headerClass += ' critical';
+                if (!isRevealed) {
+                    statusClass = 'status-critical';
+                    statusText = 'Critical Finding';
+                }
+            }
+            
+            let contentHtml = '';
+            if (isRevealed) {
+                contentHtml = `
+                    <div class="block-content revealed">
+                        ${block.content}
+                        ${block.revealedAt ? `
+                            <div class="block-revealed-info">
+                                Revealed: ${new Date(block.revealedAt).toLocaleString()}
+                                ${block.revealedByQuery ? `<br>Query: "${block.revealedByQuery}"` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                contentHtml = `
+                    <div class="block-teaser" onclick="revealBlock('${block.blockId}')">
+                        Click to reveal this ${block.blockType.toLowerCase()} information
+                        <br><button class="reveal-button" style="margin-top: 0.5rem;">Reveal Information</button>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="info-block" id="block-${block.blockId}">
+                    <div class="${headerClass}" onclick="${isRevealed ? '' : `revealBlock('${block.blockId}')`}">
+                        <div class="block-title">
+                            ${block.blockType}
+                            ${isCritical ? '<span style="color: #ffc107;">⭐</span>' : ''}
+                        </div>
+                        <div class="block-status">
+                            <span class="status-icon ${statusClass}"></span>
+                            ${statusText}
+                        </div>
+                    </div>
+                    ${contentHtml}
+                </div>
+            `;
+        }
+        
+        function revealBlock(blockId) {
+            // Optional: ask for student's query
+            const query = prompt('What specific information are you looking for? (Optional)');
+            
+            $.ajax({
+                url: '/vp/reveal',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    session_id: sessionId,
+                    block_id: blockId,
+                    query: query
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        // Update the specific block
+                        updateBlockDisplay(response.block);
+                        
+                        // Show bias analysis if available
+                        if (response.biasAnalysis && response.biasAnalysis.potential_biases.length > 0) {
+                            showBiasWarning(response.biasAnalysis.potential_biases);
+                        }
+                        
+                        // Update session stats
+                        updateSessionStats();
+                        
+                        showAlert('Information revealed successfully!', 'success');
+                    } else {
+                        showAlert('Error revealing information: ' + response.error, 'warning');
+                    }
+                },
+                error: function() {
+                    showAlert('Failed to reveal information', 'warning');
+                }
+            });
+        }
+        
+        function updateBlockDisplay(block) {
+            const blockElement = $(`#block-${block.blockId}`);
+            const updatedHtml = createBlockHtml(block);
+            blockElement.replaceWith(updatedHtml);
+        }
+        
+        function addWorkingHypothesis() {
+            const hypothesis = $('#hypothesis-input').val().trim();
+            const reasoning = $('#reasoning-input').val().trim();
+            
+            if (!hypothesis) {
+                showAlert('Please enter a hypothesis', 'warning');
+                return;
+            }
+            
+            $.ajax({
+                url: '/vp/hypothesis',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    session_id: sessionId,
+                    hypothesis: hypothesis,
+                    reasoning: reasoning
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        addHypothesisToList(response.hypothesis);
+                        $('#hypothesis-input').val('');
+                        $('#reasoning-input').val('');
+                        updateSessionStats();
+                        showAlert('Hypothesis added successfully!', 'success');
+                    } else {
+                        showAlert('Error adding hypothesis: ' + response.error, 'warning');
+                    }
+                },
+                error: function() {
+                    showAlert('Failed to add hypothesis', 'warning');
+                }
+            });
+        }
+        
+        function addHypothesisToList(hypothesis) {
+            const hypothesesList = $('#hypotheses-list');
+            const hypothesisHtml = `
+                <div class="working-hypothesis">
+                    <div><strong>${hypothesis.hypothesis}</strong></div>
+                    ${hypothesis.reasoning ? `<div style="margin-top: 0.5rem; font-size: 0.9rem;">${hypothesis.reasoning}</div>` : ''}
+                    <div class="hypothesis-timestamp">
+                        Added: ${new Date(hypothesis.timestamp).toLocaleString()}
+                    </div>
+                </div>
+            `;
+            hypothesesList.append(hypothesisHtml);
+        }
+        
+        function submitFinalDiagnosis() {
+            const hypothesis = $('#hypothesis-input').val().trim();
+            const reasoning = $('#reasoning-input').val().trim();
+            
+            if (!hypothesis) {
+                showAlert('Please enter your final diagnosis', 'warning');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to submit your final diagnosis? This will complete the case.')) {
+                $.ajax({
+                    url: '/vp/submit',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        session_id: sessionId,
+                        diagnosis: hypothesis,
+                        reasoning: reasoning
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            showDiagnosisResults(response);
+                        } else {
+                            showAlert('Error submitting diagnosis: ' + response.error, 'warning');
+                        }
+                    },
+                    error: function() {
+                        showAlert('Failed to submit diagnosis', 'warning');
+                    }
+                });
+            }
+        }
+        
+        function showDiagnosisResults(response) {
+            // Create results modal or redirect to results page
+            const resultsHtml = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                        <h2>Case Completed!</h2>
+                        <div><strong>Your Diagnosis:</strong> ${response.diagnosis}</div>
+                        
+                        <h3 style="margin-top: 1.5rem;">Performance Summary</h3>
+                        <div>Diagnosis Accuracy: ${response.performance.diagnosis_accuracy ? '✅ Correct' : '❌ Incorrect'}</div>
+                        <div>Information Efficiency: ${Math.round(response.performance.information_efficiency * 100)}%</div>
+                        <div>Critical Findings Found: ${Math.round(response.performance.critical_finding_rate * 100)}%</div>
+                        <div>Session Duration: ${response.performance.session_duration_minutes} minutes</div>
+                        
+                        <h3 style="margin-top: 1.5rem;">Bias Analysis</h3>
+                        <div>Critical Completion Rate: ${Math.round(response.biasAnalysis.critical_findings.critical_completion_rate * 100)}%</div>
+                        
+                        <div style="margin-top: 2rem; text-align: center;">
+                            <button onclick="location.href='/'" class="btn btn-primary">Return to Chat</button>
+                            <button onclick="location.href='/vp'" class="btn btn-secondary" style="margin-left: 1rem;">New Case</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('body').append(resultsHtml);
+        }
+        
+        function updateSessionStats() {
+            $.ajax({
+                url: '/vp/stats',
+                method: 'GET',
+                data: { session_id: sessionId },
+                success: function(response) {
+                    if (response.success) {
+                        const stats = response.stats;
+                        $('#revealed-count').text(`${stats.revealed_blocks} / ${stats.total_blocks}`);
+                        $('#progress-fill').css('width', `${stats.completion_percentage}%`);
+                        $('#hypothesis-count').text(stats.working_hypotheses);
+                    }
+                }
+            });
+        }
+        
+        function updateSessionTime() {
+            const now = new Date();
+            const diffMs = now - sessionStartTime;
+            const diffMins = Math.floor(diffMs / 60000);
+            $('#session-time').text(`${diffMins}m`);
+        }
+        
+        function showBiasWarning(biases) {
+            const warningsContainer = $('#bias-warnings');
+            
+            biases.forEach(function(bias) {
+                const warningHtml = `
+                    <div class="bias-warning">
+                        <div class="bias-warning-header">⚠️ Cognitive Bias Alert: ${bias.type}</div>
+                        <div>${bias.description}</div>
+                    </div>
+                `;
+                warningsContainer.append(warningHtml);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(function() {
+                    warningsContainer.find('.bias-warning').last().fadeOut();
+                }, 10000);
+            });
+        }
+        
+        function showAlert(message, type) {
+            const alertHtml = `<div class="alert alert-${type}">${message}</div>`;
+            $('.panel-content').first().prepend(alertHtml);
+            
+            // Auto-hide after 3 seconds
+            setTimeout(function() {
+                $('.alert').first().fadeOut();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

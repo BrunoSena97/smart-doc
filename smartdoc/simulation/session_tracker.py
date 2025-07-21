@@ -1,6 +1,8 @@
 """
-Session Logger for SmartDoc
-Tracks user interactions for bias detection and evaluation
+Session Tracker for SmartDoc Virtual Patient Simulation
+
+This module tracks clinical simulation sessions, recording user interactions,
+temporal sequences, and session state for comprehensive bias analysis and evaluation.
 """
 
 import uuid
@@ -23,7 +25,7 @@ class SessionLogger:
         }
         sys_logger.log_system("info", f"Started new session: {self.session_data['session_id']}")
 
-    def log_interaction(self, intent_id: str, user_query: str, vsp_response: str, 
+    def log_interaction(self, intent_id: str, user_query: str, vsp_response: str,
                        nlu_output: Dict = None, dialogue_state: str = None):
         """Log a single interaction between user and VSP."""
         interaction = {
@@ -36,7 +38,7 @@ class SessionLogger:
         }
 
         self.session_data["interactions"].append(interaction)
-        
+
         # Update current state
         if dialogue_state:
             self.session_data["current_state"] = dialogue_state
@@ -45,7 +47,7 @@ class SessionLogger:
         self._check_for_biases()
 
         sys_logger.log_system("debug", f"Logged interaction: {intent_id} in state {dialogue_state}")
-    
+
     def get_session_data(self):
         """Get the full session data for bias analysis."""
         return self.session_data

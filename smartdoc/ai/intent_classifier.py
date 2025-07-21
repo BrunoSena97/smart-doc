@@ -106,7 +106,12 @@ class LLMIntentClassifier:
             },
             "meds_ra_specific_initial_query": {
                 "description": "Specific questions about rheumatoid arthritis medications",
-                "examples": ["Rheumatoid arthritis medications?", "RA treatment?"],
+                "examples": ["Rheumatoid arthritis medications?", "RA treatment?", "What does she take for her arthritis?", "What medications for RA?", "Arthritis drugs?", "What does she take for rheumatoid arthritis?"],
+                "category": "medications"
+            },
+            "meds_full_reconciliation_query": {
+                "description": "Follow-up questions requesting complete medication reconciliation or specific drug details",
+                "examples": ["Can you check her records for RA medications?", "What specific drugs for arthritis?", "Any biologics?", "Complete medication list?", "Check previous records", "What about infliximab?", "Any immunosuppressive medications?"],
                 "category": "medications"
             },
             "meds_other_meds_initial_query": {
@@ -142,6 +147,65 @@ class LLMIntentClassifier:
                 "category": "physical_exam_respiratory"
             },
 
+            # Symptom-Specific HPI Questions
+            "hpi_weight_loss": {
+                "description": "Questions about weight loss or weight changes",
+                "examples": ["Weight loss?", "Has patient lost weight?", "Any weight changes?"],
+                "category": "history_present_illness"
+            },
+            "hpi_appetite": {
+                "description": "Questions about appetite changes or eating habits",
+                "examples": ["How is her appetite?", "Has she been eating well?", "Any appetite changes?", "Is she eating?"],
+                "category": "history_present_illness"
+            },
+            "hpi_eating": {
+                "description": "Questions specifically about eating habits and food intake",
+                "examples": ["Has she been eating well lately?", "How much is she eating?", "Any changes in eating?"],
+                "category": "history_present_illness"
+            },
+            "hpi_fever": {
+                "description": "Questions about fever or temperature changes",
+                "examples": ["Any fever?", "Temperature?", "Running a fever?"],
+                "category": "history_present_illness"
+            },
+            "hpi_night_sweats": {
+                "description": "Questions about night sweats",
+                "examples": ["Night sweats?", "Sweating at night?", "Any sweats?"],
+                "category": "history_present_illness"
+            },
+            "hpi_cough": {
+                "description": "Questions about cough or sputum production",
+                "examples": ["Any cough?", "Coughing?", "Sputum production?"],
+                "category": "history_present_illness"
+            },
+            "hpi_shortness_of_breath": {
+                "description": "Questions about dyspnea or breathing difficulty",
+                "examples": ["Short of breath?", "Breathing problems?", "Dyspnea?"],
+                "category": "history_present_illness"
+            },
+            "hpi_chest_pain": {
+                "description": "Questions about chest pain or chest discomfort",
+                "examples": ["Chest pain?", "Any chest discomfort?", "Pain in chest?"],
+                "category": "history_present_illness"
+            },
+
+            # Diagnostic and Testing
+            "labs_general": {
+                "description": "Questions about laboratory tests or results",
+                "examples": ["Lab results?", "Blood tests?", "Laboratory findings?"],
+                "category": "diagnostics"
+            },
+            "imaging_chest": {
+                "description": "Questions about chest imaging",
+                "examples": ["Chest X-ray?", "Chest CT?", "Chest imaging?"],
+                "category": "diagnostics"
+            },
+            "imaging_general": {
+                "description": "Questions about imaging studies",
+                "examples": ["Any imaging?", "Radiology results?", "Scan results?"],
+                "category": "diagnostics"
+            },
+
             # General Communication
             "general_greeting": {
                 "description": "General greetings and conversation starters",
@@ -155,120 +219,13 @@ class LLMIntentClassifier:
             }
         }
 
-        # Create reverse mapping from broad categories to specific intent IDs
+        # Create reverse mapping from broad categories to specific intent IDs  
         self.category_to_intents = {}
         for intent_id, details in self.intent_categories.items():
             category = details.get("category", "general")
             if category not in self.category_to_intents:
                 self.category_to_intents[category] = []
             self.category_to_intents[category].append(intent_id)
-
-        # Map specific intent IDs to knowledge base actions
-        self.intent_to_action_map = {
-            # Patient Profile
-            "profile_age": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_patient_profile_item", "args": ["ageCategory"]}
-            },
-            "profile_language": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_patient_profile_item", "args": ["language"]}
-            },
-            "profile_social_context_historian": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_patient_profile_item", "args": ["socialContext"]}
-            },
-            "profile_medical_records": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_patient_profile_item", "args": ["medicalRecordAccess"]}
-            },
-
-            # History of Present Illness
-            "hpi_source_of_history": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_source_of_history"}
-            },
-            "hpi_chief_complaint": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_chief_complaints"}
-            },
-            "hpi_onset_duration_primary": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_hpi_onset_and_duration"}
-            },
-            "hpi_associated_symptoms_general": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_hpi_associated_symptoms"}
-            },
-            "hpi_pertinent_negatives": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_hpi_pertinent_negatives"}
-            },
-            "hpi_recent_medical_care": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_hpi_recent_medical_care"}
-            },
-            "hpi_travel_contacts": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_hpi_travel_contacts"}
-            },
-
-            # Past Medical History
-            "pmh_general": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_past_medical_history"}
-            },
-
-            # Medications
-            "meds_current_known": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_current_medications"}
-            },
-            "meds_uncertainty": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_medications_uncertainty"}
-            },
-            "meds_ra_specific_initial_query": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_ra_medications"}
-            },
-            "meds_other_meds_initial_query": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_other_medications"}
-            },
-            "meds_allergies": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_medication_allergies"}
-            },
-
-            # Physical Examination
-            "exam_general_appearance": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_general_appearance"}
-            },
-            "exam_vital_signs": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_vital_signs"}
-            },
-            "exam_cardiovascular": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_cardiovascular_exam"}
-            },
-            "exam_respiratory": {
-                "action_type": "fetch_from_kb",
-                "target_details": {"method": "get_respiratory_exam"}
-            },
-
-            # Communication
-            "general_greeting": {
-                "action_type": "generic_response_or_state_change",
-                "target_details": {"response_key": "greeting_response"}
-            },
-            "clarification": {
-                "action_type": "generic_response_or_state_change",
-                "target_details": {"response_key": "clarification_request"}
-            }
-        }
 
         sys_logger.log_system("info", f"LLMIntentClassifier initialized with model: {self.model}")
 
@@ -301,19 +258,7 @@ class LLMIntentClassifier:
             # Parse LLM response
             result = self._parse_llm_response(response, doctor_input)
 
-            # Add structured action data for dialogue manager
-            intent_id = result["intent_id"]
-            if intent_id in self.intent_to_action_map:
-                action_info = self.intent_to_action_map[intent_id]
-                result.update(action_info)
-            else:
-                # Default fallback structure
-                result.update({
-                    "action_type": "generic_response_or_state_change",
-                    "target_details": {"response_key": "intent_not_understood"}
-                })
-
-            sys_logger.log_system("debug", f"LLM Intent Classification: '{doctor_input}' -> {result['intent_id']} (confidence: {result['confidence']:.2f}) -> {result['action_type']}")
+            sys_logger.log_system("debug", f"LLM Intent Classification: '{doctor_input}' -> {result['intent_id']} (confidence: {result['confidence']:.2f})")
 
             return result
 
@@ -466,24 +411,13 @@ The intent_id MUST be one of the exact IDs listed above. Do not use any other in
         elif any(word in input_lower for word in ["hello", "hi", "good morning", "good afternoon"]):
             intent_id = "general_greeting"
 
-        # Build structured response
+        # Build simplified response for intent-driven discovery
         result = {
             "intent_id": intent_id,
             "confidence": 0.6 if intent_id != "clarification" else 0.3,
             "explanation": f"Keyword-based fallback (LLM error: {error_msg})",
             "error": error_msg
         }
-
-        # Add structured action data
-        if intent_id in self.intent_to_action_map:
-            action_info = self.intent_to_action_map[intent_id]
-            result.update(action_info)
-        else:
-            # Default fallback structure
-            result.update({
-                "action_type": "generic_response_or_state_change",
-                "target_details": {"response_key": "intent_not_understood"}
-            })
 
         return result
 
