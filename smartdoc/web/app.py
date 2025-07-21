@@ -10,11 +10,12 @@ from smartdoc.simulation.session_tracker import get_current_session, start_new_s
 import uuid
 import os
 
-# Set template and static folder paths within web module
+# Set template and static folder paths
 web_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(web_dir))  # Go up two levels from smartdoc/web/
 app = Flask(__name__,
             template_folder=os.path.join(web_dir, 'templates'),
-            static_folder=os.path.join(web_dir, 'static'))
+            static_folder=os.path.join(project_root, 'static'))
 
 app.secret_key = config.SECRET_KEY
 
@@ -86,7 +87,7 @@ def home():
         sys_logger.log_system("error", f"Error in home route: {e}")
         return render_template("error.html", error_message="An error occurred starting the session."), 500
 
-@app.route("/get")
+@app.route("/get_bot_response", methods=["POST"])
 def get_bot_response():
     """Get bot response using intent-driven discovery."""
     if not intent_driven_manager or not llm_intent_classifier:
@@ -96,7 +97,9 @@ def get_bot_response():
         })
 
     try:
-        user_input = request.args.get('msg', '').strip()
+        # Get JSON data from POST request
+        data = request.get_json()
+        user_input = data.get('message', '').strip() if data else ''
 
         if not user_input:
             return jsonify({
@@ -108,7 +111,7 @@ def get_bot_response():
             return jsonify({"response": "Session ended.", "session_ended": True})
 
         # Process user input with Intent-Driven Discovery
-        session_id = request.args.get('session_id', f"web_session_{uuid.uuid4().hex[:8]}")
+        session_id = data.get('session_id', f"web_session_{uuid.uuid4().hex[:8]}") if data else f"web_session_{uuid.uuid4().hex[:8]}"
 
         try:
             discovery_result = intent_driven_manager.process_doctor_query(session_id, user_input)
@@ -116,26 +119,118 @@ def get_bot_response():
             if discovery_result['success']:
                 response_data = {
                     "response": discovery_result['response']['text'],
-                    "has_discoveries": discovery_result['response']['has_discoveries'],
-                    "discoveries": discovery_result['response']['discoveries'],
-                    "discovery_count": discovery_result['response']['discovery_count'],
-                    "session_id": session_id
+                    "discovery_events": [],
+                    "discovery_stats": {},
+                    "bias_warnings": []
                 }
 
-                # Add discovery stats if available
+                # Process discoveries into events for the frontend
+                if 'discoveries' in discovery_result['response'] and discovery_result['response']['discoveries']:
+                    discovery_events = []
+                    for discovery in discovery_result['response']['discoveries']:
+                        # Map block_type to frontend categories
+                        block_type = discovery.get('block_type', 'general')
+                        content = discovery.get('content', discovery.get('text', ''))
+                        
+                        # Map backend block types to frontend categories
+                        category_mapping = {
+                            'Demographics': 'demographics',
+                            'History': 'hpi', 
+                            'Medications': 'medications',
+                            'Physical Exam': 'examination',
+                            'Labs': 'laboratory',
+                            'Imaging': 'imaging'
+                        }
+                        
+                        category = category_mapping.get(block_type, 'hpi')
+                        
+                        # Create more descriptive labels based on content
+                        if block_type == 'Demographics':
+                            if 'age' in content.lower():
+                                label = 'Age'
+                            elif 'language' in content.lower():
+                                label = 'Language'
+                            elif 'records' in content.lower():
+                                label = 'Medical Records'
+                            else:
+                                label = 'Demographics'
+                        elif block_type == 'History':
+                            if 'weight loss' in content.lower():
+                                label = 'Weight Loss'
+                            elif 'shortness of breath' in content.lower() or 'dyspnea' in content.lower():
+                                label = 'Shortness of Breath'
+                            elif 'cough' in content.lower():
+                                label = 'Cough'
+                            elif 'onset' in content.lower() or 'duration' in content.lower():
+                                label = 'Symptom Timeline'
+                            elif 'denies' in content.lower():
+                                label = 'Review of Systems'
+                            elif 'azithromycin' in content.lower():
+                                label = 'Previous Treatment'
+                            elif 'medical history' in content.lower():
+                                label = 'Past Medical History'
+                            else:
+                                label = 'History'
+                        elif block_type == 'Medications':
+                            if 'lisinopril' in content.lower() or 'atenolol' in content.lower():
+                                label = 'Current Medications'
+                            elif 'infliximab' in content.lower():
+                                label = 'Immunosuppressants'
+                            else:
+                                label = 'Medications'
+                        else:
+                            label = block_type
+                        
+                        discovery_events.append({
+                            "category": category,
+                            "field": label,
+                            "value": content
+                        })
+                    response_data["discovery_events"] = discovery_events
+
+                # Add discovery stats
                 if 'discovery_stats' in discovery_result:
                     response_data["discovery_stats"] = discovery_result['discovery_stats']
 
                 # Get current session for bias tracking
                 session_logger = get_current_session()
-                session_logger.log_interaction(
-                    intent_id=discovery_result['intent_classification']['intent_id'],
-                    user_query=user_input,
-                    vsp_response=discovery_result['response']['text'],
-                    nlu_output=discovery_result['intent_classification']
-                )
+                if session_logger:
+                    # Log the interaction first so bias detection can run
+                    session_logger.log_interaction(
+                        intent_id=discovery_result['intent_classification']['intent_id'],
+                        user_query=user_input,
+                        vsp_response=discovery_result['response']['text'],
+                        nlu_output=discovery_result['intent_classification']
+                    )
+                    
+                    # Check for new bias warnings from the session tracker
+                    latest_bias = session_logger.get_latest_bias_warning()
+                    if latest_bias and latest_bias.get('interaction_count') == len(session_logger.get_interactions()):
+                        # This is a new bias warning from the current interaction
+                        bias_warning = {
+                            "bias_type": latest_bias.get('bias_type'),
+                            "description": latest_bias.get('message')
+                        }
+                        response_data["bias_warnings"].append(bias_warning)
+                        sys_logger.log_system("warning", f"Session tracker bias warning: {latest_bias.get('bias_type')}")
 
-                sys_logger.log_system("info", f"Intent-driven discovery successful: {len(discovery_result['discovery_result']['discovered_blocks'])} blocks discovered")
+                # Add bias warning from discovery result if detected
+                if 'bias_warning' in discovery_result:
+                    response_data["bias_warnings"].append(discovery_result['bias_warning'])
+                    sys_logger.log_system("warning", f"Discovery bias warning sent to frontend: {discovery_result['bias_warning']['bias_type']}")
+
+                # Add discovery count and total for progress tracking
+                if 'discovery_result' in discovery_result:
+                    discovery_data = discovery_result['discovery_result']
+                    total_blocks = len(discovery_data.get('case_data', {}).get('content_blocks', []))
+                    discovered_blocks = len(discovery_data.get('discovered_blocks', []))
+                    
+                    response_data["discovery_stats"] = {
+                        "total": total_blocks,
+                        "discovered": discovered_blocks
+                    }
+
+                sys_logger.log_system("info", f"Intent-driven discovery successful: {len(discovery_result.get('discovery_result', {}).get('discovered_blocks', []))} blocks discovered")
                 return jsonify(response_data)
             else:
                 return jsonify({
@@ -156,6 +251,14 @@ def get_bot_response():
             "response": "An unexpected error occurred. Please try again.",
             "error": True
         })
+
+@app.route("/get")
+def get_bot_response_legacy():
+    """Legacy GET endpoint for compatibility."""
+    return jsonify({
+        "response": "Please use the new interface. This endpoint is deprecated.",
+        "error": False
+    })
 
 # Intent-Driven Discovery API Endpoints
 
@@ -236,41 +339,133 @@ def test_discovery():
 
 @app.route("/bias_evaluation")
 def bias_evaluation():
-    """Comprehensive bias evaluation endpoint for testing."""
+    """Comprehensive bias evaluation endpoint using real session data."""
     try:
-        # Simple bias evaluation response for testing
-        evaluation_result = {
-            "success": True,
-            "evaluation": {
-                "overall_score": 75,
-                "anchoring_bias": {
-                    "detected": False,
-                    "reason": "No evidence of premature fixation on initial diagnosis",
-                    "score": 25
-                },
-                "confirmation_bias": {
-                    "detected": False,
-                    "reason": "Doctor explored multiple avenues of inquiry",
-                    "score": 30
-                },
-                "premature_closure": {
-                    "detected": False,
-                    "reason": "Adequate information gathering before diagnosis",
-                    "score": 20
-                }
-            },
-            "recommendations": [
-                "Continue comprehensive history taking",
-                "Consider alternative diagnoses",
-                "Gather more objective data before concluding"
-            ]
-        }
+        # Get the most recent session data
+        session_logger = get_current_session()
+        session_data = session_logger.get_session_data()
 
-        return jsonify(evaluation_result)
+        # Use the bias analyzer from the intent-driven manager
+        if intent_driven_manager and intent_driven_manager.bias_analyzer:
+            # Convert session interactions to the format expected by bias analyzer
+            interactions = session_data.get('interactions', [])
+            revealed_blocks = set()  # You'd need to get this from the progressive disclosure session
+            hypotheses = []  # You'd need to track hypotheses
+            final_diagnosis = ""  # You'd get this from session data
+
+            # Run comprehensive bias evaluation
+            evaluation = intent_driven_manager.bias_analyzer.evaluate_session(
+                session_log=interactions,
+                revealed_blocks=revealed_blocks,
+                hypotheses=hypotheses,
+                final_diagnosis=final_diagnosis
+            )
+
+            # Get bias summary from session tracker
+            bias_summary = session_logger.get_bias_summary()
+
+            return jsonify({
+                "success": True,
+                "evaluation": evaluation,
+                "session_summary": bias_summary,
+                "session_id": session_data.get('session_id'),
+                "total_interactions": len(interactions)
+            })
+        else:
+            # Fallback to static response if bias analyzer not available
+            return jsonify({
+                "success": True,
+                "evaluation": {
+                    "overall_score": 0,
+                    "anchoring_bias": {"detected": False, "reason": "Bias analyzer not available"},
+                    "confirmation_bias": {"detected": False, "reason": "Bias analyzer not available"},
+                    "premature_closure": {"detected": False, "reason": "Bias analyzer not available"}
+                },
+                "message": "Bias analyzer not available - using fallback"
+            })
 
     except Exception as e:
         sys_logger.log_system("error", f"Error in bias evaluation: {e}")
-        return jsonify({"error": "Failed to evaluate bias"}), 500
+        return jsonify({"error": f"Failed to evaluate bias: {str(e)}"}), 500
+
+@app.route('/submit_diagnosis', methods=['POST'])
+def submit_diagnosis():
+    """Handle diagnosis submission and return performance analysis."""
+    try:
+        data = request.get_json()
+        diagnosis = data.get('diagnosis', '')
+        session_data = data.get('session_data', {})
+
+        # Get current session from session tracker
+        current_session = get_current_session()
+
+        # Calculate performance metrics
+        discovered_count = session_data.get('discovered_count', 0)
+        total_available = session_data.get('total_available', 1)
+        bias_warnings = session_data.get('bias_warnings', 0)
+
+        # Calculate scores
+        discovery_percentage = (discovered_count / total_available) * 100 if total_available > 0 else 0
+        bias_score = max(0, 100 - (bias_warnings * 10))  # Deduct 10 points per bias warning
+
+        # Overall score calculation
+        overall_score = round((discovery_percentage * 0.6) + (bias_score * 0.4))
+
+        # Generate performance feedback
+        discovery_rating = "Excellent" if discovery_percentage >= 80 else \
+                          "Good" if discovery_percentage >= 60 else \
+                          "Fair" if discovery_percentage >= 40 else "Needs Improvement"
+
+        bias_rating = "Excellent" if bias_warnings == 0 else \
+                     "Good" if bias_warnings <= 2 else \
+                     "Fair" if bias_warnings <= 4 else "Needs Improvement"
+
+        # Generate feedback text
+        feedback_parts = []
+
+        if discovery_percentage >= 80:
+            feedback_parts.append("You demonstrated excellent information gathering skills, discovering most of the available clinical information.")
+        elif discovery_percentage >= 60:
+            feedback_parts.append("You gathered a good amount of clinical information, but there may be additional details that could inform your diagnosis.")
+        else:
+            feedback_parts.append("Consider asking more comprehensive questions to gather additional clinical information before making a diagnosis.")
+
+        if bias_warnings == 0:
+            feedback_parts.append("You showed excellent clinical reasoning without triggering cognitive bias warnings.")
+        elif bias_warnings <= 2:
+            feedback_parts.append("You demonstrated good clinical reasoning with minimal bias concerns.")
+        else:
+            feedback_parts.append("Be mindful of potential cognitive biases that may affect your clinical reasoning.")
+
+        feedback_parts.append(f"Your submitted diagnosis: \"{diagnosis}\"")
+
+        performance_data = {
+            "score": f"{overall_score}/100",
+            "feedback": " ".join(feedback_parts),
+            "performance_summary": {
+                "information_discovery": f"{discovery_rating} ({discovered_count}/{total_available} items)",
+                "bias_awareness": f"{bias_rating} ({bias_warnings} warnings)",
+                "diagnostic_accuracy": "Requires expert review"
+            }
+        }
+
+        # Log the diagnosis submission
+        if current_session:
+            sys_logger.log_system("info", f"Diagnosis submitted for session {current_session.get('session_id', 'unknown')}: {diagnosis}")
+
+        return jsonify(performance_data)
+
+    except Exception as e:
+        sys_logger.log_system("error", f"Error in diagnosis submission: {e}")
+        return jsonify({
+            "score": "Error",
+            "feedback": "An error occurred while processing your diagnosis. Please try again.",
+            "performance_summary": {
+                "information_discovery": "N/A",
+                "bias_awareness": "N/A",
+                "diagnostic_accuracy": "N/A"
+            }
+        }), 500
 
 @app.errorhandler(404)
 def not_found(error):

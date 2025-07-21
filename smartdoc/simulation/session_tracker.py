@@ -21,6 +21,7 @@ class SessionLogger:
             "interactions": [],
             "student_responses": [],
             "detected_biases": [],
+            "bias_warnings": [],  # New: track bias warnings
             "current_state": "INTRODUCTION"
         }
         sys_logger.log_system("info", f"Started new session: {self.session_data['session_id']}")
@@ -51,6 +52,35 @@ class SessionLogger:
     def get_session_data(self):
         """Get the full session data for bias analysis."""
         return self.session_data
+    
+    def get_interactions(self) -> List[Dict]:
+        """Get the interactions list for bias analysis."""
+        return self.session_data.get('interactions', [])
+    
+    def log_bias_warning(self, bias_event: Dict):
+        """Log a bias warning event."""
+        bias_warning = {
+            "bias_type": bias_event.get('bias_type'),
+            "message": bias_event.get('message'),
+            "confidence": bias_event.get('confidence', 0.5),
+            "timestamp": datetime.now().isoformat()
+        }
+        self.session_data['bias_warnings'].append(bias_warning)
+        sys_logger.log_system("warning", f"BIAS WARNING: {bias_event.get('bias_type')} - {bias_event.get('message')}")
+    
+    def get_bias_summary(self) -> Dict:
+        """Get a summary of all bias warnings in this session."""
+        warnings = self.session_data.get('bias_warnings', [])
+        bias_types = {}
+        for warning in warnings:
+            bias_type = warning.get('bias_type', 'unknown')
+            bias_types[bias_type] = bias_types.get(bias_type, 0) + 1
+        
+        return {
+            'total_warnings': len(warnings),
+            'bias_types': bias_types,
+            'warnings': warnings
+        }
 
     def _check_for_biases(self):
         """Simple bias detection based on interaction patterns."""

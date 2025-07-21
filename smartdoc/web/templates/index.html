@@ -3,48 +3,604 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartDoc Clinical Simulation</title>
+    <title>SmartDoc Clinical Simulation Platform</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-        <div class="chat-container">
-        <header>
-            <h1>SmartDoc - Medical Education Assistant</h1>
-            <div>Ask questions naturally - information will be discovered as you explore the case</div>
-        </header>
-
-        <!-- Discovery Stats Panel -->
-        <div id="discovery-stats" style="display: none;">
-            <div class="stats-title" style="font-weight: bold; margin-bottom: 5px;">Discovery Progress</div>
-            <div class="stats-item">Discovered: 0/0</div>
-            <div class="stats-item">Progress: 0%</div>
-            <div class="stats-item">Events: 0</div>
-        </div>
-
-        <main id="chatbox" class="chat-log">
-            <!-- Initial bot message from Flask will be here -->
-            <div class="message bot-message">
-                <div class="avatar bot-avatar">
-                    <!-- SVG for a medical cross icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+    <div class="medical-interface">
+        <!-- Header -->
+        <header class="medical-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-user-md"></i>
+                    <h1>SmartDoc Clinical Simulation</h1>
                 </div>
-                <div class="message-bubble">
-                    <span>{{ initial_bot_message }}</span>
+                <div class="session-info">
+                    <span class="session-id">Session: <span id="current-session">Loading...</span></span>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span>Active Session</span>
+                    </div>
                 </div>
             </div>
-        </main>
+        </header>
 
-        <div class="chat-input-area">
-            <form id="chat-form" class="chat-input-form">
-                <textarea id="chat-input" placeholder="Ask a question..." rows="1"></textarea>
-                <button type="submit" id="send-button">
-                    <!-- SVG for a send icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z"/></svg>
-                </button>
-            </form>
-        </div>
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-button active" data-tab="chat">
+                <i class="fas fa-comments"></i>
+                Clinical Interview
+            </button>
+            <button class="tab-button" data-tab="patient-info">
+                <i class="fas fa-user-circle"></i>
+                Patient Information
+            </button>
+            <button class="tab-button" data-tab="results" id="results-tab" style="display: none;">
+                <i class="fas fa-chart-line"></i>
+                Performance Results
+            </button>
+        </nav>
+
+        <!-- Tab Content Areas -->
+        <main class="tab-content-container">
+
+            <!-- Chat Tab -->
+            <div id="chat" class="tab-content active">
+                <div class="chat-interface">
+                    <!-- Progress Dashboard -->
+                    <div class="progress-dashboard">
+                        <div class="progress-item">
+                            <span class="progress-label">Information Discovered</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="discovery-progress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="discovery-count">0/0</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Bias Warnings</span>
+                            <span class="warning-badge" id="bias-count">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>{{ initial_bot_message }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="chat-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="chat-input" placeholder="Ask about the patient's condition, symptoms, history..." rows="1"></textarea>
+                                <button type="submit" id="send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Information Tab -->
+            <div id="patient-info" class="tab-content">
+                <div class="patient-info-container">
+                    <!-- Patient Header -->
+                    <div class="patient-header">
+                        <div class="patient-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="patient-basic-info">
+                            <h2>Patient Summary</h2>
+                            <p class="patient-note">Information revealed through clinical interview</p>
+                        </div>
+                    </div>
+
+                    <!-- Information Sections -->
+                    <div class="info-sections">
+                        <div class="info-section">
+                            <h3><i class="fas fa-id-card"></i> Demographics</h3>
+                            <div class="info-grid" id="demographics-info">
+                                <p class="no-info">No demographic information discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-history"></i> History of Present Illness</h3>
+                            <div class="info-grid" id="hpi-info">
+                                <p class="no-info">No HPI information discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-pills"></i> Medications</h3>
+                            <div class="info-grid" id="medications-info">
+                                <p class="no-info">No medication information discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-stethoscope"></i> Physical Examination</h3>
+                            <div class="info-grid" id="exam-info">
+                                <p class="no-info">No examination findings discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-vials"></i> Laboratory Results</h3>
+                            <div class="info-grid" id="labs-info">
+                                <p class="no-info">No laboratory results discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-x-ray"></i> Imaging</h3>
+                            <div class="info-grid" id="imaging-info">
+                                <p class="no-info">No imaging results discovered yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnosis Submission -->
+                    <div class="diagnosis-section">
+                        <h3><i class="fas fa-diagnoses"></i> Submit Diagnosis</h3>
+                        <div class="diagnosis-form">
+                            <textarea id="diagnosis-input" placeholder="Enter your diagnosis and reasoning..." rows="4"></textarea>
+                            <button id="submit-diagnosis" class="submit-btn">
+                                <i class="fas fa-check-circle"></i>
+                                Submit Diagnosis & End Simulation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="results" class="tab-content">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2><i class="fas fa-trophy"></i> Clinical Performance Analysis</h2>
+                        <p>Your performance in this clinical simulation</p>
+                    </div>
+
+                    <div class="results-content" id="results-content">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            // Tab switching
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+
+                    // Remove active class from all tabs and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    // Add active class to clicked tab and corresponding content
+                    button.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Initialize session ID
+            updateSessionInfo();
+
+            // Auto-resize textarea
+            const chatInput = document.getElementById('chat-input');
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+
+            // Diagnosis submission
+            document.getElementById('submit-diagnosis').addEventListener('click', function() {
+                const diagnosis = document.getElementById('diagnosis-input').value.trim();
+                if (!diagnosis) {
+                    alert('Please enter your diagnosis before submitting.');
+                    return;
+                }
+
+                submitDiagnosis(diagnosis);
+            });
+        });
+
+        // Global state
+        let discoveredInfo = {
+            demographics: {},
+            hpi: {},
+            medications: {},
+            examination: {},
+            laboratory: {},
+            imaging: {}
+        };
+
+        let totalAvailableInfo = 0;
+        let discoveredCount = 0;
+        let biasWarningCount = 0;
+
+        // Update session information
+        function updateSessionInfo() {
+            const sessionId = Math.random().toString(36).substr(2, 9).toUpperCase();
+            document.getElementById('current-session').textContent = sessionId;
+        }
+
+        // Update progress dashboard
+        function updateProgress() {
+            const percentage = totalAvailableInfo > 0 ? Math.round((discoveredCount / totalAvailableInfo) * 100) : 0;
+
+            document.getElementById('discovery-progress').style.width = percentage + '%';
+            document.getElementById('discovery-count').textContent = `${discoveredCount}/${totalAvailableInfo}`;
+        }
+
+        // Update bias warning count
+        function updateBiasCount() {
+            document.getElementById('bias-count').textContent = biasWarningCount;
+        }
+
+        // Add information to patient info tab
+        function addPatientInfo(category, label, value) {
+            if (!discoveredInfo[category]) {
+                discoveredInfo[category] = {};
+            }
+
+            // Create a unique key for each discovery to allow multiple items per category
+            const timestamp = Date.now();
+            const uniqueKey = `${label}_${timestamp}`;
+
+            // Always add new discoveries (don't check if it exists)
+            discoveredInfo[category][uniqueKey] = {
+                label: label,
+                value: value,
+                timestamp: timestamp
+            };
+
+            discoveredCount++;
+            updateProgress();
+            updatePatientInfoDisplay(category);
+        }
+
+        // Update patient information display
+        function updatePatientInfoDisplay(category) {
+            const container = document.getElementById(`${category}-info`);
+            const info = discoveredInfo[category];
+
+            if (!info || Object.keys(info).length === 0) {
+                container.innerHTML = '<p class="no-info">No ' + category.replace(/([A-Z])/g, ' $1').toLowerCase() + ' information discovered yet</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // Sort discoveries by timestamp to show them in order
+            const sortedEntries = Object.entries(info).sort((a, b) => a[1].timestamp - b[1].timestamp);
+
+            sortedEntries.forEach(([uniqueKey, discovery]) => {
+                const item = document.createElement('div');
+                item.className = 'info-item';
+                item.innerHTML = `
+                    <span class="info-item-label">${discovery.label}:</span>
+                    <span class="info-item-value">${discovery.value}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Submit diagnosis and show results
+        function submitDiagnosis(diagnosis) {
+            // Show results tab
+            document.getElementById('results-tab').style.display = 'flex';
+
+            // Switch to results tab
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector('[data-tab="results"]').classList.add('active');
+            document.getElementById('results').classList.add('active');
+
+            // Submit diagnosis to backend
+            fetch('/submit_diagnosis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    diagnosis: diagnosis,
+                    session_data: {
+                        discovered_count: discoveredCount,
+                        total_available: totalAvailableInfo,
+                        bias_warnings: biasWarningCount,
+                        discovered_info: discoveredInfo
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error submitting diagnosis:', error);
+                displayResults({
+                    score: 'N/A',
+                    feedback: 'Error processing diagnosis. Please try again.',
+                    performance_summary: {
+                        information_discovery: 'N/A',
+                        bias_awareness: 'N/A',
+                        diagnostic_accuracy: 'N/A'
+                    }
+                });
+            });
+        }
+
+        // Display results
+        function displayResults(data) {
+            const resultsContent = document.getElementById('results-content');
+            resultsContent.innerHTML = `
+                <div class="results-summary">
+                    <div class="score-card">
+                        <h3><i class="fas fa-star"></i> Overall Score</h3>
+                        <div class="score-value">${data.score || 'N/A'}</div>
+                    </div>
+
+                    <div class="performance-metrics">
+                        <h3><i class="fas fa-chart-bar"></i> Performance Breakdown</h3>
+                        <div class="metric-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Information Discovery</span>
+                                <span class="metric-value">${data.performance_summary?.information_discovery || 'N/A'}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Bias Awareness</span>
+                                <span class="metric-value">${data.performance_summary?.bias_awareness || 'N/A'}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Diagnostic Accuracy</span>
+                                <span class="metric-value">${data.performance_summary?.diagnostic_accuracy || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feedback-section">
+                        <h3><i class="fas fa-comment-medical"></i> Clinical Feedback</h3>
+                        <div class="feedback-content">${data.feedback || 'No feedback available.'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Enhanced chat functionality
+        $(document).ready(function() {
+            let isWaitingForResponse = false;
+
+            $('#chat-form').on('submit', function(e) {
+                e.preventDefault();
+
+                if (isWaitingForResponse) return;
+
+                var userMessage = $('#chat-input').val().trim();
+                if (!userMessage) return;
+
+                // Add user message to chat
+                addMessage(userMessage, 'user');
+                $('#chat-input').val('').css('height', 'auto');
+
+                isWaitingForResponse = true;
+
+                // Send message to bot
+                $.ajax({
+                    url: '/get_bot_response',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        'message': userMessage
+                    }),
+                    success: function(response) {
+                        console.log('Backend response:', response); // Debug log
+
+                        addMessage(response.response, 'bot');
+
+                        // Handle discovery events
+                        if (response.discovery_events && response.discovery_events.length > 0) {
+                            console.log('Discovery events:', response.discovery_events); // Debug log
+                            response.discovery_events.forEach(event => {
+                                const category = mapCategoryToPatientInfo(event.category);
+                                console.log(`Mapping ${event.category} to ${category}`); // Debug log
+                                if (category) {
+                                    addPatientInfo(category, event.field, event.value);
+                                }
+                            });
+                        }
+
+                        // Update total available info
+                        if (response.discovery_stats) {
+                            console.log('Discovery stats:', response.discovery_stats); // Debug log
+                            totalAvailableInfo = response.discovery_stats.total;
+                            updateProgress();
+                        }
+
+                        // Handle bias warnings
+                        if (response.bias_warnings && response.bias_warnings.length > 0) {
+                            console.log('Bias warnings:', response.bias_warnings); // Debug log
+                            response.bias_warnings.forEach(warning => {
+                                addBiasWarning(warning);
+                                biasWarningCount++;
+                            });
+                            updateBiasCount();
+                        }
+
+                        isWaitingForResponse = false;
+                    },
+                    error: function() {
+                        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                        isWaitingForResponse = false;
+                    }
+                });
+            });
+        });
+
+        // Map backend categories to patient info categories
+        function mapCategoryToPatientInfo(category) {
+            const mapping = {
+                'demographics': 'demographics',
+                'hpi': 'hpi',
+                'history': 'hpi',
+                'medications': 'medications',
+                'physical_exam': 'examination',
+                'examination': 'examination',
+                'labs': 'laboratory',
+                'laboratory': 'laboratory',
+                'imaging': 'imaging',
+                'general': 'hpi'  // Default general info goes to HPI
+            };
+            console.log(`Mapping category '${category}' to '${mapping[category] || null}'`); // Debug
+            return mapping[category] || null;
+        }
+
+        // Add message to chat
+        function addMessage(message, sender) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${sender}-avatar`;
+            avatar.innerHTML = sender === 'bot' ?
+                '<i class="fas fa-stethoscope"></i>' :
+                '<i class="fas fa-user-md"></i>';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.innerHTML = `<span>${message}</span>`;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Add bias warning to chat
+        function addBiasWarning(warning) {
+            const chatbox = document.getElementById('chatbox');
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'bias-warning';
+            warningDiv.innerHTML = `
+                <div class="bias-warning-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Cognitive Bias Alert: ${warning.bias_type}
+                </div>
+                <div class="bias-warning-content">
+                    ${warning.description}
+                </div>
+            `;
+
+            chatbox.appendChild(warningDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+
+    <style>
+        /* Additional styles for results */
+        .results-summary {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, var(--secondary-color), #10b981);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .score-card h3 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .performance-metrics,
+        .feedback-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .performance-metrics h3,
+        .feedback-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .metric-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border-radius: 0.5rem;
+        }
+
+        .metric-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .feedback-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border-radius: 0.5rem;
+        }
+    </style>
 
     <script>
         $(document).ready(function() {

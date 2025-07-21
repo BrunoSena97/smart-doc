@@ -16,6 +16,7 @@ from smartdoc.utils.logger import sys_logger
 from smartdoc.config.settings import config
 from smartdoc.simulation.state_manager import ProgressiveDisclosureManager, InformationBlock
 from smartdoc.ai.intent_classifier import LLMIntentClassifier
+from smartdoc.simulation.bias_analyzer import BiasEvaluator
 
 
 @dataclass
@@ -50,6 +51,15 @@ class IntentDrivenDisclosureManager:
 
         # Discovery tracking
         self.discovery_events: Dict[str, List[DiscoveryEvent]] = {}
+
+        # Initialize bias analyzer with case data
+        self.bias_analyzer = None
+        if self.progressive_manager.case_data:
+            try:
+                self.bias_analyzer = BiasEvaluator(self.progressive_manager.case_data)
+                sys_logger.log_system("info", "Bias analyzer initialized successfully")
+            except Exception as e:
+                sys_logger.log_system("warning", f"Bias analyzer initialization failed: {e}")
 
         sys_logger.log_system("info", "Intent-Driven Disclosure Manager initialized")
 
@@ -113,7 +123,38 @@ class IntentDrivenDisclosureManager:
             # 3. Generate contextual response
             response_result = self._generate_discovery_response(session_id, intent_result, discovery_result)
 
-            # 4. Log the discovery event
+            # 4. Real-time bias detection
+            bias_warning = None
+            if self.bias_analyzer:
+                try:
+                    # Get session interactions for bias analysis
+                    session_interactions = self._get_session_interactions(session_id)
+
+                    bias_result = self.bias_analyzer.check_real_time_bias(
+                        session_interactions=session_interactions,
+                        current_intent=intent_id,
+                        user_input=user_query,
+                        vsp_response=response_result['text']
+                    )
+
+                    if bias_result.get('detected'):
+                        bias_warning = {
+                            'detected': True,
+                            'bias_type': bias_result.get('bias_type'),
+                            'message': bias_result.get('message'),
+                            'confidence': bias_result.get('confidence', 0.5)
+                        }
+                        sys_logger.log_system("warning", f"Bias detected: {bias_result.get('bias_type')} - {bias_result.get('message')}")
+
+                        # Log bias warning to session tracker
+                        from smartdoc.simulation.session_tracker import get_current_session
+                        session_logger = get_current_session()
+                        session_logger.log_bias_warning(bias_warning)
+
+                except Exception as bias_error:
+                    sys_logger.log_system("warning", f"Bias detection failed: {bias_error}")
+
+            # 5. Log the discovery event
             if discovery_result['discovered_blocks']:
                 event = DiscoveryEvent(
                     event_id=f"discovery_{uuid.uuid4().hex[:8]}",
@@ -127,13 +168,19 @@ class IntentDrivenDisclosureManager:
                 )
                 self.discovery_events[session_id].append(event)
 
-            return {
+            result = {
                 'success': True,
                 'intent_classification': intent_result,
                 'discovery_result': discovery_result,
                 'response': response_result,
                 'session_stats': self._get_session_discovery_stats(session_id)
             }
+
+            # Add bias warning if detected
+            if bias_warning:
+                result['bias_warning'] = bias_warning
+
+            return result
 
         except Exception as e:
             sys_logger.log_system("error", f"Error processing query '{user_query}': {e}")
@@ -290,8 +337,8 @@ class IntentDrivenDisclosureManager:
         # Create context about the clinical scenario
         scenario_context = """You are the English-speaking son of an elderly Spanish-speaking woman in the emergency department.
 You are translating for your mother who only speaks Spanish. You are concerned but trying to be helpful.
-You speak ONLY in English to the doctor - never in Spanish. You are the translator/interpreter between your Spanish-speaking mother and the English-speaking doctor.
-The doctor is asking questions and you respond in clear English based on what you know about your mother's condition."""
+You speak in a Spanish-English mix to the doctor. You are the translator/interpreter between your Spanish-speaking mother and the English-speaking doctor.
+The doctor is asking questions and you respond in a mix of Spanish and English, but clear enough to make the translation accurate based on what you know about your mother's condition."""
 
         # Format the clinical data for the LLM
         data_points = []
@@ -307,12 +354,12 @@ The doctor is asking questions and you respond in clear English based on what yo
 
 The doctor just asked: "{doctor_question}"
 
-Based ONLY on the following clinical information that has just been revealed, formulate a single, natural, conversational response as the patient's son speaking in English. Do not add any medical information not present in the data. Speak as a concerned family member would, not as a medical professional. Remember: you are the English-speaking son translating for your Spanish-speaking mother.
+Based ONLY on the following clinical information that has just been revealed, formulate a single, natural, conversational response as the patient's son speaking. Do not add any medical information not present in the data. Speak as a concerned family member would, not as a medical professional. Remember: you are the non-native English-speaking son translating for your Spanish-speaking mother.
 
 Clinical Data:
 {clinical_info}
 
-Your response as the patient's son (in English):"""
+Your response as the patient's son:"""
 
         try:
             # Call the LLM to generate natural response
@@ -555,3 +602,23 @@ Your response as the patient's son (in English):"""
             'total_blocks': len(session.blocks),
             'total_revealed': len(session.revealed_blocks)
         }
+
+    def _get_session_interactions(self, session_id: str) -> List[Dict[str, Any]]:
+        """Get session interactions formatted for bias analysis."""
+        interactions = []
+
+        # Convert discovery events to interaction format for bias analysis
+        events = self.discovery_events.get(session_id, [])
+
+        for event in events:
+            interaction = {
+                'intent_id': event.intent_id,
+                'user_query': event.user_query,
+                'timestamp': event.timestamp.isoformat(),
+                'discovered_blocks': event.discovered_blocks,
+                'confidence': event.confidence,
+                'trigger_type': event.trigger_type
+            }
+            interactions.append(interaction)
+
+        return interactions
