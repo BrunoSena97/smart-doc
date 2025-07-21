@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request, jsonify
 from smartdoc.ai.intent_classifier import LLMIntentClassifier
+from smartdoc.ai.clinical_evaluator import ClinicalEvaluator
 from smartdoc.simulation.engine import IntentDrivenDisclosureManager
 from smartdoc.utils.logger import sys_logger
 from smartdoc.config.settings import config
@@ -20,11 +21,11 @@ app = Flask(__name__,
 app.secret_key = config.SECRET_KEY
 
 # Global components
-llm_intent_classifier = intent_driven_manager = None
+llm_intent_classifier = intent_driven_manager = clinical_evaluator = None
 
 def initialize_components():
     """Initialize SmartDoc components (simplified for intent-driven discovery only)."""
-    global llm_intent_classifier, intent_driven_manager
+    global llm_intent_classifier, intent_driven_manager, clinical_evaluator
 
     try:
         sys_logger.log_system("info", "Initializing SmartDoc Components (Intent-Driven Discovery)...")
@@ -32,6 +33,10 @@ def initialize_components():
         # LLM Intent Classifier
         sys_logger.log_system("info", f"Initializing LLM Intent Classifier with model: {config.OLLAMA_MODEL}")
         llm_intent_classifier = LLMIntentClassifier()
+
+        # Clinical Evaluator
+        sys_logger.log_system("info", "Initializing Clinical Evaluator...")
+        clinical_evaluator = ClinicalEvaluator()
 
         # Intent-Driven Disclosure Manager
         sys_logger.log_system("info", "Initializing Intent-Driven Disclosure Manager...")
@@ -415,6 +420,156 @@ def submit_diagnosis():
                 "bias_awareness": "N/A",
                 "diagnostic_accuracy": "N/A"
             }
+        }), 500
+
+@app.route('/submit_diagnosis_with_reflection', methods=['POST'])
+def submit_diagnosis_with_reflection():
+    """Handle diagnosis submission with metacognitive reflection and advanced LLM evaluation."""
+    try:
+        data = request.get_json()
+        diagnosis = data.get('diagnosis', '')
+        metacognitive_responses = data.get('metacognitive_responses', {})
+        session_data = data.get('session_data', {})
+
+        # Get current session from session tracker
+        current_session = get_current_session()
+
+        if not current_session:
+            return jsonify({
+                "error": "No active session found",
+                "score": "N/A",
+                "feedback": "Session error occurred. Please try again."
+            }), 400
+
+        # Get dialogue transcript from session
+        session_interactions = current_session.get_interactions()
+        dialogue_transcript = []
+
+        for interaction in session_interactions:
+            # Add user query
+            dialogue_transcript.append({
+                "role": "user",
+                "message": interaction.get('user_query', ''),
+                "timestamp": interaction.get('timestamp', '')
+            })
+            # Add bot response
+            dialogue_transcript.append({
+                "role": "assistant",
+                "message": interaction.get('vsp_response', ''),
+                "timestamp": interaction.get('timestamp', '')
+            })
+
+        # Get detected biases from session
+        bias_summary = current_session.get_bias_summary()
+        detected_biases = []
+
+        if bias_summary and 'bias_warnings' in bias_summary:
+            for bias_warning in bias_summary['bias_warnings']:
+                detected_biases.append({
+                    "bias_type": bias_warning.get('bias_type', 'Unknown'),
+                    "description": bias_warning.get('message', ''),
+                    "interaction_count": bias_warning.get('interaction_count', 0)
+                })
+
+        # Case context for evaluation
+        case_context = {
+            "case_type": "Inflammatory Bowel Disease - Crohn's Disease",
+            "correct_diagnosis": "Crohn's Disease with potential complications",
+            "key_features": "Chronic diarrhea, abdominal pain, weight loss, family history, current Infliximab treatment"
+        }
+
+        # Run LLM-based comprehensive evaluation
+        llm_evaluation_result = None
+        bias_analysis_result = None
+
+        if clinical_evaluator:
+            try:
+                sys_logger.log_system("info", "Starting comprehensive LLM evaluation...")
+
+                # Comprehensive clinical performance evaluation
+                llm_evaluation_result = clinical_evaluator.evaluate_clinical_performance(
+                    dialogue_transcript=dialogue_transcript,
+                    detected_biases=detected_biases,
+                    metacognitive_responses=metacognitive_responses,
+                    final_diagnosis=diagnosis,
+                    case_context=case_context
+                )
+
+                # Additional bias analysis using Chain-of-Thought
+                bias_analysis_result = clinical_evaluator.analyze_cognitive_biases(
+                    dialogue_transcript=dialogue_transcript,
+                    final_diagnosis=diagnosis
+                )
+
+                sys_logger.log_system("info", f"LLM evaluation completed successfully: {llm_evaluation_result.get('success', False)}")
+
+            except Exception as llm_error:
+                sys_logger.log_system("error", f"LLM evaluation failed: {llm_error}")
+
+        # Calculate basic performance metrics for fallback
+        discovered_count = session_data.get('discovered_count', 0)
+        total_available = session_data.get('total_available', 1)
+        bias_warnings = session_data.get('bias_warnings', 0)
+
+        # Calculate scores
+        discovery_percentage = (discovered_count / total_available) * 100 if total_available > 0 else 0
+        bias_score = max(0, 100 - (bias_warnings * 10))
+
+        # Build comprehensive response
+        response_data = {
+            "llm_evaluation": llm_evaluation_result,
+            "bias_analysis": bias_analysis_result,
+            "metacognitive_responses": metacognitive_responses,
+            "session_stats": {
+                "total_interactions": len(session_interactions),
+                "discovery_percentage": discovery_percentage,
+                "bias_warnings_count": bias_warnings,
+                "session_duration": current_session.get_session_duration_minutes()
+            }
+        }
+
+        # If LLM evaluation succeeded, use it as primary feedback
+        if llm_evaluation_result and llm_evaluation_result.get('success'):
+            evaluation = llm_evaluation_result['evaluation']
+            response_data.update({
+                "score": f"{evaluation.get('overall_score', 75)}/100",
+                "feedback": "Comprehensive LLM-based evaluation completed. See detailed analysis below.",
+                "performance_summary": {
+                    "information_discovery": f"{evaluation.get('information_gathering', {}).get('score', 75)}/100",
+                    "bias_awareness": f"{evaluation.get('cognitive_bias_awareness', {}).get('score', 75)}/100",
+                    "diagnostic_accuracy": f"{evaluation.get('diagnostic_accuracy', {}).get('score', 75)}/100"
+                }
+            })
+        else:
+            # Fallback to basic evaluation
+            overall_score = round((discovery_percentage * 0.6) + (bias_score * 0.4))
+            response_data.update({
+                "score": f"{overall_score}/100",
+                "feedback": "Evaluation completed with basic metrics. LLM analysis was not available.",
+                "performance_summary": {
+                    "information_discovery": f"Good ({discovered_count}/{total_available} items)",
+                    "bias_awareness": f"{'Excellent' if bias_warnings == 0 else 'Good'} ({bias_warnings} warnings)",
+                    "diagnostic_accuracy": "Requires expert review"
+                }
+            })
+
+        # Log the comprehensive evaluation
+        sys_logger.log_system("info", f"Comprehensive evaluation completed for diagnosis: {diagnosis}")
+        sys_logger.log_system("info", f"Metacognitive responses collected: {len(metacognitive_responses)} questions")
+
+        return jsonify(response_data)
+
+    except Exception as e:
+        sys_logger.log_system("error", f"Error in comprehensive evaluation: {e}")
+        return jsonify({
+            "score": "Error",
+            "feedback": "An error occurred during the comprehensive evaluation. Please try again.",
+            "performance_summary": {
+                "information_discovery": "N/A",
+                "bias_awareness": "N/A",
+                "diagnostic_accuracy": "N/A"
+            },
+            "error": str(e)
         }), 500
 
 @app.errorhandler(404)

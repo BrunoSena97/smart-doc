@@ -619,31 +619,31 @@ body {
     .medical-header {
         padding: 1rem;
     }
-    
+
     .header-content {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
     }
-    
+
     .chat-interface,
     .patient-info-container,
     .results-container {
         padding: 1rem;
     }
-    
+
     .progress-dashboard {
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .progress-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
     }
-    
+
     .progress-bar {
         width: 100%;
     }
@@ -654,21 +654,21 @@ body {
         padding: 0 1rem;
         overflow-x: auto;
     }
-    
+
     .tab-button {
         white-space: nowrap;
         padding: 0.75rem 1rem;
     }
-    
+
     .message-bubble {
         max-width: 90%;
     }
-    
+
     .chat-input-form {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .input-wrapper {
         width: 100%;
     }
