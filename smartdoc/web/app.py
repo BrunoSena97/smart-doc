@@ -71,7 +71,7 @@ def home():
         # Start a new session for bias tracking
         session_logger = start_new_session()
 
-        initial_bot_message = "Hello! I'm here to help with this clinical simulation. What would you like to know about the patient?"
+        initial_bot_message = "Hello! I'm the son of the patient, my mother doesn't speak english so I'm here to answer your questions. What would you like to know doctor?"
 
         # Log the initial interaction
         session_logger.log_interaction(
@@ -128,63 +128,13 @@ def get_bot_response():
                 if 'discoveries' in discovery_result['response'] and discovery_result['response']['discoveries']:
                     discovery_events = []
                     for discovery in discovery_result['response']['discoveries']:
-                        # Map block_type to frontend categories
-                        block_type = discovery.get('block_type', 'general')
-                        content = discovery.get('content', discovery.get('text', ''))
-                        
-                        # Map backend block types to frontend categories
-                        category_mapping = {
-                            'Demographics': 'demographics',
-                            'History': 'hpi', 
-                            'Medications': 'medications',
-                            'Physical Exam': 'examination',
-                            'Labs': 'laboratory',
-                            'Imaging': 'imaging'
-                        }
-                        
-                        category = category_mapping.get(block_type, 'hpi')
-                        
-                        # Create more descriptive labels based on content
-                        if block_type == 'Demographics':
-                            if 'age' in content.lower():
-                                label = 'Age'
-                            elif 'language' in content.lower():
-                                label = 'Language'
-                            elif 'records' in content.lower():
-                                label = 'Medical Records'
-                            else:
-                                label = 'Demographics'
-                        elif block_type == 'History':
-                            if 'weight loss' in content.lower():
-                                label = 'Weight Loss'
-                            elif 'shortness of breath' in content.lower() or 'dyspnea' in content.lower():
-                                label = 'Shortness of Breath'
-                            elif 'cough' in content.lower():
-                                label = 'Cough'
-                            elif 'onset' in content.lower() or 'duration' in content.lower():
-                                label = 'Symptom Timeline'
-                            elif 'denies' in content.lower():
-                                label = 'Review of Systems'
-                            elif 'azithromycin' in content.lower():
-                                label = 'Previous Treatment'
-                            elif 'medical history' in content.lower():
-                                label = 'Past Medical History'
-                            else:
-                                label = 'History'
-                        elif block_type == 'Medications':
-                            if 'lisinopril' in content.lower() or 'atenolol' in content.lower():
-                                label = 'Current Medications'
-                            elif 'infliximab' in content.lower():
-                                label = 'Immunosuppressants'
-                            else:
-                                label = 'Medications'
-                        else:
-                            label = block_type
-                        
+                        # Use the structured discovery data from LLM Discovery Processor
                         discovery_events.append({
-                            "category": category,
-                            "field": label,
-                            "value": content
+                            "category": discovery['category'],
+                            "field": discovery['label'],  # Fixed label as key to prevent duplication
+                            "value": discovery['summary'],  # Clean clinical summary
+                            "confidence": discovery.get('confidence', 1.0),
+                            "block_id": discovery['block_id']
                         })
                     response_data["discovery_events"] = discovery_events
 
@@ -202,7 +152,7 @@ def get_bot_response():
                         vsp_response=discovery_result['response']['text'],
                         nlu_output=discovery_result['intent_classification']
                     )
-                    
+
                     # Check for new bias warnings from the session tracker
                     latest_bias = session_logger.get_latest_bias_warning()
                     if latest_bias and latest_bias.get('interaction_count') == len(session_logger.get_interactions()):
@@ -224,7 +174,7 @@ def get_bot_response():
                     discovery_data = discovery_result['discovery_result']
                     total_blocks = len(discovery_data.get('case_data', {}).get('content_blocks', []))
                     discovered_blocks = len(discovery_data.get('discovered_blocks', []))
-                    
+
                     response_data["discovery_stats"] = {
                         "total": total_blocks,
                         "discovered": discovered_blocks

@@ -69,7 +69,8 @@
                     <div id="chatbox" class="chat-log">
                         <div class="message bot-message">
                             <div class="avatar bot-avatar">
-                                <i class="fas fa-stethoscope"></i>
+                                <img src="/static/son_image.png" alt="Bot Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>
                             </div>
                             <div class="message-bubble">
                                 <span>{{ initial_bot_message }}</span>
@@ -96,12 +97,18 @@
                 <div class="patient-info-container">
                     <!-- Patient Header -->
                     <div class="patient-header">
-                        <div class="patient-avatar">
-                            <i class="fas fa-user"></i>
+                        <div class="patient-image-container">
+                            <img src="/static/patient_image.png" alt="Patient Photo" class="patient-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="patient-avatar-fallback" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
                         </div>
                         <div class="patient-basic-info">
                             <h2>Patient Summary</h2>
-                            <p class="patient-note">Information revealed through clinical interview</p>
+                            <p class="patient-note">A non english speaking patient, accompanied by her son who translates.</p>
+                            <p class="patient-note">The patient is apparently ill, and tired.</p>
+                            <br>
+                            <p class="patient-note">More information revealed through clinical interview</p>
                         </div>
                     </div>
 
@@ -257,25 +264,32 @@
             document.getElementById('bias-count').textContent = biasWarningCount;
         }
 
-        // Add information to patient info tab
+        // Add information to patient info tab (using fixed labels as keys to prevent duplication)
         function addPatientInfo(category, label, value) {
             if (!discoveredInfo[category]) {
                 discoveredInfo[category] = {};
             }
 
-            // Create a unique key for each discovery to allow multiple items per category
-            const timestamp = Date.now();
-            const uniqueKey = `${label}_${timestamp}`;
+            // Use the label as the unique key to prevent duplication
+            // If the same label is asked twice, it will update the existing entry
+            const labelKey = label;
 
-            // Always add new discoveries (don't check if it exists)
-            discoveredInfo[category][uniqueKey] = {
+            // Check if this label already exists
+            const isNewDiscovery = !discoveredInfo[category][labelKey];
+
+            // Update or add the discovery using label as key
+            discoveredInfo[category][labelKey] = {
                 label: label,
                 value: value,
-                timestamp: timestamp
+                timestamp: Date.now()
             };
 
-            discoveredCount++;
-            updateProgress();
+            // Only increment count for truly new discoveries
+            if (isNewDiscovery) {
+                discoveredCount++;
+                updateProgress();
+            }
+
             updatePatientInfoDisplay(category);
         }
 
@@ -294,7 +308,7 @@
             // Sort discoveries by timestamp to show them in order
             const sortedEntries = Object.entries(info).sort((a, b) => a[1].timestamp - b[1].timestamp);
 
-            sortedEntries.forEach(([uniqueKey, discovery]) => {
+            sortedEntries.forEach(([labelKey, discovery]) => {
                 const item = document.createElement('div');
                 item.className = 'info-item';
                 item.innerHTML = `
@@ -457,9 +471,19 @@
             });
         });
 
-        // Map backend categories to patient info categories
+        // Map backend categories to patient info categories (updated for LLM Discovery Processor)
         function mapCategoryToPatientInfo(category) {
             const mapping = {
+                // New LLM Discovery Processor categories
+                'patient_profile': 'demographics',
+                'medical_history': 'hpi',
+                'current_medications': 'medications',
+                'presenting_symptoms': 'hpi',
+                'physical_examination': 'examination',
+                'diagnostic_results': 'laboratory',
+                'clinical_assessment': 'hpi',
+
+                // Legacy categories for backward compatibility
                 'demographics': 'demographics',
                 'hpi': 'hpi',
                 'history': 'hpi',
@@ -468,7 +492,7 @@
                 'examination': 'examination',
                 'labs': 'laboratory',
                 'laboratory': 'laboratory',
-                'imaging': 'imaging',
+                'imaging': 'laboratory',  // Imaging results go to laboratory tab
                 'general': 'hpi'  // Default general info goes to HPI
             };
             console.log(`Mapping category '${category}' to '${mapping[category] || null}'`); // Debug
@@ -484,7 +508,7 @@
             const avatar = document.createElement('div');
             avatar.className = `avatar ${sender}-avatar`;
             avatar.innerHTML = sender === 'bot' ?
-                '<i class="fas fa-stethoscope"></i>' :
+                '<img src="/static/son_image.png" alt="Bot Avatar" class="avatar-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>' :
                 '<i class="fas fa-user-md"></i>';
 
             const bubble = document.createElement('div');
@@ -599,6 +623,124 @@
             padding: 1rem;
             background: var(--surface-hover);
             border-radius: 0.5rem;
+        }
+
+        /* Patient Image Styles */
+        .patient-image-container {
+            position: relative;
+            width: 120px;
+            height: 180px; /* Maintains 1024:1536 aspect ratio (2:3) */
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: var(--surface-hover);
+            border: 2px solid var(--border);
+            flex-shrink: 0; /* Prevent shrinking on smaller screens */
+        }
+
+        .patient-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            transition: transform 0.3s ease;
+        }
+
+        .patient-image:hover {
+            transform: scale(1.02);
+        }
+
+        .patient-avatar-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .patient-avatar-fallback i {
+            font-size: 3rem;
+        }
+
+        /* Avatar Image Styles */
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .avatar-fallback {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Make avatar containers relative for positioning */
+        .bot-avatar {
+            position: relative;
+        }
+
+        /* Adjust patient header layout for image */
+        .patient-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .patient-basic-info {
+            flex: 1;
+            min-width: 0; /* Allow text to wrap properly */
+        }
+
+        .patient-basic-info h2 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .patient-note {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Responsive adjustments for patient header */
+        @media (max-width: 768px) {
+            .patient-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .patient-image-container {
+                width: 100px;
+                height: 150px;
+            }
+
+            .patient-basic-info h2 {
+                font-size: 1.25rem;
+            }
         }
     </style>
 

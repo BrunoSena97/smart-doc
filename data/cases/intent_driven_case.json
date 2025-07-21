@@ -17,7 +17,7 @@
     {
       "blockId": "demo_age_context",
       "blockType": "Demographics",
-      "content": "Patient is an elderly Spanish-speaking woman. Son provides the history due to language barrier.",
+      "content": "Patient is an elderly Spanish-speaking woman, 85 years old. Son provides the history due to language barrier.",
       "isCritical": false,
       "intentTriggers": ["profile_age", "profile_language", "profile_social_context_historian"]
     },
@@ -31,7 +31,7 @@
     {
       "blockId": "hpi_dyspnea_details",
       "blockType": "History",
-      "content": "Shortness of breath has gradually increased over 2 months, worse with exertion. Associated with nonproductive cough.",
+      "content": "Shortness of breath is worse with exertion. Associated with nonproductive cough.",
       "isCritical": false,
       "intentTriggers": ["hpi_chief_complaint", "hpi_shortness_of_breath", "hpi_cough"]
     },
@@ -152,7 +152,7 @@
       "blockType": "Medications",
       "content": "Medication lists from previous hospitalizations reveal the patient has been receiving infliximab for rheumatoid arthritis for the past 3-4 months.",
       "isCritical": true,
-      "intentTriggers": ["meds_ra_specific_initial_query", "meds_other_meds_initial_query"]
+      "intentTriggers": ["meds_ra_specific_initial_query", "meds_other_meds_initial_query", "meds_full_reconciliation_query"]
     },
     {
       "blockId": "critical_echo",
