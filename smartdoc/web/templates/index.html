@@ -30,13 +30,21 @@
 
         <!-- Tab Navigation -->
         <nav class="tab-navigation">
-            <button class="tab-button active" data-tab="chat">
-                <i class="fas fa-comments"></i>
-                Clinical Interview
-            </button>
             <button class="tab-button" data-tab="patient-info">
                 <i class="fas fa-user-circle"></i>
                 Patient Information
+            </button>
+            <button class="tab-button active" data-tab="anamnesis">
+                <i class="fas fa-clipboard-list"></i>
+                Clinical Interview
+            </button>
+            <button class="tab-button" data-tab="physical-exam">
+                <i class="fas fa-stethoscope"></i>
+                Physical Exam
+            </button>
+            <button class="tab-button" data-tab="exams">
+                <i class="fas fa-vials"></i>
+                Labs & Imaging
             </button>
             <button class="tab-button" data-tab="results" id="results-tab" style="display: none;">
                 <i class="fas fa-chart-line"></i>
@@ -47,9 +55,40 @@
         <!-- Tab Content Areas -->
         <main class="tab-content-container">
 
-            <!-- Chat Tab -->
-            <div id="chat" class="tab-content active">
-                <div class="chat-interface">
+            <!-- Patient Information Tab -->
+            <div id="patient-info" class="tab-content">
+                <div class="patient-info-container">
+                    <!-- Patient Header -->
+                    <div class="patient-header">
+                        <div class="patient-image-container">
+                            <img src="/static/patient_image.png" alt="Patient Photo" class="patient-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="patient-avatar-fallback" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="patient-basic-info">
+                            <h2>Patient Demographics</h2>
+                            <div class="demographics-static">
+                                <div class="demo-item">
+                                    <span class="demo-label">Age:</span>
+                                    <span class="demo-value">85 years old</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Language:</span>
+                                    <span class="demo-value">Spanish-speaking (son provides history)</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Medical Records:</span>
+                                    <span class="demo-value">Most records from another health system</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Historian:</span>
+                                    <span class="demo-value">Son (due to language barrier)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Progress Dashboard -->
                     <div class="progress-dashboard">
                         <div class="progress-item">
@@ -65,62 +104,8 @@
                         </div>
                     </div>
 
-                    <!-- Chat Area -->
-                    <div id="chatbox" class="chat-log">
-                        <div class="message bot-message">
-                            <div class="avatar bot-avatar">
-                                <img src="/static/son_image.png" alt="Bot Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>
-                            </div>
-                            <div class="message-bubble">
-                                <span>{{ initial_bot_message }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chat Input -->
-                    <div class="chat-input-area">
-                        <form id="chat-form" class="chat-input-form">
-                            <div class="input-wrapper">
-                                <textarea id="chat-input" placeholder="Ask about the patient's condition, symptoms, history..." rows="1"></textarea>
-                                <button type="submit" id="send-button">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Patient Information Tab -->
-            <div id="patient-info" class="tab-content">
-                <div class="patient-info-container">
-                    <!-- Patient Header -->
-                    <div class="patient-header">
-                        <div class="patient-image-container">
-                            <img src="/static/patient_image.png" alt="Patient Photo" class="patient-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="patient-avatar-fallback" style="display: none;">
-                                <i class="fas fa-user"></i>
-                            </div>
-                        </div>
-                        <div class="patient-basic-info">
-                            <h2>Patient Summary</h2>
-                            <p class="patient-note">A non english speaking patient, accompanied by her son who translates.</p>
-                            <p class="patient-note">The patient is apparently ill, and tired.</p>
-                            <br>
-                            <p class="patient-note">More information revealed through clinical interview</p>
-                        </div>
-                    </div>
-
                     <!-- Information Sections -->
                     <div class="info-sections">
-                        <div class="info-section">
-                            <h3><i class="fas fa-id-card"></i> Demographics</h3>
-                            <div class="info-grid" id="demographics-info">
-                                <p class="no-info">No demographic information discovered yet</p>
-                            </div>
-                        </div>
-
                         <div class="info-section">
                             <h3><i class="fas fa-history"></i> History of Present Illness</h3>
                             <div class="info-grid" id="hpi-info">
@@ -150,7 +135,7 @@
                         </div>
 
                         <div class="info-section">
-                            <h3><i class="fas fa-x-ray"></i> Imaging</h3>
+                            <h3><i class="fas fa-x-ray"></i> Imaging Studies</h3>
                             <div class="info-grid" id="imaging-info">
                                 <p class="no-info">No imaging results discovered yet</p>
                             </div>
@@ -226,6 +211,111 @@
                 </div>
             </div>
 
+            <!-- Clinical Interview (Anamnesis) Tab -->
+            <div id="anamnesis" class="tab-content active">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Clinical Interview - History Taking</h2>
+                        <p>Ask the patient's son about the history of present illness and medications</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="anamnesis-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="/static/son_image.png" alt="Son Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-user avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Hello Doctor, I'm here with my mother. She's been having breathing problems and I'm worried about her. What would you like to know?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="anamnesis-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="anamnesis-input" placeholder="Ask about history, symptoms, medications..." rows="1"></textarea>
+                                <button type="submit" id="anamnesis-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Exam Tab -->
+            <div id="physical-exam" class="tab-content">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-stethoscope"></i> Physical Examination</h2>
+                        <p>Perform physical examination by asking for specific findings</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="exam-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="/static/patient_image.png" alt="Patient Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Ready to perform physical examination. What would you like to examine?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="exam-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="exam-input" placeholder="Ask for examination findings (vital signs, cardiac, pulmonary, etc.)..." rows="1"></textarea>
+                                <button type="submit" id="exam-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Labs & Imaging Tab -->
+            <div id="exams" class="tab-content">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-vials"></i> Laboratory & Imaging Studies</h2>
+                        <p>Order diagnostic tests by speaking with the resident</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="labs-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="/static/son_image.png" alt="Resident Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-user-md avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Hello Doctor, I'm the resident. What laboratory tests or imaging studies would you like me to order or review?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="labs-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="labs-input" placeholder="Order labs, imaging, or ask for results..." rows="1"></textarea>
+                                <button type="submit" id="labs-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Results Tab -->
             <div id="results" class="tab-content">
                 <div class="results-container">
@@ -267,12 +357,17 @@
             // Initialize session ID
             updateSessionInfo();
 
-            // Auto-resize textarea
-            const chatInput = document.getElementById('chat-input');
-            chatInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
+            // Auto-resize textarea for all chat inputs
+            const chatInputs = document.querySelectorAll('#anamnesis-input, #exam-input, #labs-input');
+            chatInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                });
             });
+
+            // Chat form handlers
+            setupChatHandlers();
 
             // Diagnosis submission
             document.getElementById('submit-diagnosis').addEventListener('click', function() {
@@ -300,9 +395,29 @@
             });
         });
 
+        // Setup chat handlers for all three chat interfaces
+        function setupChatHandlers() {
+            // Anamnesis chat
+            document.getElementById('anamnesis-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleChatSubmission('anamnesis');
+            });
+
+            // Physical exam chat
+            document.getElementById('exam-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleChatSubmission('exam');
+            });
+
+            // Labs & imaging chat
+            document.getElementById('labs-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleChatSubmission('labs');
+            });
+        }
+
         // Global state
         let discoveredInfo = {
-            demographics: {},
             hpi: {},
             medications: {},
             examination: {},
@@ -664,115 +779,95 @@
             }
         }
 
-        // Enhanced chat functionality
-        $(document).ready(function() {
-            let isWaitingForResponse = false;
+        // Handle chat submission for different contexts
+        function handleChatSubmission(context) {
+            const inputId = `${context}-input`;
+            const chatboxId = `${context}-chatbox`;
+            const userMessage = document.getElementById(inputId).value.trim();
+            
+            if (!userMessage) return;
 
-            $('#chat-form').on('submit', function(e) {
-                e.preventDefault();
+            // Add user message to appropriate chatbox
+            addMessageToChat(chatboxId, userMessage, 'user');
+            document.getElementById(inputId).value = '';
+            document.getElementById(inputId).style.height = 'auto';
 
-                if (isWaitingForResponse) return;
+            // Send message to backend with context
+            fetch('/get_bot_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'message': userMessage,
+                    'context': context  // anamnesis, exam, or labs
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Backend response:', data);
 
-                var userMessage = $('#chat-input').val().trim();
-                if (!userMessage) return;
+                // Add bot response to appropriate chatbox
+                addMessageToChat(chatboxId, data.response, 'bot');
 
-                // Add user message to chat
-                addMessage(userMessage, 'user');
-                $('#chat-input').val('').css('height', 'auto');
-
-                isWaitingForResponse = true;
-
-                // Send message to bot
-                $.ajax({
-                    url: '/get_bot_response',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        'message': userMessage
-                    }),
-                    success: function(response) {
-                        console.log('Backend response:', response); // Debug log
-
-                        addMessage(response.response, 'bot');
-
-                        // Handle discovery events
-                        if (response.discovery_events && response.discovery_events.length > 0) {
-                            console.log('Discovery events:', response.discovery_events); // Debug log
-                            response.discovery_events.forEach(event => {
-                                const category = mapCategoryToPatientInfo(event.category);
-                                console.log(`Mapping ${event.category} to ${category}`); // Debug log
-                                if (category) {
-                                    addPatientInfo(category, event.field, event.value);
-                                }
-                            });
+                // Handle discovery events (always update patient info tab)
+                if (data.discovery_events && data.discovery_events.length > 0) {
+                    console.log('Discovery events:', data.discovery_events);
+                    data.discovery_events.forEach(event => {
+                        const category = mapCategoryToPatientInfo(event.category);
+                        console.log(`Mapping ${event.category} to ${category}`);
+                        if (category) {
+                            addPatientInfo(category, event.field, event.value);
                         }
+                    });
+                }
 
-                        // Update total available info
-                        if (response.discovery_stats) {
-                            console.log('Discovery stats:', response.discovery_stats); // Debug log
-                            totalAvailableInfo = response.discovery_stats.total;
-                            updateProgress();
-                        }
+                // Update total available info
+                if (data.discovery_stats) {
+                    console.log('Discovery stats:', data.discovery_stats);
+                    totalAvailableInfo = data.discovery_stats.total;
+                    updateProgress();
+                }
 
-                        // Handle bias warnings
-                        if (response.bias_warnings && response.bias_warnings.length > 0) {
-                            console.log('Bias warnings:', response.bias_warnings); // Debug log
-                            response.bias_warnings.forEach(warning => {
-                                addBiasWarning(warning);
-                                biasWarningCount++;
-                            });
-                            updateBiasCount();
-                        }
-
-                        isWaitingForResponse = false;
-                    },
-                    error: function() {
-                        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
-                        isWaitingForResponse = false;
-                    }
-                });
+                // Handle bias warnings
+                if (data.bias_warnings && data.bias_warnings.length > 0) {
+                    console.log('Bias warnings:', data.bias_warnings);
+                    data.bias_warnings.forEach(warning => {
+                        addBiasWarningToChat(chatboxId, warning);
+                        biasWarningCount++;
+                    });
+                    updateBiasCount();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addMessageToChat(chatboxId, 'Sorry, I encountered an error. Please try again.', 'bot');
             });
-        });
-
-        // Map backend categories to patient info categories (updated for LLM Discovery Processor)
-        function mapCategoryToPatientInfo(category) {
-            const mapping = {
-                // New LLM Discovery Processor categories
-                'patient_profile': 'demographics',
-                'medical_history': 'hpi',
-                'current_medications': 'medications',
-                'presenting_symptoms': 'hpi',
-                'physical_examination': 'examination',
-                'diagnostic_results': 'laboratory',
-                'clinical_assessment': 'hpi',
-
-                // Legacy categories for backward compatibility
-                'demographics': 'demographics',
-                'hpi': 'hpi',
-                'history': 'hpi',
-                'medications': 'medications',
-                'physical_exam': 'examination',
-                'examination': 'examination',
-                'labs': 'laboratory',
-                'laboratory': 'laboratory',
-                'imaging': 'laboratory',  // Imaging results go to laboratory tab
-                'general': 'hpi'  // Default general info goes to HPI
-            };
-            console.log(`Mapping category '${category}' to '${mapping[category] || null}'`); // Debug
-            return mapping[category] || null;
         }
 
-        // Add message to chat
-        function addMessage(message, sender) {
-            const chatbox = document.getElementById('chatbox');
+        // Add message to specific chatbox
+        function addMessageToChat(chatboxId, message, sender) {
+            const chatbox = document.getElementById(chatboxId);
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}-message`;
 
             const avatar = document.createElement('div');
             avatar.className = `avatar ${sender}-avatar`;
-            avatar.innerHTML = sender === 'bot' ?
-                '<img src="/static/son_image.png" alt="Bot Avatar" class="avatar-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>' :
-                '<i class="fas fa-user-md"></i>';
+            
+            if (sender === 'bot') {
+                // Different avatars based on context
+                let avatarContent = '';
+                if (chatboxId.includes('anamnesis')) {
+                    avatarContent = '<img src="/static/son_image.png" alt="Son Avatar" class="avatar-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><i class="fas fa-user avatar-fallback" style="display: none;"></i>';
+                } else if (chatboxId.includes('exam')) {
+                    avatarContent = '<img src="/static/patient_image.png" alt="Patient Avatar" class="avatar-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>';
+                } else if (chatboxId.includes('labs')) {
+                    avatarContent = '<img src="/static/son_image.png" alt="Resident Avatar" class="avatar-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><i class="fas fa-user-md avatar-fallback" style="display: none;"></i>';
+                }
+                avatar.innerHTML = avatarContent;
+            } else {
+                avatar.innerHTML = '<i class="fas fa-user-md"></i>';
+            }
 
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
@@ -785,9 +880,9 @@
             chatbox.scrollTop = chatbox.scrollHeight;
         }
 
-        // Add bias warning to chat
-        function addBiasWarning(warning) {
-            const chatbox = document.getElementById('chatbox');
+        // Add bias warning to specific chatbox
+        function addBiasWarningToChat(chatboxId, warning) {
+            const chatbox = document.getElementById(chatboxId);
             const warningDiv = document.createElement('div');
             warningDiv.className = 'bias-warning';
             warningDiv.innerHTML = `
@@ -803,6 +898,35 @@
             chatbox.appendChild(warningDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
+
+        // Map backend categories to patient info categories (updated for new tab structure)
+        function mapCategoryToPatientInfo(category) {
+            const mapping = {
+                // New LLM Discovery Processor categories
+                'medical_history': 'hpi',
+                'current_medications': 'medications',
+                'presenting_symptoms': 'hpi',
+                'physical_examination': 'examination',
+                'diagnostic_results': 'laboratory',
+                'clinical_assessment': 'hpi',
+
+                // Legacy categories for backward compatibility
+                'hpi': 'hpi',
+                'history': 'hpi',
+                'medications': 'medications',
+                'physical_exam': 'examination',
+                'examination': 'examination',
+                'labs': 'laboratory',
+                'laboratory': 'laboratory',
+                'imaging': 'imaging',
+                'general': 'hpi'  // Default general info goes to HPI
+                // Note: demographics removed - no longer discoverable
+            };
+            console.log(`Mapping category '${category}' to '${mapping[category] || null}'`); // Debug
+            return mapping[category] || null;
+        }
+
+
     </script>
 
     <style>
@@ -1164,7 +1288,132 @@
             line-height: 1.5;
         }
 
-        /* Patient Image Styles */
+        /* Demographics Static Display */
+        .demographics-static {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .demo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--surface-hover);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .demo-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 120px;
+        }
+
+        .demo-value {
+            color: var(--text-secondary);
+            text-align: right;
+            flex: 1;
+        }
+
+        /* Clinical Info Container for new tabs */
+        .clinical-info-container {
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-header h2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Tab navigation updates for more tabs */
+        .tab-navigation {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tab-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 140px;
+            padding: 1rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .tab-button i {
+            font-size: 1.1rem;
+        }
+
+        /* Responsive adjustments for more tabs */
+        @media (max-width: 768px) {
+            .tab-button {
+                min-width: 120px;
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .tab-button i {
+                font-size: 1rem;
+            }
+
+            .demo-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .demo-value {
+                text-align: left;
+            }
+        }
         .patient-image-container {
             position: relative;
             width: 120px;
