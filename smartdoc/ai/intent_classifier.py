@@ -131,7 +131,7 @@ class LLMIntentClassifier:
                 "examples": ["Let me examine you", "Physical exam", "General appearance"],
                 "category": "physical_exam_general"
             },
-            "exam_vital_signs": {
+            "exam_vital": {
                 "description": "Requests for vital signs",
                 "examples": ["Check blood pressure", "Vital signs?", "Temperature?", "Heart rate?"],
                 "category": "vital_signs"
@@ -219,7 +219,7 @@ class LLMIntentClassifier:
             }
         }
 
-        # Create reverse mapping from broad categories to specific intent IDs  
+        # Create reverse mapping from broad categories to specific intent IDs
         self.category_to_intents = {}
         for intent_id, details in self.intent_categories.items():
             category = details.get("category", "general")
@@ -287,7 +287,7 @@ IMPORTANT: You MUST respond with one of the exact intent IDs listed above. For e
 - If asking about medications -> use EXACTLY "meds_current_known"
 - If asking about heart exam -> use EXACTLY "exam_cardiovascular"
 - If asking about lung exam -> use EXACTLY "exam_respiratory"
-- If asking about vital signs -> use EXACTLY "exam_vital_signs"
+- If asking about vital signs -> use EXACTLY "exam_vitals"
 - If asking about patient age -> use EXACTLY "profile_age"
 
 Respond with ONLY a JSON object in this exact format:
@@ -308,7 +308,7 @@ The intent_id MUST be one of the exact IDs listed above. Do not use any other in
             "prompt": prompt,
             "stream": False,
             "options": {
-                "temperature": 0.1,  # Low temperature for consistent classification
+                "temperature": 0.1,
                 "top_p": 0.9
             }
         }
@@ -399,7 +399,7 @@ The intent_id MUST be one of the exact IDs listed above. Do not use any other in
         elif any(word in input_lower for word in ["lungs", "breathing", "respiratory", "chest sounds"]):
             intent_id = "exam_respiratory"
         elif any(word in input_lower for word in ["blood pressure", "vital signs", "temperature", "bp"]):
-            intent_id = "exam_vital_signs"
+            intent_id = "exam_vital"
         elif any(word in input_lower for word in ["when", "start", "duration", "how long"]):
             intent_id = "hpi_onset_duration_primary"
         elif any(word in input_lower for word in ["symptoms", "other", "associated", "feel"]):
