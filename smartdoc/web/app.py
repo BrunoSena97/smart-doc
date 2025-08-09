@@ -94,7 +94,7 @@ def home():
 
 @app.route("/get_bot_response", methods=["POST"])
 def get_bot_response():
-    """Get bot response using intent-driven discovery."""
+    """Get bot response using context-aware intent-driven discovery."""
     if not intent_driven_manager or not llm_intent_classifier:
         return jsonify({
             "response": "The system is starting up. Please try again in a moment.",
@@ -105,6 +105,7 @@ def get_bot_response():
         # Get JSON data from POST request
         data = request.get_json()
         user_input = data.get('message', '').strip() if data else ''
+        context = data.get('context', 'anamnesis') if data else 'anamnesis'  # Default to anamnesis
 
         if not user_input:
             return jsonify({
@@ -115,18 +116,23 @@ def get_bot_response():
         if user_input.lower() == "quit":
             return jsonify({"response": "Session ended.", "session_ended": True})
 
-        # Process user input with Intent-Driven Discovery
+        # Process user input with Intent-Driven Discovery and context filtering
         session_id = data.get('session_id', f"web_session_{uuid.uuid4().hex[:8]}") if data else f"web_session_{uuid.uuid4().hex[:8]}"
 
         try:
-            discovery_result = intent_driven_manager.process_doctor_query(session_id, user_input)
+            # Process with context-aware discovery
+            discovery_result = intent_driven_manager.process_doctor_query(session_id, user_input, context)
 
             if discovery_result['success']:
+                # Generate context-appropriate response
+                response_text = discovery_result['response']['text']
+
                 response_data = {
-                    "response": discovery_result['response']['text'],
+                    "response": response_text,
                     "discovery_events": [],
                     "discovery_stats": {},
-                    "bias_warnings": []
+                    "bias_warnings": [],
+                    "context": context
                 }
 
                 # Process discoveries into events for the frontend
@@ -155,7 +161,8 @@ def get_bot_response():
                         intent_id=discovery_result['intent_classification']['intent_id'],
                         user_query=user_input,
                         vsp_response=discovery_result['response']['text'],
-                        nlu_output=discovery_result['intent_classification']
+                        nlu_output=discovery_result['intent_classification'],
+                        context=context  # Add context to session logging
                     )
 
                     # Check for new bias warnings from the session tracker

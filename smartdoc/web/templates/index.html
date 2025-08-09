@@ -784,7 +784,7 @@
             const inputId = `${context}-input`;
             const chatboxId = `${context}-chatbox`;
             const userMessage = document.getElementById(inputId).value.trim();
-            
+
             if (!userMessage) return;
 
             // Add user message to appropriate chatbox
@@ -853,7 +853,7 @@
 
             const avatar = document.createElement('div');
             avatar.className = `avatar ${sender}-avatar`;
-            
+
             if (sender === 'bot') {
                 // Different avatars based on context
                 let avatarContent = '';

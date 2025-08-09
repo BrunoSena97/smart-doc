@@ -96,13 +96,14 @@ class IntentDrivenDisclosureManager:
         sys_logger.log_system("info", f"Started intent-driven session: {session_id}")
         return session_id
 
-    def process_doctor_query(self, session_id: str, user_query: str) -> Dict[str, Any]:
+    def process_doctor_query(self, session_id: str, user_query: str, context: str = 'anamnesis') -> Dict[str, Any]:
         """
-        Process a doctor's query and trigger appropriate information discovery.
+        Process a doctor's query and trigger appropriate information discovery with context filtering.
 
         Args:
             session_id: The session ID
             user_query: The doctor's question or statement
+            context: The clinical context ('anamnesis', 'exam', 'labs')
 
         Returns:
             Dictionary containing response, discovered information, and discovery notifications
@@ -112,18 +113,18 @@ class IntentDrivenDisclosureManager:
             self.start_intent_driven_session(session_id)
 
         try:
-            # 1. Classify the intent
-            intent_result = self.intent_classifier.classify_intent(user_query)
+            # 1. Classify the intent with context filtering
+            intent_result = self.intent_classifier.classify_intent(user_query, context)
             intent_id = intent_result['intent_id']
             confidence = intent_result['confidence']
 
-            sys_logger.log_system("debug", f"Query '{user_query}' classified as '{intent_id}' (confidence: {confidence:.2f})")
+            sys_logger.log_system("debug", f"Query '{user_query}' in context '{context}' classified as '{intent_id}' (confidence: {confidence:.2f})")
 
-            # 2. Discover relevant information blocks
-            discovery_result = self._discover_blocks_for_intent(session_id, intent_id, user_query, confidence)
+            # 2. Discover relevant information blocks (filtered by context)
+            discovery_result = self._discover_blocks_for_intent_with_context(session_id, intent_id, user_query, confidence, context)
 
             # 3. Generate contextual response
-            response_result = self._generate_discovery_response(session_id, intent_result, discovery_result)
+            response_result = self._generate_discovery_response_with_context(session_id, intent_result, discovery_result, context)
 
             # 4. Real-time bias detection
             bias_warning = None
@@ -569,3 +570,97 @@ Your response as the patient's son (keep it natural and conversational):"""
             interactions.append(interaction)
 
         return interactions
+
+    def _discover_blocks_for_intent_with_context(self, session_id: str, intent_id: str, user_query: str, confidence: float, context: str) -> Dict[str, Any]:
+        """Discover blocks for intent with context filtering."""
+        # Filter intents based on context
+        if not self._is_intent_valid_for_context(intent_id, context):
+            return {
+                'discovered_blocks': [],
+                'new_discoveries': [],
+                'context_filtered': True,
+                'original_intent': intent_id
+            }
+
+        # Use existing discovery logic but with context awareness
+        return self._discover_blocks_for_intent(session_id, intent_id, user_query, confidence)
+
+    def _is_intent_valid_for_context(self, intent_id: str, context: str) -> bool:
+        """Check if an intent is valid for the given context."""
+        # Define context-specific intent mappings
+        context_intents = {
+            'anamnesis': [
+                # History and medication related intents
+                'hpi_chief_complaint', 'hpi_shortness_of_breath', 'hpi_cough', 'hpi_weight_loss',
+                'hpi_onset_duration_primary', 'hpi_associated_symptoms_general', 'hpi_pertinent_negatives',
+                'hpi_chest_pain', 'hpi_fever', 'hpi_recent_medical_care', 'pmh_general',
+                'meds_current_known', 'meds_uncertainty', 'meds_ra_specific_initial_query',
+                'meds_full_reconciliation_query', 'meds_other_meds_initial_query',
+                'profile_age', 'profile_language', 'profile_social_context_historian', 'profile_medical_records'
+            ],
+            'exam': [
+                # Physical examination related intents
+                'exam_vital_signs', 'exam_general_appearance', 'exam_respiratory', 'exam_cardiovascular'
+            ],
+            'labs': [
+                # Laboratory and imaging related intents
+                'labs_general', 'imaging_chest', 'imaging_general'
+            ]
+        }
+
+        return intent_id in context_intents.get(context, [])
+
+    def _generate_discovery_response_with_context(self, session_id: str, intent_result: Dict[str, Any], discovery_result: Dict[str, Any], context: str) -> Dict[str, Any]:
+        """Generate response with context-appropriate persona."""
+        # Check if intent was filtered due to context
+        if discovery_result.get('context_filtered'):
+            return self._generate_context_filtered_response(intent_result['intent_id'], context)
+
+        # Use existing response generation but with context-aware persona
+        base_response = self._generate_discovery_response(session_id, intent_result, discovery_result)
+
+        # Modify response based on context
+        if context == 'anamnesis':
+            # Son speaking for mother
+            persona_prefix = ""  # Already handled in base response
+        elif context == 'exam':
+            # Direct examination findings
+            if discovery_result['new_discoveries']:
+                base_response['text'] = f"On examination: {base_response['text']}"
+        elif context == 'labs':
+            # Resident reporting results
+            if discovery_result['new_discoveries']:
+                base_response['text'] = f"The results show: {base_response['text']}"
+            else:
+                base_response['text'] = "I can order that test for you. " + base_response['text']
+
+        return base_response
+
+    def _generate_context_filtered_response(self, intent_id: str, context: str) -> Dict[str, Any]:
+        """Generate response when intent is filtered due to context mismatch."""
+        responses = {
+            'anamnesis': {
+                'exam': "I'm here to provide history about my mother. For physical examination findings, you'll need to examine her directly.",
+                'labs': "I don't have access to laboratory results. You might want to speak with the resident about ordering tests.",
+                'default': "I can help you with information about my mother's history and symptoms. What would you like to know?"
+            },
+            'exam': {
+                'anamnesis': "This is the physical examination. For history questions, please speak with the patient's son.",
+                'labs': "For laboratory or imaging results, please consult with the resident.",
+                'default': "What aspect of the physical examination would you like me to perform?"
+            },
+            'labs': {
+                'anamnesis': "For patient history, please speak with the patient's son.",
+                'exam': "For physical examination, you'll need to examine the patient directly.",
+                'default': "What laboratory tests or imaging studies would you like me to order or review?"
+            }
+        }
+
+        # Determine the response based on context mismatch
+        response_text = responses.get(context, {}).get('default', "I'm not sure how to help with that in this context.")
+
+        return {
+            'text': response_text,
+            'discoveries': [],
+            'context_filtered': True
+        }
