@@ -140,18 +140,27 @@ def get_bot_response():
                     discovery_events = []
                     for discovery in discovery_result['response']['discoveries']:
                         # Use the structured discovery data from LLM Discovery Processor
-                        discovery_events.append({
+                        discovery_event = {
                             "category": discovery['category'],
                             "field": discovery['label'],  # Fixed label as key to prevent duplication
                             "value": discovery['summary'],  # Clean clinical summary
                             "confidence": discovery.get('confidence', 1.0),
                             "block_id": discovery['block_id']
-                        })
+                        }
+                        discovery_events.append(discovery_event)
+                        sys_logger.log_system("debug", f"Created discovery event: {discovery_event}")
                     response_data["discovery_events"] = discovery_events
+                    sys_logger.log_system("info", f"Sending {len(discovery_events)} discovery events to frontend")
+                else:
+                    sys_logger.log_system("debug", f"No discoveries found in response. Response keys: {list(discovery_result.get('response', {}).keys())}")
 
-                # Add discovery stats
-                if 'discovery_stats' in discovery_result:
-                    response_data["discovery_stats"] = discovery_result['discovery_stats']
+                # Add discovery stats from the session manager
+                if 'session_stats' in discovery_result:
+                    session_stats = discovery_result['session_stats']
+                    response_data["discovery_stats"] = {
+                        "total": session_stats.get('total_blocks', 0),
+                        "discovered": session_stats.get('revealed_blocks', 0)
+                    }
 
                 # Get current session for bias tracking
                 session_logger = get_current_session()
@@ -161,8 +170,7 @@ def get_bot_response():
                         intent_id=discovery_result['intent_classification']['intent_id'],
                         user_query=user_input,
                         vsp_response=discovery_result['response']['text'],
-                        nlu_output=discovery_result['intent_classification'],
-                        context=context  # Add context to session logging
+                        nlu_output=discovery_result['intent_classification']
                     )
 
                     # Check for new bias warnings from the session tracker
@@ -187,12 +195,12 @@ def get_bot_response():
                     total_blocks = len(discovery_data.get('case_data', {}).get('content_blocks', []))
                     discovered_blocks = len(discovery_data.get('discovered_blocks', []))
 
-                    response_data["discovery_stats"] = {
-                        "total": total_blocks,
-                        "discovered": discovered_blocks
-                    }
-
                 sys_logger.log_system("info", f"Intent-driven discovery successful: {len(discovery_result.get('discovery_result', {}).get('discovered_blocks', []))} blocks discovered")
+
+                # Save session periodically (every 5 interactions)
+                if session_logger and len(session_logger.get_interactions()) % 5 == 0:
+                    session_logger.save_session()
+
                 return jsonify(response_data)
             else:
                 return jsonify({
@@ -413,7 +421,8 @@ def submit_diagnosis():
 
         # Log the diagnosis submission
         if current_session:
-            sys_logger.log_system("info", f"Diagnosis submitted for session {current_session.get('session_id', 'unknown')}: {diagnosis}")
+            current_session.save_session()  # Save session when diagnosis is submitted
+            sys_logger.log_system("info", f"Diagnosis submitted for session {current_session.session_data.get('session_id', 'unknown')}: {diagnosis}")
 
         return jsonify(performance_data)
 
@@ -561,6 +570,8 @@ def submit_diagnosis_with_reflection():
             })
 
         # Log the comprehensive evaluation
+        if current_session:
+            current_session.save_session()  # Save session when comprehensive diagnosis is submitted
         sys_logger.log_system("info", f"Comprehensive evaluation completed for diagnosis: {diagnosis}")
         sys_logger.log_system("info", f"Metacognitive responses collected: {len(metacognitive_responses)} questions")
 

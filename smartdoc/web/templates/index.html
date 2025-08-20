@@ -437,10 +437,28 @@
 
         // Update progress dashboard
         function updateProgress() {
-            const percentage = totalAvailableInfo > 0 ? Math.round((discoveredCount / totalAvailableInfo) * 100) : 0;
+            try {
+                const percentage = totalAvailableInfo > 0 ? Math.round((discoveredCount / totalAvailableInfo) * 100) : 0;
 
-            document.getElementById('discovery-progress').style.width = percentage + '%';
-            document.getElementById('discovery-count').textContent = `${discoveredCount}/${totalAvailableInfo}`;
+                const progressElement = document.getElementById('discovery-progress');
+                const countElement = document.getElementById('discovery-count');
+                
+                if (progressElement) {
+                    progressElement.style.width = percentage + '%';
+                } else {
+                    console.warn('discovery-progress element not found');
+                }
+                
+                if (countElement) {
+                    countElement.textContent = `${discoveredCount}/${totalAvailableInfo}`;
+                } else {
+                    console.warn('discovery-count element not found');
+                }
+                
+                console.log(`Progress updated: ${discoveredCount}/${totalAvailableInfo} (${percentage}%)`);
+            } catch (error) {
+                console.error('Error updating progress:', error);
+            }
         }
 
         // Update bias warning count
@@ -450,31 +468,41 @@
 
         // Add information to patient info tab (using fixed labels as keys to prevent duplication)
         function addPatientInfo(category, label, value) {
-            if (!discoveredInfo[category]) {
-                discoveredInfo[category] = {};
+            try {
+                console.log(`addPatientInfo called with category: ${category}, label: ${label}, value: ${value}`);
+                
+                if (!discoveredInfo[category]) {
+                    discoveredInfo[category] = {};
+                }
+
+                // Use the label as the unique key to prevent duplication
+                // If the same label is asked twice, it will update the existing entry
+                const labelKey = label;
+
+                // Check if this label already exists
+                const isNewDiscovery = !discoveredInfo[category][labelKey];
+
+                // Update or add the discovery using label as key
+                discoveredInfo[category][labelKey] = {
+                    label: label,
+                    value: value,
+                    timestamp: Date.now()
+                };
+
+                // Only increment count for truly new discoveries
+                if (isNewDiscovery) {
+                    discoveredCount++;
+                    console.log(`New discovery added! discoveredCount is now: ${discoveredCount}`);
+                    updateProgress();
+                } else {
+                    console.log(`Discovery updated (not new): ${labelKey}`);
+                }
+
+                updatePatientInfoDisplay(category);
+                console.log(`Successfully processed patient info for category: ${category}`);
+            } catch (error) {
+                console.error('Error in addPatientInfo:', error);
             }
-
-            // Use the label as the unique key to prevent duplication
-            // If the same label is asked twice, it will update the existing entry
-            const labelKey = label;
-
-            // Check if this label already exists
-            const isNewDiscovery = !discoveredInfo[category][labelKey];
-
-            // Update or add the discovery using label as key
-            discoveredInfo[category][labelKey] = {
-                label: label,
-                value: value,
-                timestamp: Date.now()
-            };
-
-            // Only increment count for truly new discoveries
-            if (isNewDiscovery) {
-                discoveredCount++;
-                updateProgress();
-            }
-
-            updatePatientInfoDisplay(category);
         }
 
         // Update patient information display
@@ -800,7 +828,7 @@
                 },
                 body: JSON.stringify({
                     'message': userMessage,
-                    'context': context  // anamnesis, exam, or labs
+                    'context': context
                 })
             })
             .then(response => response.json())
@@ -818,15 +846,27 @@
                         console.log(`Mapping ${event.category} to ${category}`);
                         if (category) {
                             addPatientInfo(category, event.field, event.value);
+                            console.log(`Successfully added patient info for category ${category}`);
+                        } else {
+                            console.warn(`No mapping found for category: ${event.category}`);
                         }
                     });
+                } else {
+                    console.log('No discovery events found in response');
                 }
 
                 // Update total available info
                 if (data.discovery_stats) {
                     console.log('Discovery stats:', data.discovery_stats);
-                    totalAvailableInfo = data.discovery_stats.total;
-                    updateProgress();
+                    if (data.discovery_stats.total !== undefined) {
+                        totalAvailableInfo = data.discovery_stats.total;
+                        updateProgress();
+                        console.log(`Updated totalAvailableInfo to ${totalAvailableInfo}`);
+                    } else {
+                        console.warn('Discovery stats missing total field:', data.discovery_stats);
+                    }
+                } else {
+                    console.log('No discovery stats found in response');
                 }
 
                 // Handle bias warnings
@@ -906,18 +946,18 @@
                 'medical_history': 'hpi',
                 'current_medications': 'medications',
                 'presenting_symptoms': 'hpi',
-                'physical_examination': 'examination',
-                'diagnostic_results': 'laboratory',
+                'physical_examination': 'exam',  // Fixed: should be 'exam' not 'examination'
+                'diagnostic_results': 'labs',    // Fixed: should be 'labs' not 'laboratory'
                 'clinical_assessment': 'hpi',
 
                 // Legacy categories for backward compatibility
                 'hpi': 'hpi',
                 'history': 'hpi',
                 'medications': 'medications',
-                'physical_exam': 'examination',
-                'examination': 'examination',
-                'labs': 'laboratory',
-                'laboratory': 'laboratory',
+                'physical_exam': 'exam',  // Fixed: should be 'exam' not 'examination'
+                'examination': 'exam',     // Fixed: should be 'exam' not 'examination'
+                'labs': 'labs',            // Fixed: should be 'labs' not 'laboratory'
+                'laboratory': 'labs',      // Fixed: should be 'labs' not 'laboratory'
                 'imaging': 'imaging',
                 'general': 'hpi'  // Default general info goes to HPI
                 // Note: demographics removed - no longer discoverable

@@ -57,11 +57,6 @@ class LLMIntentClassifier:
             },
 
             # History of Present Illness (HPI)
-            "hpi_source_of_history": {
-                "description": "Questions about who is providing the current history",
-                "examples": ["Who is telling me about this?", "Source of history?"],
-                "category": "history_present_illness"
-            },
             "hpi_chief_complaint": {
                 "description": "Questions about the main complaint or what brought patient to clinic",
                 "examples": ["What brings you here?", "Chief complaint?", "Main problem?", "What's wrong?"],
@@ -85,11 +80,6 @@ class LLMIntentClassifier:
             "hpi_recent_medical_care": {
                 "description": "Questions about recent medical care or treatments",
                 "examples": ["Recent doctor visits?", "Any recent treatment?", "Medical care recently?"],
-                "category": "history_present_illness"
-            },
-            "hpi_travel_contacts": {
-                "description": "Questions about recent travel or sick contacts",
-                "examples": ["Any recent travel?", "Sick contacts?", "Been anywhere recently?"],
                 "category": "history_present_illness"
             },
 
@@ -119,11 +109,6 @@ class LLMIntentClassifier:
                 "examples": ["Any other medications?", "Other meds?", "Additional prescriptions?"],
                 "category": "medications"
             },
-            "meds_allergies": {
-                "description": "Questions about medication allergies",
-                "examples": ["Any drug allergies?", "Medication allergies?", "Allergic to any meds?"],
-                "category": "medications"
-            },
 
             # Physical Examination
             "exam_general_appearance": {
@@ -148,29 +133,9 @@ class LLMIntentClassifier:
             },
 
             # Symptom-Specific HPI Questions
-            "hpi_weight_loss": {
-                "description": "Questions about weight loss or weight changes",
-                "examples": ["Weight loss?", "Has patient lost weight?", "Any weight changes?"],
-                "category": "history_present_illness"
-            },
-            "hpi_appetite": {
-                "description": "Questions about appetite changes or eating habits",
-                "examples": ["How is her appetite?", "Has she been eating well?", "Any appetite changes?", "Is she eating?"],
-                "category": "history_present_illness"
-            },
-            "hpi_eating": {
-                "description": "Questions specifically about eating habits and food intake",
-                "examples": ["Has she been eating well lately?", "How much is she eating?", "Any changes in eating?"],
-                "category": "history_present_illness"
-            },
             "hpi_fever": {
                 "description": "Questions about fever or temperature changes",
                 "examples": ["Any fever?", "Temperature?", "Running a fever?"],
-                "category": "history_present_illness"
-            },
-            "hpi_night_sweats": {
-                "description": "Questions about night sweats",
-                "examples": ["Night sweats?", "Sweating at night?", "Any sweats?"],
                 "category": "history_present_illness"
             },
             "hpi_cough": {
@@ -186,6 +151,16 @@ class LLMIntentClassifier:
             "hpi_chest_pain": {
                 "description": "Questions about chest pain or chest discomfort",
                 "examples": ["Chest pain?", "Any chest discomfort?", "Pain in chest?"],
+                "category": "history_present_illness"
+            },
+            "hpi_chills": {
+                "description": "Questions about chills or feeling cold",
+                "examples": ["Any chills?", "Feeling cold?", "Chills or rigors?"],
+                "category": "history_present_illness"
+            },
+            "hpi_weight_changes": {
+                "description": "Questions about weight loss or weight changes",
+                "examples": ["Weight loss?", "Any weight changes?", "Has patient lost weight?"],
                 "category": "history_present_illness"
             },
 
@@ -292,43 +267,34 @@ class LLMIntentClassifier:
                 "target_details": {"response_key": "empty_input"}
             }
 
-        # Define context-specific intent mappings
+        # Define context-specific intent mappings - ONLY intents supported by case file
         context_intents = {
             "anamnesis": {
-                # History taking intents
-                "hpi_chief_complaint", "hpi_onset_duration_primary", "hpi_location_primary",
-                "hpi_character_quality", "hpi_severity", "hpi_alleviating_factors",
-                "hpi_aggravating_factors", "hpi_associated_symptoms_general",
-                "hpi_timing_pattern", "pmh_general", "pmh_chronic_conditions",
-                "pmh_hospitalizations", "pmh_surgeries", "pmh_cardiac_conditions",
-                "pmh_pulmonary_conditions", "pmh_gi_conditions", "pmh_neuro_conditions",
-                "meds_current_known", "meds_allergies", "meds_recent_changes",
-                "social_smoking", "social_alcohol", "social_occupation",
-                "social_exercise", "social_diet", "family_cardiac",
-                "family_diabetes", "family_cancer", "family_general",
-                "profile_age", "profile_gender", "profile_occupation",
+                # Profile and demographics
+                "profile_age", "profile_language", "profile_social_context_historian", "profile_medical_records",
+                # History of Present Illness
+                "hpi_chief_complaint", "hpi_shortness_of_breath", "hpi_cough", "hpi_weight_changes",
+                "hpi_onset_duration_primary", "hpi_associated_symptoms_general", "hpi_pertinent_negatives",
+                "hpi_chest_pain", "hpi_fever", "hpi_chills", "hpi_recent_medical_care",
+                # Past Medical History
+                "pmh_general",
+                # Medications
+                "meds_current_known", "meds_uncertainty", "meds_ra_specific_initial_query",
+                "meds_full_reconciliation_query", "meds_other_meds_initial_query",
                 # General communication
-                "general_greeting", "clarification", "confirmation"
+                "general_greeting", "clarification"
             },
             "exam": {
-                # Physical examination intents
-                "exam_general_appearance", "exam_vital", "exam_cardiovascular",
-                "exam_respiratory", "exam_abdominal", "exam_neurological",
-                "exam_musculoskeletal", "exam_skin", "exam_head_neck",
-                "exam_extremities", "exam_lymph_nodes", "exam_psychiatric",
-                "exam_eyes", "exam_ears", "exam_throat",
+                # Physical examination intents - ONLY those in case file
+                "exam_vital", "exam_general_appearance", "exam_respiratory", "exam_cardiovascular",
                 # General communication
-                "general_greeting", "clarification", "confirmation"
+                "general_greeting", "clarification"
             },
             "labs": {
-                # Laboratory and imaging intents
-                "labs_cbc", "labs_bmp", "labs_liver", "labs_cardiac_enzymes",
-                "labs_lipid", "labs_thyroid", "labs_coagulation", "labs_urinalysis",
-                "labs_cultures", "labs_other", "imaging_chest_xray",
-                "imaging_ecg", "imaging_echo", "imaging_ct", "imaging_mri",
-                "imaging_ultrasound", "imaging_nuclear", "imaging_other",
+                # Laboratory and imaging intents - ONLY those in case file
+                "labs_general", "imaging_chest", "imaging_general",
                 # General communication
-                "general_greeting", "clarification", "confirmation"
+                "general_greeting", "clarification"
             }
         }
 
@@ -384,7 +350,7 @@ IMPORTANT: You MUST respond with one of the exact intent IDs listed above. For e
 - If asking about medications -> use EXACTLY "meds_current_known"
 - If asking about heart exam -> use EXACTLY "exam_cardiovascular"
 - If asking about lung exam -> use EXACTLY "exam_respiratory"
-- If asking about vital signs -> use EXACTLY "exam_vitals"
+- If asking about vital signs -> use EXACTLY "exam_vital"
 - If asking about patient age -> use EXACTLY "profile_age"
 
 Respond with ONLY a JSON object in this exact format:
@@ -697,32 +663,3 @@ The intent_id MUST be one of the exact IDs listed above for the {context} contex
     def list_all_intents(self) -> Dict[str, Dict[str, Any]]:
         """Get all available intent categories."""
         return self.intent_categories.copy()
-
-
-# Example usage and testing
-if __name__ == "__main__":
-    # Test the LLM Intent Classifier
-    classifier = LLMIntentClassifier()
-
-    test_inputs = [
-        "What brings you here today?",
-        "Can you describe your chest pain?",
-        "Let me listen to your heart",
-        "I'd like to order a chest X-ray",
-        "What medications are you currently taking?",
-        "I think you have heart failure, let's start treatment",
-        "Any family history of heart disease?",
-        "Let me check your blood pressure",
-        "We need to do some blood tests",
-        "Based on the examination, you likely have pneumonia"
-    ]
-
-    print("🧠 Testing LLM Intent Classifier")
-    print("=" * 50)
-
-    for test_input in test_inputs:
-        result = classifier.classify_intent(test_input)
-        print(f"Input: '{test_input}'")
-        print(f"Intent: {result['intent_id']} (confidence: {result['confidence']:.2f})")
-        print(f"Explanation: {result['explanation']}")
-        print()

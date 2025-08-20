@@ -215,6 +215,7 @@ class IntentDrivenDisclosureManager:
 
         return {
             'discovered_blocks': discovered_blocks,
+            'new_discoveries': discovered_blocks,  # Add this key for consistency
             'trigger_type': trigger_type,
             'intent_id': intent_id,
             'confidence': confidence
@@ -241,6 +242,13 @@ class IntentDrivenDisclosureManager:
                     clinical_content=block.content
                 )
 
+                # For physical examination blocks, use actual clinical content
+                # For other blocks, use the LLM summary for better readability
+                if block.block_type == 'PhysicalExam':
+                    summary_value = block.content
+                else:
+                    summary_value = discovery_info['summary']
+
                 discoveries.append({
                     'block_id': block_id,
                     'block_type': block.block_type,
@@ -250,7 +258,7 @@ class IntentDrivenDisclosureManager:
                     # New structured discovery data using fixed labels
                     'label': discovery_info['label'],
                     'category': discovery_info['category'],
-                    'summary': discovery_info['summary'],
+                    'summary': summary_value,
                     'confidence': discovery_info['confidence']
                 })
 
@@ -591,16 +599,16 @@ Your response as the patient's son (keep it natural and conversational):"""
         context_intents = {
             'anamnesis': [
                 # History and medication related intents
-                'hpi_chief_complaint', 'hpi_shortness_of_breath', 'hpi_cough', 'hpi_weight_loss',
+                'hpi_chief_complaint', 'hpi_shortness_of_breath', 'hpi_cough', 'hpi_weight_changes',
                 'hpi_onset_duration_primary', 'hpi_associated_symptoms_general', 'hpi_pertinent_negatives',
-                'hpi_chest_pain', 'hpi_fever', 'hpi_recent_medical_care', 'pmh_general',
+                'hpi_chest_pain', 'hpi_fever', 'hpi_chills', 'hpi_recent_medical_care', 'pmh_general',
                 'meds_current_known', 'meds_uncertainty', 'meds_ra_specific_initial_query',
                 'meds_full_reconciliation_query', 'meds_other_meds_initial_query',
                 'profile_age', 'profile_language', 'profile_social_context_historian', 'profile_medical_records'
             ],
             'exam': [
                 # Physical examination related intents
-                'exam_vital_signs', 'exam_general_appearance', 'exam_respiratory', 'exam_cardiovascular'
+                'exam_vital', 'exam_general_appearance', 'exam_respiratory', 'exam_cardiovascular'
             ],
             'labs': [
                 # Laboratory and imaging related intents
@@ -616,6 +624,10 @@ Your response as the patient's son (keep it natural and conversational):"""
         if discovery_result.get('context_filtered'):
             return self._generate_context_filtered_response(intent_result['intent_id'], context)
 
+        # For physical examination context, provide direct clinical findings
+        if context == 'exam':
+            return self._generate_exam_response(session_id, intent_result, discovery_result)
+
         # Use existing response generation but with context-aware persona
         base_response = self._generate_discovery_response(session_id, intent_result, discovery_result)
 
@@ -623,18 +635,81 @@ Your response as the patient's son (keep it natural and conversational):"""
         if context == 'anamnesis':
             # Son speaking for mother
             persona_prefix = ""  # Already handled in base response
-        elif context == 'exam':
-            # Direct examination findings
-            if discovery_result['new_discoveries']:
-                base_response['text'] = f"On examination: {base_response['text']}"
         elif context == 'labs':
             # Resident reporting results
-            if discovery_result['new_discoveries']:
+            if discovery_result.get('new_discoveries', []):
                 base_response['text'] = f"The results show: {base_response['text']}"
             else:
                 base_response['text'] = "I can order that test for you. " + base_response['text']
 
         return base_response
+
+    def _generate_exam_response(self, session_id: str, intent_result: Dict[str, Any], discovery_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate direct clinical findings for physical examination context."""
+        discovered_blocks = discovery_result.get('new_discoveries', [])
+        session = self.progressive_manager.get_session(session_id)
+
+        discoveries = []
+        clinical_findings = []
+
+        # Collect discovered examination findings
+        for block_id in discovered_blocks:
+            if block_id in session.blocks:
+                block = session.blocks[block_id]
+
+                # Use LLM Discovery Processor to categorize and label the discovery
+                discovery_info = self.discovery_processor.process_discovery(
+                    intent_id=intent_result['intent_id'],
+                    doctor_question=intent_result.get('original_input', ''),
+                    patient_response="",  # Not used for exam context
+                    clinical_content=block.content
+                )
+
+                discoveries.append({
+                    'block_id': block_id,
+                    'block_type': block.block_type,
+                    'content': block.content,
+                    'is_critical': block.is_critical,
+                    'discovery_notification': f"📋 **Examination Finding**: {discovery_info['label']}",
+                    'label': discovery_info['label'],
+                    'category': discovery_info['category'],
+                    'summary': block.content,  # Use actual clinical content instead of generic summary
+                    'confidence': discovery_info['confidence']
+                })
+
+                # Collect clinical findings directly
+                clinical_findings.append(block.content)
+
+        # Generate direct clinical response
+        if discoveries:
+            response_text = " ".join(clinical_findings)
+        else:
+            # No findings available for this examination
+            exam_intent = intent_result['intent_id']
+            response_text = self._generate_exam_fallback_response(exam_intent)
+
+        return {
+            'text': response_text,
+            'discoveries': discoveries,
+            'discovery_count': len(discoveries),
+            'has_discoveries': len(discoveries) > 0
+        }
+
+    def _generate_exam_fallback_response(self, intent_id: str) -> str:
+        """Generate appropriate response when requested examination findings are not available."""
+        exam_fallbacks = {
+            'exam_vital': "The vital signs have not been obtained yet. Would you like me to measure them?",
+            'exam_cardiovascular': "The cardiovascular examination reveals no abnormalities of clinical significance at this time.",
+            'exam_respiratory': "The respiratory examination does not reveal any significant findings of note.",
+            'exam_neurological': "The neurological examination appears unremarkable at this time.",
+            'exam_abdominal': "The abdominal examination does not reveal any significant abnormalities.",
+            'exam_musculoskeletal': "The musculoskeletal examination shows no obvious deformities or limitations.",
+            'exam_skin': "The skin examination reveals no notable lesions or changes.",
+            'exam_general_appearance': "The patient appears comfortable and in no acute distress."
+        }
+
+        return exam_fallbacks.get(intent_id,
+            "This aspect of the physical examination does not reveal anything of particular clinical significance.")
 
     def _generate_context_filtered_response(self, intent_id: str, context: str) -> Dict[str, Any]:
         """Generate response when intent is filtered due to context mismatch."""

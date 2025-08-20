@@ -3,7 +3,13 @@
 Verification script to check intent-to-label mapping consistency
 """
 
+import sys
+import os
 import json
+
+# Add the project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from smartdoc.ai.discovery_processor import LLMDiscoveryProcessor
 
 def verify_intent_label_consistency():
@@ -13,7 +19,10 @@ def verify_intent_label_consistency():
     print("=" * 55)
 
     # Load case JSON
-    with open('data/cases/intent_driven_case.json', 'r') as f:
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    case_file_path = os.path.join(project_root, 'data', 'cases', 'intent_driven_case.json')
+    
+    with open(case_file_path, 'r') as f:
         case_data = json.load(f)
 
     # Initialize discovery processor

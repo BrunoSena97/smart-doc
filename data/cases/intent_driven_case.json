@@ -36,11 +36,11 @@
       "intentTriggers": ["hpi_chief_complaint", "hpi_shortness_of_breath", "hpi_cough"]
     },
     {
-      "blockId": "hpi_weight_loss",
+      "blockId": "hpi_weight_changes",
       "blockType": "History",
       "content": "The patient's son has noticed decreased oral intake and weight loss over the past few weeks.",
       "isCritical": true,
-      "intentTriggers": ["hpi_weight_loss", "hpi_associated_symptoms_general"]
+      "intentTriggers": ["hpi_weight_changes", "hpi_associated_symptoms_general"]
     },
     {
       "blockId": "hpi_onset_duration",
@@ -50,11 +50,25 @@
       "intentTriggers": ["hpi_onset_duration_primary"]
     },
     {
-      "blockId": "hpi_negatives",
+      "blockId": "hpi_chest_pain",
       "blockType": "History",
-      "content": "Patient denies chest pain, fevers, or chills.",
+      "content": "Patient denies chest pain.",
       "isCritical": false,
-      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chest_pain", "hpi_fever"]
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chest_pain"]
+    },
+    {
+      "blockId": "hpi_fever",
+      "blockType": "History",
+      "content": "Patient denies fevers.",
+      "isCritical": false,
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_fever"]
+    },
+    {
+      "blockId": "hpi_chills",
+      "blockType": "History",
+      "content": "Patient denies chills.",
+      "isCritical": false,
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chills"]
     },
     {
       "blockId": "hpi_recent_care",
@@ -85,11 +99,11 @@
       "intentTriggers": ["meds_ra_specific_initial_query", "meds_uncertainty"]
     },
     {
-      "blockId": "exam_vitals",
+      "blockId": "exam_vital",
       "blockType": "PhysicalExam",
       "content": "Vital signs: Temperature 99.9°F (37.7°C), HR 105, BP 140/70, RR 24, O2 sat 89% on room air.",
       "isCritical": false,
-      "intentTriggers": ["exam_vital_signs"]
+      "intentTriggers": ["exam_vital"]
     },
     {
       "blockId": "exam_general",
@@ -177,12 +191,13 @@
     "hpi_chief_complaint": ["hpi_dyspnea_details"],
     "hpi_shortness_of_breath": ["hpi_dyspnea_details"],
     "hpi_cough": ["hpi_dyspnea_details"],
-    "hpi_weight_loss": ["hpi_weight_loss"],
+    "hpi_weight_changes": ["hpi_weight_changes"],
     "hpi_onset_duration_primary": ["hpi_onset_duration"],
-    "hpi_associated_symptoms_general": ["hpi_weight_loss"],
-    "hpi_pertinent_negatives": ["hpi_negatives"],
-    "hpi_chest_pain": ["hpi_negatives"],
-    "hpi_fever": ["hpi_negatives"],
+    "hpi_associated_symptoms_general": ["hpi_weight_changes"],
+    "hpi_pertinent_negatives": ["hpi_chest_pain", "hpi_fever", "hpi_chills"],
+    "hpi_chest_pain": ["hpi_chest_pain"],
+    "hpi_fever": ["hpi_fever"],
+    "hpi_chills": ["hpi_chills"],
     "hpi_recent_medical_care": ["hpi_recent_care"],
     "pmh_general": ["pmh_comorbidities"],
     "meds_current_known": ["meds_initial_known"],
@@ -190,7 +205,7 @@
     "meds_ra_specific_initial_query": ["meds_ra_uncertainty"],
     "meds_full_reconciliation_query": ["critical_infliximab"],
     "meds_other_meds_initial_query": ["meds_ra_uncertainty"],
-    "exam_vital_signs": ["exam_vitals"],
+    "exam_vital": ["exam_vital"],
     "exam_general_appearance": ["exam_general"],
     "exam_respiratory": ["exam_respiratory"],
     "exam_cardiovascular": ["exam_cardiac_negative"],
@@ -200,7 +215,7 @@
   },
   "groundTruth": {
     "finalDiagnosis": "Miliary tuberculosis",
-    "criticalFindingIds": ["hpi_weight_loss", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo", "critical_ct_chest"],
+    "criticalFindingIds": ["hpi_weight_changes", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo", "critical_ct_chest"],
     "keyDifferentials": ["Heart failure exacerbation", "Pneumonia", "Interstitial lung disease", "Lymphoma"]
   },
   "biasTriggers": {
@@ -213,7 +228,7 @@
     "confirmation": {
       "incorrectHypothesis": "Heart failure exacerbation",
       "supportingInfoIds": ["exam_respiratory", "labs_bnp", "imaging_cxr_preliminary"],
-      "refutingInfoIds": ["hpi_weight_loss", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo"]
+      "refutingInfoIds": ["hpi_weight_changes", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo"]
     },
     "framing": {
       "framingEffect": "Patient framed as 'elderly woman with heart failure' influences initial diagnostic thinking",

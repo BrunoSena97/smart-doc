@@ -52,11 +52,11 @@ class SessionLogger:
     def get_session_data(self):
         """Get the full session data for bias analysis."""
         return self.session_data
-    
+
     def get_interactions(self) -> List[Dict]:
         """Get the interactions list for bias analysis."""
         return self.session_data.get('interactions', [])
-    
+
     def log_bias_warning(self, bias_event: Dict):
         """Log a bias warning event."""
         bias_warning = {
@@ -67,7 +67,7 @@ class SessionLogger:
         }
         self.session_data['bias_warnings'].append(bias_warning)
         sys_logger.log_system("warning", f"BIAS WARNING: {bias_event.get('bias_type')} - {bias_event.get('message')}")
-    
+
     def get_bias_summary(self) -> Dict:
         """Get a summary of all bias warnings in this session."""
         warnings = self.session_data.get('bias_warnings', [])
@@ -75,7 +75,7 @@ class SessionLogger:
         for warning in warnings:
             bias_type = warning.get('bias_type', 'unknown')
             bias_types[bias_type] = bias_types.get(bias_type, 0) + 1
-        
+
         return {
             'total_warnings': len(warnings),
             'bias_types': bias_types,
@@ -240,6 +240,13 @@ class SessionLogger:
         duration = (now - start).total_seconds() / 60
         return f"{duration:.1f} minutes"
 
+    def get_session_duration_minutes(self) -> float:
+        """Get session duration in minutes as a float."""
+        start = datetime.fromisoformat(self.session_data["start_time"])
+        now = datetime.now()
+        duration = (now - start).total_seconds() / 60
+        return round(duration, 1)
+
     def save_session(self, filepath: str = None):
         """Save session data to file."""
         if not filepath:
@@ -248,6 +255,10 @@ class SessionLogger:
         self.session_data["end_time"] = datetime.now().isoformat()
 
         try:
+            # Ensure logs directory exists
+            import os
+            os.makedirs("logs", exist_ok=True)
+
             with open(filepath, 'w') as f:
                 json.dump(self.session_data, f, indent=2)
             sys_logger.log_system("info", f"Session saved to {filepath}")
