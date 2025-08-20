@@ -1,0 +1,14 @@
+# Development Configuration
+# Inherits from default.yaml and overrides specific settings
+
+app:
+  debug: true
+  host: "127.0.0.1"
+  port: 5000
+
+logging:
+  level: "DEBUG"
+
+# Dev-specific Ollama settings (if different)
+ollama:
+  base_url: "http://localhost:11434"

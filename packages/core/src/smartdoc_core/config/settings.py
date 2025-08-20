@@ -1,0 +1,150 @@
+# config.py - Centralized configuration management for SmartDoc
+import os
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class SmartDocConfig:
+    """
+    Centralized configuration for SmartDoc system.
+    Environment variables can override defaults.
+    """
+
+    # Knowledge Base Configuration
+    CASE_FILE: str = "data/raw/cases/intent_driven_case.json"
+    CANONICAL_MAPPINGS_FILE: str = "data/mappings/case01_advanced_enhanced.json"
+
+    # NLU Configuration
+    SBERT_MODEL: str = "all-MiniLM-L6-v2"
+    SIMILARITY_CUTOFF: float = 0.70
+    NLU_MAX_RESULTS: int = 5
+
+    # NLG Configuration (Ollama)
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "gemma3:4b-it-q4_K_M"
+    NLG_MAX_TOKENS: int = 100
+    NLG_TEMPERATURE: float = 0.7
+
+    # Logging Configuration
+    CONVERSATION_LOG_FILE: str = "logs/smartdoc_conversation_log.txt"
+    SYSTEM_LOG_FILE: str = "logs/system_log.txt"
+    LOG_LEVEL: str = "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+    # Flask Configuration
+    FLASK_HOST: str = "127.0.0.1"
+    FLASK_PORT: int = 8080
+    FLASK_DEBUG: bool = False
+    SECRET_KEY: str = "smartdoc-dev-key-change-in-production"
+
+    # Session Configuration
+    SESSION_TIMEOUT_MINUTES: int = 30
+    MAX_CONVERSATION_TURNS: int = 100
+
+    # Error Handling Configuration
+    MAX_RETRIES: int = 3
+    RETRY_DELAY_SECONDS: float = 1.0
+    FALLBACK_RESPONSES_ENABLED: bool = True
+
+    @classmethod
+    def from_env(cls) -> 'SmartDocConfig':
+        """Create configuration from environment variables with defaults."""
+        return cls(
+            # Knowledge Base
+            CASE_FILE=os.getenv('SMARTDOC_CASE_FILE', cls.CASE_FILE),
+            CANONICAL_MAPPINGS_FILE=os.getenv('SMARTDOC_CANONICAL_MAPPINGS_FILE', cls.CANONICAL_MAPPINGS_FILE),
+
+            # NLU
+            SBERT_MODEL=os.getenv('SMARTDOC_SBERT_MODEL', cls.SBERT_MODEL),
+            SIMILARITY_CUTOFF=float(os.getenv('SMARTDOC_SIMILARITY_CUTOFF', cls.SIMILARITY_CUTOFF)),
+            NLU_MAX_RESULTS=int(os.getenv('SMARTDOC_NLU_MAX_RESULTS', cls.NLU_MAX_RESULTS)),
+
+            # NLG
+            OLLAMA_BASE_URL=os.getenv('SMARTDOC_OLLAMA_BASE_URL', cls.OLLAMA_BASE_URL),
+            OLLAMA_MODEL=os.getenv('SMARTDOC_OLLAMA_MODEL', cls.OLLAMA_MODEL),
+            NLG_MAX_TOKENS=int(os.getenv('SMARTDOC_NLG_MAX_TOKENS', cls.NLG_MAX_TOKENS)),
+            NLG_TEMPERATURE=float(os.getenv('SMARTDOC_NLG_TEMPERATURE', cls.NLG_TEMPERATURE)),
+
+            # Logging
+            CONVERSATION_LOG_FILE=os.getenv('SMARTDOC_CONVERSATION_LOG', cls.CONVERSATION_LOG_FILE),
+            SYSTEM_LOG_FILE=os.getenv('SMARTDOC_SYSTEM_LOG', cls.SYSTEM_LOG_FILE),
+            LOG_LEVEL=os.getenv('SMARTDOC_LOG_LEVEL', cls.LOG_LEVEL),
+
+            # Flask
+            FLASK_HOST=os.getenv('SMARTDOC_FLASK_HOST', cls.FLASK_HOST),
+            FLASK_PORT=int(os.getenv('SMARTDOC_FLASK_PORT', cls.FLASK_PORT)),
+            FLASK_DEBUG=os.getenv('SMARTDOC_FLASK_DEBUG', str(cls.FLASK_DEBUG)).lower() == 'true',
+            SECRET_KEY=os.getenv('SMARTDOC_SECRET_KEY', cls.SECRET_KEY),
+
+            # Session
+            SESSION_TIMEOUT_MINUTES=int(os.getenv('SMARTDOC_SESSION_TIMEOUT', cls.SESSION_TIMEOUT_MINUTES)),
+            MAX_CONVERSATION_TURNS=int(os.getenv('SMARTDOC_MAX_TURNS', cls.MAX_CONVERSATION_TURNS)),
+
+            # Error Handling
+            MAX_RETRIES=int(os.getenv('SMARTDOC_MAX_RETRIES', cls.MAX_RETRIES)),
+            RETRY_DELAY_SECONDS=float(os.getenv('SMARTDOC_RETRY_DELAY', cls.RETRY_DELAY_SECONDS)),
+            FALLBACK_RESPONSES_ENABLED=os.getenv('SMARTDOC_FALLBACK_ENABLED', str(cls.FALLBACK_RESPONSES_ENABLED)).lower() == 'true'
+        )
+
+    def validate(self) -> bool:
+        """Validate configuration values."""
+        errors = []
+
+        if not 0.0 <= self.SIMILARITY_CUTOFF <= 1.0:
+            errors.append(f"SIMILARITY_CUTOFF must be between 0.0 and 1.0, got {self.SIMILARITY_CUTOFF}")
+
+        if not 0.0 <= self.NLG_TEMPERATURE <= 2.0:
+            errors.append(f"NLG_TEMPERATURE must be between 0.0 and 2.0, got {self.NLG_TEMPERATURE}")
+
+        if self.NLG_MAX_TOKENS <= 0:
+            errors.append(f"NLG_MAX_TOKENS must be positive, got {self.NLG_MAX_TOKENS}")
+
+        if self.FLASK_PORT <= 0 or self.FLASK_PORT > 65535:
+            errors.append(f"FLASK_PORT must be between 1 and 65535, got {self.FLASK_PORT}")
+
+        if errors:
+            raise ValueError(f"Configuration validation failed: {'; '.join(errors)}")
+
+        return True
+
+    def update_ollama_settings(self, base_url: str, model: str, max_tokens: int, temperature: float) -> bool:
+        """Update Ollama-related settings dynamically."""
+        try:
+            # Validate inputs
+            if not base_url or not model:
+                raise ValueError("Base URL and model are required")
+
+            if not (0.0 <= temperature <= 2.0):
+                raise ValueError("Temperature must be between 0.0 and 2.0")
+
+            if not (1 <= max_tokens <= 4096):
+                raise ValueError("Max tokens must be between 1 and 4096")
+
+            # Update the settings
+            self.OLLAMA_BASE_URL = base_url
+            self.OLLAMA_MODEL = model
+            self.NLG_MAX_TOKENS = max_tokens
+            self.NLG_TEMPERATURE = temperature
+
+            return True
+        except Exception as e:
+            raise ValueError(f"Failed to update settings: {e}")
+
+    def get_ollama_settings(self) -> dict:
+        """Get current Ollama settings as a dictionary."""
+        return {
+            "base_url": self.OLLAMA_BASE_URL,
+            "model": self.OLLAMA_MODEL,
+            "max_tokens": self.NLG_MAX_TOKENS,
+            "temperature": self.NLG_TEMPERATURE
+        }
+
+# Global configuration instance
+config = SmartDocConfig.from_env()
+
+# Validate configuration on import
+try:
+    config.validate()
+except ValueError as e:
+    print(f"Configuration Error: {e}")
+    print("Please check your environment variables or config.py defaults.")
+    raise
