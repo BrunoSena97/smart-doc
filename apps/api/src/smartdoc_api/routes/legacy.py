@@ -18,39 +18,39 @@ try:
     from smartdoc_core.config.settings import config
     from smartdoc_core.simulation.session_tracker import get_current_session, start_new_session
     SMARTDOC_AVAILABLE = True
-    
+
     # Initialize SmartDoc components
     print("🔧 Initializing SmartDoc components...")
-    
+
     # Initialize Intent-Driven Disclosure Manager
-    case_file_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))), 
-        'data', 'raw', 'cases', 'intent_driven_case.json'
-    )
-    
+    # Navigate from apps/api/src/smartdoc_api/routes/ to project root, then to data
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))))
+    case_file_path = os.path.join(project_root, 'data', 'raw', 'cases', 'intent_driven_case.json')
+    print(f"🔍 Looking for case file at: {case_file_path}")
+
     intent_driven_manager = IntentDrivenDisclosureManager(case_file_path=case_file_path)
     clinical_evaluator = ClinicalEvaluator()
-    
+
     print("✅ SmartDoc components initialized successfully!")
-    
+
 except ImportError as e:
     print(f"⚠️ SmartDoc core not available: {e}")
     SMARTDOC_AVAILABLE = False
-    
+
     # Mock components as fallback
     class MockLogger:
         def log_system(self, level, message): print(f"[{level.upper()}] {message}")
-    
+
     sys_logger = MockLogger()
     intent_driven_manager = None
     clinical_evaluator = None
-    
+
     _current_session = None
-    
+
     def get_current_session():
         global _current_session
         return _current_session
-    
+
     def start_new_session():
         global _current_session
         class MockSession:
@@ -77,25 +77,25 @@ def get_bot_response():
     user_input = data.get('message', '').strip()
     context = data.get('context', 'anamnesis')
     session_id = data.get('session_id', f"legacy_session_{uuid.uuid4().hex[:8]}")
-    
+
     if not user_input:
         return jsonify({
             "response": "I didn't receive any input. Could you please ask a question?",
             "error": False
         })
-    
+
     # Try to use real SmartDoc engine
     if SMARTDOC_AVAILABLE and intent_driven_manager:
         try:
             sys_logger.log_system("info", f"Processing query with SmartDoc engine: {user_input}")
-            
+
             # Process with Intent-Driven Discovery and context filtering
             discovery_result = intent_driven_manager.process_doctor_query(session_id, user_input, context)
-            
+
             if discovery_result['success']:
                 # Generate context-appropriate response
                 response_text = discovery_result['response']['text']
-                
+
                 response_data = {
                     "response": response_text,
                     "discovery_events": [],
@@ -104,7 +104,7 @@ def get_bot_response():
                     "context": context,
                     "smartdoc_engine": True
                 }
-                
+
                 # Process discoveries into events for the frontend
                 if 'discoveries' in discovery_result['response'] and discovery_result['response']['discoveries']:
                     discovery_events = []
@@ -121,7 +121,7 @@ def get_bot_response():
                         sys_logger.log_system("debug", f"Created discovery event: {discovery_event}")
                     response_data["discovery_events"] = discovery_events
                     sys_logger.log_system("info", f"Sending {len(discovery_events)} discovery events to frontend")
-                
+
                 # Add discovery stats from the session manager
                 if 'session_stats' in discovery_result:
                     session_stats = discovery_result['session_stats']
@@ -129,33 +129,33 @@ def get_bot_response():
                         "total": session_stats.get('total_blocks', 0),
                         "discovered": session_stats.get('revealed_blocks', 0)
                     }
-                
+
                 # Add bias warning from discovery result if detected
                 if 'bias_warning' in discovery_result:
                     response_data["bias_warnings"].append(discovery_result['bias_warning'])
                     sys_logger.log_system("warning", f"Discovery bias warning sent to frontend: {discovery_result['bias_warning']['bias_type']}")
-                
+
                 return jsonify(response_data)
             else:
                 sys_logger.log_system("error", f"SmartDoc processing failed: {discovery_result.get('error', 'Unknown error')}")
                 # Fall through to mock response
-                
+
         except Exception as e:
             sys_logger.log_system("error", f"SmartDoc engine error: {e}")
             # Fall through to mock response
-    
+
     # Fallback to mock response when SmartDoc engine is not available
     sys_logger.log_system("warning", "Using mock response - SmartDoc engine not available")
-    
+
     # Mock response based on context (original implementation)
     context_responses = {
         "anamnesis": f"Thank you for asking about {user_input}. My mother has been experiencing symptoms for several weeks now.",
         "physical-exam": f"For the physical examination regarding {user_input}, let me help position my mother.",
         "exams": f"About the tests you mentioned ({user_input}), we have some recent results to share."
     }
-    
+
     response_text = context_responses.get(context, f"I understand you're asking about {user_input}. Let me help answer that.")
-    
+
     # Mock discovery event
     discovery_event = {
         "category": "Clinical History",
@@ -164,7 +164,7 @@ def get_bot_response():
         "confidence": 0.5,
         "block_id": f"mock_block_{uuid.uuid4().hex[:8]}"
     }
-    
+
     return jsonify({
         "response": response_text,
         "discovery_events": [discovery_event],
@@ -175,7 +175,10 @@ def get_bot_response():
         "bias_warnings": [],
         "context": context,
         "smartdoc_engine": False
-    })@bp.route('/submit_diagnosis', methods=['POST'])
+    })
+
+
+@bp.route('/submit_diagnosis', methods=['POST'])
 def submit_diagnosis():
     """Legacy endpoint for diagnosis submission."""
     data = request.get_json() or {}
