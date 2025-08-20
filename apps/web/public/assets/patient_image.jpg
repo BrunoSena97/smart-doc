@@ -1,0 +1,32 @@
+<svg width="1024" height="1536" viewBox="0 0 1024 1536" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1536" fill="#f8fafc"/>
+
+  <!-- Patient silhouette -->
+  <g transform="translate(512, 768)">
+    <!-- Head -->
+    <circle cx="0" cy="-200" r="120" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>
+
+    <!-- Body -->
+    <ellipse cx="0" cy="0" rx="180" ry="250" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>
+
+    <!-- Arms -->
+    <ellipse cx="-220" cy="-50" rx="60" ry="180" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>
+    <ellipse cx="220" cy="-50" rx="60" ry="180" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="4"/>
+
+    <!-- Medical cross icon -->
+    <g transform="translate(0, -100)">
+      <rect x="-30" y="-60" width="60" height="120" fill="#3b82f6" rx="10"/>
+      <rect x="-60" y="-30" width="120" height="60" fill="#3b82f6" rx="10"/>
+    </g>
+  </g>
+
+  <!-- Patient info overlay -->
+  <rect x="50" y="50" width="924" height="100" fill="rgba(255,255,255,0.9)" stroke="#cbd5e1" stroke-width="2" rx="10"/>
+  <text x="80" y="90" font-family="Inter, sans-serif" font-size="24" font-weight="600" fill="#1f2937">Patient Image Placeholder</text>
+  <text x="80" y="120" font-family="Inter, sans-serif" font-size="18" fill="#6b7280">85-year-old Spanish-speaking female</text>
+
+  <!-- Medical frame border -->
+  <rect x="20" y="20" width="984" height="1496" fill="none" stroke="#3b82f6" stroke-width="8" rx="20"/>
+  <rect x="30" y="30" width="964" height="1476" fill="none" stroke="#e2e8f0" stroke-width="2" rx="15"/>
+</svg>
