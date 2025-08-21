@@ -244,3 +244,4 @@ models/
 runs/
 *.log
 instance/
+.github/
