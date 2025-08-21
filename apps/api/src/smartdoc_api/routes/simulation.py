@@ -12,6 +12,7 @@ import uuid
 # Mock session storage (will be replaced with proper session management)
 _sessions = {}
 
+
 @bp.post("/simulation/start")
 def start_simulation():
     """
@@ -33,14 +34,17 @@ def start_simulation():
         "status": "active",
         "interactions": [],
         "discoveries": [],
-        "bias_warnings": []
+        "bias_warnings": [],
     }
 
-    return jsonify({
-        "session_id": session_id,
-        "initial_message": initial_message,
-        "status": "active"
-    })
+    return jsonify(
+        {
+            "session_id": session_id,
+            "initial_message": initial_message,
+            "status": "active",
+        }
+    )
+
 
 @bp.post("/simulation/interact")
 def simulation_interact():
@@ -78,10 +82,13 @@ def simulation_interact():
         context_responses = {
             "anamnesis": f"Regarding the history, {message.lower()}... Well, my mother has been experiencing these symptoms for several weeks now.",
             "physical-exam": f"For the physical examination, {message.lower()}... Let me help position my mother for the examination.",
-            "exams": f"About the laboratory tests, {message.lower()}... Yes, we have some recent results we can share."
+            "exams": f"About the laboratory tests, {message.lower()}... Yes, we have some recent results we can share.",
         }
 
-        response_text = context_responses.get(context, f"I understand you're asking about {message}. Let me help answer that.")
+        response_text = context_responses.get(
+            context,
+            f"I understand you're asking about {message}. Let me help answer that.",
+        )
 
         # Mock discovery (would be real AI discovery in full implementation)
         discovery_event = {
@@ -89,29 +96,30 @@ def simulation_interact():
             "field": "Symptom Duration",
             "value": "Several weeks of symptoms",
             "confidence": 0.8,
-            "block_id": f"block_{len(_sessions[session_id]['interactions'])}"
+            "block_id": f"block_{len(_sessions[session_id]['interactions'])}",
         }
 
         # Update session
-        _sessions[session_id]["interactions"].append({
-            "message": message,
-            "response": response_text,
-            "context": context
-        })
+        _sessions[session_id]["interactions"].append(
+            {"message": message, "response": response_text, "context": context}
+        )
         _sessions[session_id]["discoveries"].append(discovery_event)
 
-        return jsonify({
-            "response": response_text,
-            "discovery_events": [discovery_event],
-            "bias_warnings": [],
-            "discovery_stats": {
-                "total": 20,  # Mock total
-                "discovered": len(_sessions[session_id]["discoveries"])
+        return jsonify(
+            {
+                "response": response_text,
+                "discovery_events": [discovery_event],
+                "bias_warnings": [],
+                "discovery_stats": {
+                    "total": 20,  # Mock total
+                    "discovered": len(_sessions[session_id]["discoveries"]),
+                },
             }
-        })
+        )
 
     except Exception as e:
         return jsonify({"error": f"Simulation processing failed: {str(e)}"}), 500
+
 
 @bp.post("/simulation/submit_diagnosis")
 def submit_diagnosis():
@@ -147,21 +155,26 @@ def submit_diagnosis():
         discovered_count = len(session["discoveries"])
 
         # Mock performance calculation
-        discovery_score = min(100, (discovered_count / 15) * 100)  # Assuming 15 total items
+        discovery_score = min(
+            100, (discovered_count / 15) * 100
+        )  # Assuming 15 total items
         overall_score = int(discovery_score * 0.8 + 20)  # Basic scoring
 
-        return jsonify({
-            "score": f"{overall_score}/100",
-            "feedback": f"You discovered {discovered_count} clinical findings. Your submitted diagnosis: '{diagnosis}'",
-            "performance_summary": {
-                "information_discovery": f"Good ({discovered_count}/15 items)",
-                "bias_awareness": "Excellent (0 warnings)",
-                "diagnostic_accuracy": "Requires expert review"
+        return jsonify(
+            {
+                "score": f"{overall_score}/100",
+                "feedback": f"You discovered {discovered_count} clinical findings. Your submitted diagnosis: '{diagnosis}'",
+                "performance_summary": {
+                    "information_discovery": f"Good ({discovered_count}/15 items)",
+                    "bias_awareness": "Excellent (0 warnings)",
+                    "diagnostic_accuracy": "Requires expert review",
+                },
             }
-        })
+        )
 
     except Exception as e:
         return jsonify({"error": f"Evaluation failed: {str(e)}"}), 500
+
 
 @bp.get("/simulation/<session_id>/status")
 def simulation_status(session_id):
@@ -170,10 +183,12 @@ def simulation_status(session_id):
         return jsonify({"error": "Session not found"}), 404
 
     session = _sessions[session_id]
-    return jsonify({
-        "session_id": session_id,
-        "status": session["status"],
-        "interactions_count": len(session["interactions"]),
-        "discoveries_count": len(session["discoveries"]),
-        "bias_warnings_count": len(session["bias_warnings"])
-    })
+    return jsonify(
+        {
+            "session_id": session_id,
+            "status": session["status"],
+            "interactions_count": len(session["interactions"]),
+            "discoveries_count": len(session["discoveries"]),
+            "bias_warnings_count": len(session["bias_warnings"]),
+        }
+    )

@@ -18,7 +18,7 @@ __all__ = [
     "IntentDrivenDisclosureManager",
     "BiasEvaluator",
     "SessionLogger",
-    "ProgressiveDisclosureManager"
+    "ProgressiveDisclosureManager",
 ]
 
 # Convenience aliases

@@ -20,8 +20,9 @@ from .simulation import (
     # Convenience aliases
     BiasAnalyzer,
     SessionTracker,
-    StateManager
+    StateManager,
 )
+
 
 def reply_to(message: str) -> str:
     """
@@ -43,6 +44,7 @@ def reply_to(message: str) -> str:
     # Placeholder implementation
     return f"SmartDoc AI: Analyzing your question: '{message}' - Full AI pipeline coming soon!"
 
+
 __all__ = [
     "reply_to",
     "IntentClassifier",
@@ -51,5 +53,5 @@ __all__ = [
     "IntentDrivenDisclosureManager",
     "BiasAnalyzer",
     "SessionTracker",
-    "StateManager"
+    "StateManager",
 ]

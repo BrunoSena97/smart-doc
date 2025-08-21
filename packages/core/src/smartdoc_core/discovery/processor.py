@@ -10,6 +10,7 @@ from typing import Dict, Any, Optional, List
 from smartdoc_core.utils.logger import sys_logger
 from smartdoc_core.config.settings import config
 
+
 class LLMDiscoveryProcessor:
     """
     LLM-based discovery processor that analyzes clinical information blocks
@@ -33,12 +34,12 @@ class LLMDiscoveryProcessor:
                 "Patient Age": "Patient's age and demographic information",
                 "Language Barrier": "Communication and language needs",
                 "Medical Records": "Availability and access to previous medical records",
-                "Social Context": "Family members present, who provides history"
+                "Social Context": "Family members present, who provides history",
             },
             "medical_history": {
                 "Past Medical History": "Chronic conditions, previous diagnoses",
                 "Previous Treatments": "Past medical interventions and treatments",
-                "Recent Medical Care": "Recent doctor visits, treatments, or hospitalizations"
+                "Recent Medical Care": "Recent doctor visits, treatments, or hospitalizations",
             },
             "current_medications": {
                 "Current Medications": "Currently prescribed medications",
@@ -46,7 +47,7 @@ class LLMDiscoveryProcessor:
                 "Diabetes Medications": "Diabetic treatment medications",
                 "Arthritis Medications": "Rheumatoid arthritis and joint medications",
                 "Recent Antibiotics": "Recently prescribed antibiotic treatments",
-                "Medication Uncertainty": "Unknown or unclear medication information"
+                "Medication Uncertainty": "Unknown or unclear medication information",
             },
             "presenting_symptoms": {
                 "Chief Complaint": "Primary reason for visit",
@@ -55,26 +56,26 @@ class LLMDiscoveryProcessor:
                 "Cough Symptoms": "Cough characteristics and patterns",
                 "Weight Loss": "Unintentional weight loss",
                 "Appetite Changes": "Changes in eating habits and appetite",
-                "Associated Symptoms": "Other related symptoms"
+                "Associated Symptoms": "Other related symptoms",
             },
             "physical_examination": {
                 "Vital Signs": "Temperature, blood pressure, heart rate, respiratory rate, oxygen saturation",
                 "General Appearance": "Overall patient appearance and demeanor",
                 "Heart Examination": "Cardiovascular examination findings",
-                "Lung Examination": "Respiratory examination findings"
+                "Lung Examination": "Respiratory examination findings",
             },
             "diagnostic_results": {
                 "Lab Results": "Blood tests and laboratory findings",
                 "Chest X-ray": "Chest imaging results",
                 "CT Scan": "Computed tomography findings",
                 "Echocardiogram": "Cardiac ultrasound results",
-                "Other Imaging": "Additional imaging studies"
+                "Other Imaging": "Additional imaging studies",
             },
             "clinical_assessment": {
                 "Pertinent Negatives": "Important symptoms that are absent",
                 "Risk Factors": "Identified risk factors for conditions",
-                "Clinical Concerns": "Medical concerns and differential diagnoses"
-            }
+                "Clinical Concerns": "Medical concerns and differential diagnoses",
+            },
         }
 
         # Create flat mapping of all possible labels
@@ -83,13 +84,21 @@ class LLMDiscoveryProcessor:
             for label, description in labels.items():
                 self.all_labels[label] = {
                     "category": category,
-                    "description": description
+                    "description": description,
                 }
 
-        sys_logger.log_system("info", f"LLMDiscoveryProcessor initialized with {len(self.all_labels)} possible labels")
+        sys_logger.log_system(
+            "info",
+            f"LLMDiscoveryProcessor initialized with {len(self.all_labels)} possible labels",
+        )
 
-    def process_discovery(self, intent_id: str, doctor_question: str, patient_response: str,
-                         clinical_content: str) -> Dict[str, Any]:
+    def process_discovery(
+        self,
+        intent_id: str,
+        doctor_question: str,
+        patient_response: str,
+        clinical_content: str,
+    ) -> Dict[str, Any]:
         """
         Process a discovery event and return structured categorization.
 
@@ -104,31 +113,47 @@ class LLMDiscoveryProcessor:
         """
         try:
             # Create prompt for LLM discovery processing
-            prompt = self._create_discovery_prompt(intent_id, doctor_question, patient_response, clinical_content)
+            prompt = self._create_discovery_prompt(
+                intent_id, doctor_question, patient_response, clinical_content
+            )
 
             # Call Ollama API
             response = self._call_ollama(prompt)
 
             # Parse LLM response
-            result = self._parse_discovery_response(response, intent_id, clinical_content)
+            result = self._parse_discovery_response(
+                response, intent_id, clinical_content
+            )
 
-            sys_logger.log_system("debug", f"Discovery processed: {intent_id} -> {result.get('label', 'unknown')} (confidence: {result.get('confidence', 0):.2f})")
+            sys_logger.log_system(
+                "debug",
+                f"Discovery processed: {intent_id} -> {result.get('label', 'unknown')} (confidence: {result.get('confidence', 0):.2f})",
+            )
 
             return result
 
         except Exception as e:
             sys_logger.log_system("warning", f"LLM Discovery Processing error: {e}")
             # Fallback to rule-based classification
-            return self._fallback_discovery_processing(intent_id, clinical_content, str(e))
+            return self._fallback_discovery_processing(
+                intent_id, clinical_content, str(e)
+            )
 
-    def _create_discovery_prompt(self, intent_id: str, doctor_question: str,
-                                patient_response: str, clinical_content: str) -> str:
+    def _create_discovery_prompt(
+        self,
+        intent_id: str,
+        doctor_question: str,
+        patient_response: str,
+        clinical_content: str,
+    ) -> str:
         """Create a prompt for the LLM to process discovery information."""
 
         # Create label options for the prompt
         label_list = []
         for label, info in self.all_labels.items():
-            label_list.append(f"- {label}: {info['description']} (category: {info['category']})")
+            label_list.append(
+                f"- {label}: {info['description']} (category: {info['category']})"
+            )
 
         prompt = f"""You are a clinical AI assistant. Analyze this clinical information exchange and categorize it using ONE of the predefined labels.
 
@@ -168,28 +193,27 @@ The label MUST be one of the exact labels listed above. Do not create new labels
             "stream": False,
             "options": {
                 "temperature": 0.1,  # Low temperature for consistent categorization
-                "top_p": 0.9
-            }
+                "top_p": 0.9,
+            },
         }
 
-        headers = {
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
 
         response = requests.post(
-            f"{self.ollama_url}/api/generate",
-            json=payload,
-            headers=headers,
-            timeout=30
+            f"{self.ollama_url}/api/generate", json=payload, headers=headers, timeout=30
         )
 
         if response.status_code == 200:
             result = response.json()
             return result.get("response", "")
         else:
-            raise Exception(f"Ollama API error: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Ollama API error: {response.status_code} - {response.text}"
+            )
 
-    def _parse_discovery_response(self, llm_response: str, intent_id: str, clinical_content: str) -> Dict[str, Any]:
+    def _parse_discovery_response(
+        self, llm_response: str, intent_id: str, clinical_content: str
+    ) -> Dict[str, Any]:
         """Parse the LLM's JSON response into structured discovery data."""
         try:
             # Try to extract JSON from response
@@ -215,7 +239,9 @@ The label MUST be one of the exact labels listed above. Do not create new labels
                     # Try to find a close match or use fallback
                     label = self._find_fallback_label(intent_id, clinical_content)
                     category = self.all_labels[label]["category"]
-                    confidence = max(0.3, confidence * 0.5)  # Reduce confidence for fallback
+                    confidence = max(
+                        0.3, confidence * 0.5
+                    )  # Reduce confidence for fallback
 
                 # Ensure category matches label
                 if label in self.all_labels:
@@ -228,18 +254,24 @@ The label MUST be one of the exact labels listed above. Do not create new labels
                     "confidence": confidence,
                     "reasoning": reasoning,
                     "original_content": clinical_content,
-                    "intent_context": intent_id
+                    "intent_context": intent_id,
                 }
 
             else:
                 # Fallback if JSON parsing fails
-                return self._create_fallback_result(intent_id, clinical_content, "Could not parse LLM response")
+                return self._create_fallback_result(
+                    intent_id, clinical_content, "Could not parse LLM response"
+                )
 
         except (json.JSONDecodeError, ValueError, KeyError) as e:
             # Fallback for parsing errors
-            return self._create_fallback_result(intent_id, clinical_content, f"Response parsing error: {str(e)}")
+            return self._create_fallback_result(
+                intent_id, clinical_content, f"Response parsing error: {str(e)}"
+            )
 
-    def _fallback_discovery_processing(self, intent_id: str, clinical_content: str, error_msg: str) -> Dict[str, Any]:
+    def _fallback_discovery_processing(
+        self, intent_id: str, clinical_content: str, error_msg: str
+    ) -> Dict[str, Any]:
         """
         Fallback discovery processing using rule-based matching when LLM is unavailable.
         """
@@ -249,7 +281,9 @@ The label MUST be one of the exact labels listed above. Do not create new labels
         label = self._find_fallback_label(intent_id, clinical_content)
         category = self.all_labels[label]["category"]
 
-        return self._create_fallback_result(intent_id, clinical_content, error_msg, label, category)
+        return self._create_fallback_result(
+            intent_id, clinical_content, error_msg, label, category
+        )
 
     def _find_fallback_label(self, intent_id: str, clinical_content: str) -> str:
         """Find the most appropriate label using fallback rules."""
@@ -287,7 +321,7 @@ The label MUST be one of the exact labels listed above. Do not create new labels
             "labs_general": "Lab Results",
             "imaging_chest": "Chest X-ray",
             "imaging_general": "Other Imaging",
-            "pmh_general": "Past Medical History"
+            "pmh_general": "Past Medical History",
         }
 
         # Try intent-based mapping first
@@ -297,13 +331,24 @@ The label MUST be one of the exact labels listed above. Do not create new labels
         # Content-based fallback rules
         if any(word in content_lower for word in ["age", "elderly", "years", "old"]):
             return "Patient Age"
-        elif any(word in content_lower for word in ["spanish", "language", "translat", "speak"]):
+        elif any(
+            word in content_lower
+            for word in ["spanish", "language", "translat", "speak"]
+        ):
             return "Language Barrier"
-        elif any(word in content_lower for word in ["vital", "temperature", "blood pressure", "heart rate"]):
+        elif any(
+            word in content_lower
+            for word in ["vital", "temperature", "blood pressure", "heart rate"]
+        ):
             return "Vital Signs"
-        elif any(word in content_lower for word in ["lisinopril", "atenolol", "blood pressure"]):
+        elif any(
+            word in content_lower
+            for word in ["lisinopril", "atenolol", "blood pressure"]
+        ):
             return "Blood Pressure Medications"
-        elif any(word in content_lower for word in ["infliximab", "arthritis", "rheumatoid"]):
+        elif any(
+            word in content_lower for word in ["infliximab", "arthritis", "rheumatoid"]
+        ):
             return "Arthritis Medications"
         elif any(word in content_lower for word in ["diabetes", "diabetic"]):
             return "Diabetes Medications"
@@ -313,9 +358,13 @@ The label MUST be one of the exact labels listed above. Do not create new labels
             return "Cough Symptoms"
         elif any(word in content_lower for word in ["weight", "eating", "appetite"]):
             return "Weight Loss"
-        elif any(word in content_lower for word in ["heart", "cardiac", "cardiovascular"]):
+        elif any(
+            word in content_lower for word in ["heart", "cardiac", "cardiovascular"]
+        ):
             return "Heart Examination"
-        elif any(word in content_lower for word in ["lung", "respiratory", "breathing"]):
+        elif any(
+            word in content_lower for word in ["lung", "respiratory", "breathing"]
+        ):
             return "Lung Examination"
         elif any(word in content_lower for word in ["x-ray", "chest", "imaging"]):
             return "Chest X-ray"
@@ -325,8 +374,14 @@ The label MUST be one of the exact labels listed above. Do not create new labels
         # Default fallback
         return "Clinical Concerns"
 
-    def _create_fallback_result(self, intent_id: str, clinical_content: str, error_msg: str,
-                               label: str = None, category: str = None) -> Dict[str, Any]:
+    def _create_fallback_result(
+        self,
+        intent_id: str,
+        clinical_content: str,
+        error_msg: str,
+        label: str = None,
+        category: str = None,
+    ) -> Dict[str, Any]:
         """Create a fallback result structure."""
         if not label:
             label = self._find_fallback_label(intent_id, clinical_content)
@@ -342,7 +397,7 @@ The label MUST be one of the exact labels listed above. Do not create new labels
             "reasoning": f"Fallback classification (LLM error: {error_msg})",
             "original_content": clinical_content,
             "intent_context": intent_id,
-            "error": error_msg
+            "error": error_msg,
         }
 
     def get_label_info(self, label: str) -> Optional[Dict[str, Any]]:
@@ -376,20 +431,20 @@ if __name__ == "__main__":
             "intent_id": "profile_age",
             "doctor_question": "How old is the patient?",
             "patient_response": "She's elderly, yes. I help her because she only speaks Spanish.",
-            "clinical_content": "Patient is elderly, approximately 70+ years old. Family member present to assist with translation."
+            "clinical_content": "Patient is elderly, approximately 70+ years old. Family member present to assist with translation.",
         },
         {
             "intent_id": "meds_ra_specific_initial_query",
             "doctor_question": "What medications does she take for her arthritis?",
             "patient_response": "Oh yes! The doctor found her old records. She's been getting infusions for her arthritis - something called infliximab.",
-            "clinical_content": "Patient receives infliximab infusions for rheumatoid arthritis treatment. Multiple treatments over past months."
+            "clinical_content": "Patient receives infliximab infusions for rheumatoid arthritis treatment. Multiple treatments over past months.",
         },
         {
             "intent_id": "exam_vital_signs",
             "doctor_question": "Let me check her vital signs",
             "patient_response": "*The nurse takes vital signs* Temperature is a little high at 99.9°F...",
-            "clinical_content": "Vital signs: T 99.9°F, HR 105, BP 140/70, RR 24, O2 sat 89%"
-        }
+            "clinical_content": "Vital signs: T 99.9°F, HR 105, BP 140/70, RR 24, O2 sat 89%",
+        },
     ]
 
     print("🔍 Testing LLM Discovery Processor")

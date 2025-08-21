@@ -4,6 +4,7 @@ from smartdoc_core import reply_to
 
 app = create_app()
 
+
 @app.post("/chat")
 def chat():
     """Chat endpoint for SmartDoc AI interaction."""
@@ -18,6 +19,7 @@ def chat():
         return jsonify({"reply": answer})
     except Exception as e:
         return jsonify({"error": f"AI processing failed: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     # Development server

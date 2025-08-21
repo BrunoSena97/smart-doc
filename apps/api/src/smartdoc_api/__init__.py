@@ -10,6 +10,7 @@ from flask_cors import CORS
 
 __version__ = "0.1.0"
 
+
 def create_app() -> Flask:
     """
     Application factory for SmartDoc API.
@@ -20,20 +21,27 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     # Enable CORS for frontend communication
-    CORS(app, resources={
-        r"/api/*": {"origins": ["http://localhost:3000"]},
-        r"/*": {"origins": ["http://localhost:3000"]}  # For legacy routes during migration
-    })
+    CORS(
+        app,
+        resources={
+            r"/api/*": {"origins": ["http://localhost:3000"]},
+            r"/*": {
+                "origins": ["http://localhost:3000"]
+            },  # For legacy routes during migration
+        },
+    )
 
     # Load configuration
-    app.config['SECRET_KEY'] = 'smartdoc-dev-key-change-in-production'
+    app.config["SECRET_KEY"] = "smartdoc-dev-key-change-in-production"
 
     # Register blueprints
     from .routes import bp as api_v1
+
     app.register_blueprint(api_v1, url_prefix="/api/v1")
 
     # Legacy routes (for backward compatibility during migration)
     from .routes.legacy import bp as legacy_bp
+
     app.register_blueprint(legacy_bp)
 
     # Health check endpoint

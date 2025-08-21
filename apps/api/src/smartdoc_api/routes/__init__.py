@@ -12,5 +12,6 @@ bp = Blueprint("api_v1", __name__)
 # Import route handlers to register them with the blueprint
 from .chat import *  # noqa
 from .simulation import *  # noqa
+from .diagnosis import *  # noqa
 
 __all__ = ["bp"]

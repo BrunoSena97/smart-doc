@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Optional
 from smartdoc_core.config.settings import config
 from smartdoc_core.utils.logger import sys_logger
 
+
 class ClinicalEvaluator:
     """
     Advanced LLM-based evaluator for comprehensive clinical performance analysis.
@@ -23,14 +24,18 @@ class ClinicalEvaluator:
         """Initialize the Clinical Evaluator."""
         self.model_name = model_name or config.OLLAMA_MODEL
         self.ollama_url = f"{config.OLLAMA_BASE_URL}/api/generate"
-        sys_logger.log_system("info", f"Clinical Evaluator initialized with model: {self.model_name}")
+        sys_logger.log_system(
+            "info", f"Clinical Evaluator initialized with model: {self.model_name}"
+        )
 
-    def evaluate_clinical_performance(self,
-                                    dialogue_transcript: List[Dict],
-                                    detected_biases: List[Dict],
-                                    metacognitive_responses: Dict[str, str],
-                                    final_diagnosis: str,
-                                    case_context: Dict) -> Dict[str, Any]:
+    def evaluate_clinical_performance(
+        self,
+        dialogue_transcript: List[Dict],
+        detected_biases: List[Dict],
+        metacognitive_responses: Dict[str, str],
+        final_diagnosis: str,
+        case_context: Dict,
+    ) -> Dict[str, Any]:
         """
         Comprehensive evaluation of clinical performance using LLM analysis.
 
@@ -47,8 +52,11 @@ class ClinicalEvaluator:
         try:
             # Prepare the evaluation prompt
             evaluation_prompt = self._create_evaluation_prompt(
-                dialogue_transcript, detected_biases, metacognitive_responses,
-                final_diagnosis, case_context
+                dialogue_transcript,
+                detected_biases,
+                metacognitive_responses,
+                final_diagnosis,
+                case_context,
             )
 
             # Get LLM evaluation
@@ -58,28 +66,36 @@ class ClinicalEvaluator:
                 # Parse the structured response
                 parsed_evaluation = self._parse_evaluation_response(evaluation_result)
 
-                sys_logger.log_system("info", f"Clinical evaluation completed successfully")
+                sys_logger.log_system(
+                    "info", f"Clinical evaluation completed successfully"
+                )
                 return {
                     "success": True,
                     "evaluation": parsed_evaluation,
-                    "raw_response": evaluation_result
+                    "raw_response": evaluation_result,
                 }
             else:
-                return self._fallback_evaluation(final_diagnosis, detected_biases, metacognitive_responses)
+                return self._fallback_evaluation(
+                    final_diagnosis, detected_biases, metacognitive_responses
+                )
 
         except Exception as e:
             sys_logger.log_system("error", f"Clinical evaluation failed: {e}")
-            return self._fallback_evaluation(final_diagnosis, detected_biases, metacognitive_responses)
+            return self._fallback_evaluation(
+                final_diagnosis, detected_biases, metacognitive_responses
+            )
 
-    def analyze_cognitive_biases(self,
-                               dialogue_transcript: List[Dict],
-                               final_diagnosis: str) -> Dict[str, Any]:
+    def analyze_cognitive_biases(
+        self, dialogue_transcript: List[Dict], final_diagnosis: str
+    ) -> Dict[str, Any]:
         """
         Deep LLM-based analysis of cognitive biases in the clinical dialogue.
         Uses Chain-of-Thought prompting for detailed bias detection.
         """
         try:
-            cot_prompt = self._create_bias_analysis_prompt(dialogue_transcript, final_diagnosis)
+            cot_prompt = self._create_bias_analysis_prompt(
+                dialogue_transcript, final_diagnosis
+            )
             bias_analysis = self._query_llm(cot_prompt)
 
             if bias_analysis:
@@ -87,7 +103,7 @@ class ClinicalEvaluator:
                 return {
                     "success": True,
                     "bias_analysis": parsed_bias,
-                    "raw_analysis": bias_analysis
+                    "raw_analysis": bias_analysis,
                 }
             else:
                 return {"success": False, "error": "LLM bias analysis failed"}
@@ -96,11 +112,14 @@ class ClinicalEvaluator:
             sys_logger.log_system("error", f"Bias analysis failed: {e}")
             return {"success": False, "error": str(e)}
 
-    def _create_evaluation_prompt(self, dialogue_transcript: List[Dict],
-                                detected_biases: List[Dict],
-                                metacognitive_responses: Dict[str, str],
-                                final_diagnosis: str,
-                                case_context: Dict) -> str:
+    def _create_evaluation_prompt(
+        self,
+        dialogue_transcript: List[Dict],
+        detected_biases: List[Dict],
+        metacognitive_responses: Dict[str, str],
+        final_diagnosis: str,
+        case_context: Dict,
+    ) -> str:
         """Create comprehensive evaluation prompt for LLM."""
 
         # Format dialogue transcript
@@ -110,7 +129,9 @@ class ClinicalEvaluator:
         bias_summary = self._format_bias_summary(detected_biases)
 
         # Format metacognitive responses
-        reflection_summary = self._format_metacognitive_responses(metacognitive_responses)
+        reflection_summary = self._format_metacognitive_responses(
+            metacognitive_responses
+        )
 
         prompt = f"""You are an expert medical education evaluator and cognitive psychology specialist. Your task is to provide a comprehensive evaluation of a medical student's clinical performance in a virtual patient simulation.
 
@@ -175,7 +196,9 @@ Please ensure your response is valid JSON and provide detailed, educational feed
 
         return prompt
 
-    def _create_bias_analysis_prompt(self, dialogue_transcript: List[Dict], final_diagnosis: str) -> str:
+    def _create_bias_analysis_prompt(
+        self, dialogue_transcript: List[Dict], final_diagnosis: str
+    ) -> str:
         """Create Chain-of-Thought prompt for detailed bias analysis."""
 
         formatted_dialogue = self._format_dialogue(dialogue_transcript)
@@ -240,9 +263,9 @@ Let's think step-by-step."""
         """Format dialogue transcript for LLM analysis."""
         formatted = []
         for i, interaction in enumerate(dialogue_transcript, 1):
-            role = "DOCTOR" if interaction.get('role') == 'user' else "PATIENT"
-            message = interaction.get('message', interaction.get('content', ''))
-            timestamp = interaction.get('timestamp', '')
+            role = "DOCTOR" if interaction.get("role") == "user" else "PATIENT"
+            message = interaction.get("message", interaction.get("content", ""))
+            timestamp = interaction.get("timestamp", "")
             formatted.append(f"{i}. {role}: {message}")
 
         return "\n".join(formatted)
@@ -254,8 +277,8 @@ Let's think step-by-step."""
 
         formatted = []
         for bias in detected_biases:
-            bias_type = bias.get('bias_type', 'Unknown')
-            description = bias.get('description', bias.get('message', ''))
+            bias_type = bias.get("bias_type", "Unknown")
+            description = bias.get("description", bias.get("message", ""))
             formatted.append(f"- {bias_type}: {description}")
 
         return "\n".join(formatted)
@@ -283,15 +306,15 @@ Let's think step-by-step."""
                 "options": {
                     "temperature": 0.3,  # Lower temperature for more consistent analysis
                     "top_p": 0.9,
-                    "max_tokens": 4000
-                }
+                    "max_tokens": 4000,
+                },
             }
 
             response = requests.post(self.ollama_url, json=payload, timeout=120)
             response.raise_for_status()
 
             result = response.json()
-            return result.get('response', '').strip()
+            return result.get("response", "").strip()
 
         except Exception as e:
             sys_logger.log_system("error", f"LLM query failed: {e}")
@@ -301,8 +324,8 @@ Let's think step-by-step."""
         """Parse structured JSON response from LLM evaluation."""
         try:
             # Try to extract JSON from response
-            start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
+            start_idx = response.find("{")
+            end_idx = response.rfind("}") + 1
 
             if start_idx != -1 and end_idx != 0:
                 json_str = response[start_idx:end_idx]
@@ -318,14 +341,17 @@ Let's think step-by-step."""
         """Parse bias analysis response."""
         try:
             # Extract JSON portion
-            start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
+            start_idx = response.find("{")
+            end_idx = response.rfind("}") + 1
 
             if start_idx != -1 and end_idx != 0:
                 json_str = response[start_idx:end_idx]
                 return json.loads(json_str)
             else:
-                return {"error": "Could not parse bias analysis", "raw_response": response}
+                return {
+                    "error": "Could not parse bias analysis",
+                    "raw_response": response,
+                }
 
         except json.JSONDecodeError:
             return {"error": "Invalid JSON in bias analysis", "raw_response": response}
@@ -334,22 +360,42 @@ Let's think step-by-step."""
         """Fallback text parsing for evaluation response."""
         return {
             "overall_score": 75,  # Default score
-            "diagnostic_accuracy": {"score": 70, "analysis": "Unable to parse detailed analysis"},
-            "information_gathering": {"score": 75, "analysis": "Unable to parse detailed analysis"},
-            "cognitive_bias_awareness": {"score": 70, "analysis": "Unable to parse detailed analysis"},
-            "clinical_reasoning": {"score": 75, "analysis": "Unable to parse detailed analysis"},
+            "diagnostic_accuracy": {
+                "score": 70,
+                "analysis": "Unable to parse detailed analysis",
+            },
+            "information_gathering": {
+                "score": 75,
+                "analysis": "Unable to parse detailed analysis",
+            },
+            "cognitive_bias_awareness": {
+                "score": 70,
+                "analysis": "Unable to parse detailed analysis",
+            },
+            "clinical_reasoning": {
+                "score": 75,
+                "analysis": "Unable to parse detailed analysis",
+            },
             "constructive_feedback": {
                 "positive_reinforcement": "Good clinical engagement",
-                "key_learning_points": ["Continue practicing systematic clinical reasoning"],
-                "specific_recommendations": ["Focus on comprehensive information gathering"],
-                "bias_education": "Consider multiple hypotheses before settling on a diagnosis"
+                "key_learning_points": [
+                    "Continue practicing systematic clinical reasoning"
+                ],
+                "specific_recommendations": [
+                    "Focus on comprehensive information gathering"
+                ],
+                "bias_education": "Consider multiple hypotheses before settling on a diagnosis",
             },
             "confidence_assessment": 60,
-            "raw_llm_response": response
+            "raw_llm_response": response,
         }
 
-    def _fallback_evaluation(self, final_diagnosis: str, detected_biases: List[Dict],
-                           metacognitive_responses: Dict[str, str]) -> Dict[str, Any]:
+    def _fallback_evaluation(
+        self,
+        final_diagnosis: str,
+        detected_biases: List[Dict],
+        metacognitive_responses: Dict[str, str],
+    ) -> Dict[str, Any]:
         """Provide fallback evaluation when LLM analysis fails."""
         bias_count = len(detected_biases)
         bias_penalty = min(30, bias_count * 10)  # Max 30 point penalty
@@ -360,20 +406,34 @@ Let's think step-by-step."""
             "success": True,
             "evaluation": {
                 "overall_score": max(50, base_score),
-                "diagnostic_accuracy": {"score": 70, "analysis": "Requires expert review for detailed assessment"},
-                "information_gathering": {"score": 75, "analysis": "Demonstrated systematic questioning approach"},
+                "diagnostic_accuracy": {
+                    "score": 70,
+                    "analysis": "Requires expert review for detailed assessment",
+                },
+                "information_gathering": {
+                    "score": 75,
+                    "analysis": "Demonstrated systematic questioning approach",
+                },
                 "cognitive_bias_awareness": {
                     "score": max(50, 90 - bias_penalty),
-                    "analysis": f"Detected {bias_count} potential cognitive biases during the session"
+                    "analysis": f"Detected {bias_count} potential cognitive biases during the session",
                 },
-                "clinical_reasoning": {"score": 70, "analysis": "Showed logical progression in clinical thinking"},
+                "clinical_reasoning": {
+                    "score": 70,
+                    "analysis": "Showed logical progression in clinical thinking",
+                },
                 "constructive_feedback": {
                     "positive_reinforcement": "Demonstrated engagement with the clinical case",
-                    "key_learning_points": ["Continue developing systematic clinical reasoning skills"],
-                    "specific_recommendations": ["Practice considering alternative diagnoses", "Use structured reflection techniques"],
-                    "bias_education": "Be aware of cognitive biases that can influence clinical decision-making"
+                    "key_learning_points": [
+                        "Continue developing systematic clinical reasoning skills"
+                    ],
+                    "specific_recommendations": [
+                        "Practice considering alternative diagnoses",
+                        "Use structured reflection techniques",
+                    ],
+                    "bias_education": "Be aware of cognitive biases that can influence clinical decision-making",
                 },
-                "confidence_assessment": 60
+                "confidence_assessment": 60,
             },
-            "fallback_used": True
+            "fallback_used": True,
         }

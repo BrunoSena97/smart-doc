@@ -1,6 +1,19 @@
-import { getBotResponse, submitDiagnosis, submitDiagnosisWithReflection } from "../api.js";
-import { state, addDiscovery, setTotalAvailableInfo, incBiasWarnings } from "../state.js";
-import { redrawCategory, updateProgress, updateBiasCount } from "./patientInfo.js";
+import {
+  sendChat,
+  submitDiagnosis,
+  submitDiagnosisWithReflection,
+} from "../api.js";
+import {
+  state,
+  addDiscovery,
+  setTotalAvailableInfo,
+  incBiasWarnings,
+} from "../state.js";
+import {
+  redrawCategory,
+  updateProgress,
+  updateBiasCount,
+} from "./patientInfo.js";
 
 export function initChatHandlers() {
   // Hook up chat forms for each context
@@ -28,7 +41,9 @@ export function initChatHandlers() {
       const dx = document.getElementById("diagnosis-input")?.value.trim();
       const reflection = collectReflection();
       if (!validateReflection(reflection)) {
-        alert("Please complete all reflection questions with meaningful responses (at least 10 characters each).");
+        alert(
+          "Please complete all reflection questions with meaningful responses (at least 10 characters each)."
+        );
         return;
       }
 
@@ -74,13 +89,13 @@ async function handleChat(context) {
   input.style.height = "auto";
 
   try {
-    console.log("[CHAT] Sending message:", { text, context, sessionId: state.sessionId });
-
-    const data = await getBotResponse({
-      message: text,
+    console.log("[CHAT] Sending message:", {
+      text,
       context,
-      session_id: state.sessionId
+      sessionId: state.sessionId,
     });
+
+    const data = await sendChat(text, context);
 
     // Add bot response
     addMsg(chatboxId, data.response, "bot");
@@ -97,7 +112,10 @@ async function handleChat(context) {
     }
 
     // Update discovery stats
-    if (data.discovery_stats && typeof data.discovery_stats.total === "number") {
+    if (
+      data.discovery_stats &&
+      typeof data.discovery_stats.total === "number"
+    ) {
       setTotalAvailableInfo(data.discovery_stats.total);
       updateProgress();
     }
@@ -117,10 +135,13 @@ async function handleChat(context) {
     } else {
       console.log("[CHAT] ⚠️ Response from mock engine");
     }
-
   } catch (err) {
     console.error("[CHAT] Error:", err);
-    addMsg(chatboxId, "Sorry, I encountered an error. Please try again.", "bot");
+    addMsg(
+      chatboxId,
+      "Sorry, I encountered an error. Please try again.",
+      "bot"
+    );
   }
 }
 
@@ -136,9 +157,8 @@ function addMsg(chatboxId, text, role) {
 
   const avatar = document.createElement("div");
   avatar.className = `avatar ${role}-avatar`;
-  avatar.innerHTML = role === "bot"
-    ? botAvatarFor(chatboxId)
-    : '<i class="fas fa-user-md"></i>';
+  avatar.innerHTML =
+    role === "bot" ? botAvatarFor(chatboxId) : '<i class="fas fa-user-md"></i>';
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
@@ -157,7 +177,10 @@ function botAvatarFor(chatboxId) {
   if (chatboxId.includes("exam")) {
     return `<img src="./assets/patient_image.png" alt="Patient" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-stethoscope avatar-fallback" style="display:none;"></i>`;
   }
-  return `<img src="./assets/son_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
+  if (chatboxId.includes("labs")) {
+    return `<img src="./assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
+  }
+  return `<img src="./assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
 }
 
 function addBiasWarning(chatboxId, warning) {
@@ -169,9 +192,11 @@ function addBiasWarning(chatboxId, warning) {
   div.innerHTML = `
     <div class="bias-warning-header">
       <i class="fas fa-exclamation-triangle"></i>
-      Cognitive Bias Alert: ${warning.bias_type || 'Unknown'}
+      Cognitive Bias Alert: ${warning.bias_type || "Unknown"}
     </div>
-    <div class="bias-warning-content">${warning.description || warning.message || 'Bias detected'}</div>
+    <div class="bias-warning-content">${
+      warning.description || warning.message || "Bias detected"
+    }</div>
   `;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
@@ -181,38 +206,38 @@ function mapCategory(c) {
   const m = {
     "Clinical History": "hpi",
     "Medical History": "hpi",
-    "History": "hpi",
-    "HPI": "hpi",
+    History: "hpi",
+    HPI: "hpi",
     "Presenting Symptoms": "hpi",
-    "medical_history": "hpi",
-    "presenting_symptoms": "hpi",
-    "clinical_assessment": "hpi",
-    "hpi": "hpi",
-    "history": "hpi",
-    "general": "hpi",
+    medical_history: "hpi",
+    presenting_symptoms: "hpi",
+    clinical_assessment: "hpi",
+    hpi: "hpi",
+    history: "hpi",
+    general: "hpi",
 
     "Current Medications": "medications",
-    "Medications": "medications",
-    "current_medications": "medications",
-    "medications": "medications",
+    Medications: "medications",
+    current_medications: "medications",
+    medications: "medications",
 
     "Physical Examination": "exam",
     "Physical Exam": "exam",
-    "Examination": "exam",
-    "physical_examination": "exam",
-    "physical_exam": "exam",
-    "examination": "exam",
-    "exam": "exam",
+    Examination: "exam",
+    physical_examination: "exam",
+    physical_exam: "exam",
+    examination: "exam",
+    exam: "exam",
 
-    "Laboratory": "labs",
-    "Labs": "labs",
+    Laboratory: "labs",
+    Labs: "labs",
     "Diagnostic Results": "labs",
-    "diagnostic_results": "labs",
-    "laboratory": "labs",
-    "labs": "labs",
+    diagnostic_results: "labs",
+    laboratory: "labs",
+    labs: "labs",
 
-    "Imaging": "imaging",
-    "imaging": "imaging",
+    Imaging: "imaging",
+    imaging: "imaging",
   };
 
   return m[c] || null;
@@ -253,7 +278,8 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
   if (!btn) return;
 
   const originalText = btn.innerHTML;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Evaluation...';
+  btn.innerHTML =
+    '<i class="fas fa-spinner fa-spin"></i> Processing Evaluation...';
   btn.disabled = true;
 
   try {
@@ -269,7 +295,9 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
     });
 
     // Import and use results renderer
-    const { renderResults, renderAdvancedResults } = await import("./results.js");
+    const { renderResults, renderAdvancedResults } = await import(
+      "./results.js"
+    );
 
     if (data.llm_evaluation?.evaluation) {
       renderAdvancedResults(data);
@@ -280,7 +308,6 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
     // Switch to results tab
     const resultsTab = document.querySelector('[data-tab="results"]');
     if (resultsTab) resultsTab.click();
-
   } catch (error) {
     console.error("[CHAT] Diagnosis submission error:", error);
     alert("Error submitting diagnosis. Please try again.");
