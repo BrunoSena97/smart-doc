@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDoc Clinical Simulation Platform</title>
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="medical-interface">
+        <!-- Header -->
+        <header class="medical-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-user-md"></i>
+                    <h1>SmartDoc Clinical Simulation</h1>
+                </div>
+                <div class="session-info">
+                    <span class="session-id">Session: <span id="current-session">Loading...</span></span>
+                    <div class="status-indicator">
+                        <span class="status-dot active"></span>
+                        <span>Active Session</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <button class="tab-button" data-tab="patient-info">
+                <i class="fas fa-user-circle"></i>
+                Patient Information
+            </button>
+            <button class="tab-button active" data-tab="anamnesis">
+                <i class="fas fa-clipboard-list"></i>
+                Clinical Interview
+            </button>
+            <button class="tab-button" data-tab="physical-exam">
+                <i class="fas fa-stethoscope"></i>
+                Physical Exam
+            </button>
+            <button class="tab-button" data-tab="exams">
+                <i class="fas fa-vials"></i>
+                Labs & Imaging
+            </button>
+            <button class="tab-button" data-tab="results" id="results-tab" style="display: none;">
+                <i class="fas fa-chart-line"></i>
+                Performance Results
+            </button>
+        </nav>
+
+        <!-- Tab Content Areas -->
+        <main class="tab-content-container">
+
+            <!-- Patient Information Tab -->
+            <div id="patient-info" class="tab-content">
+                <div class="patient-info-container">
+                    <!-- Patient Header -->
+                    <div class="patient-header">
+                        <div class="patient-image-container">
+                            <img src="./assets/patient_image.png" alt="Patient Photo" class="patient-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="patient-avatar-fallback" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="patient-basic-info">
+                            <h2>Patient Demographics</h2>
+                            <div class="demographics-static">
+                                <div class="demo-item">
+                                    <span class="demo-label">Age:</span>
+                                    <span class="demo-value">85 years old</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Language:</span>
+                                    <span class="demo-value">Spanish-speaking (son provides history)</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Medical Records:</span>
+                                    <span class="demo-value">Most records from another health system</span>
+                                </div>
+                                <div class="demo-item">
+                                    <span class="demo-label">Historian:</span>
+                                    <span class="demo-value">Son (due to language barrier)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Dashboard -->
+                    <div class="progress-dashboard">
+                        <div class="progress-item">
+                            <span class="progress-label">Information Discovered</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="discovery-progress" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="discovery-count">0/0</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Bias Warnings</span>
+                            <span class="warning-badge" id="bias-count">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Information Sections -->
+                    <div class="info-sections">
+                        <div class="info-section">
+                            <h3><i class="fas fa-history"></i> History of Present Illness</h3>
+                            <div class="info-grid" id="hpi-info">
+                                <p class="no-info">No HPI information discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-pills"></i> Medications</h3>
+                            <div class="info-grid" id="medications-info">
+                                <p class="no-info">No medication information discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-stethoscope"></i> Physical Examination</h3>
+                            <div class="info-grid" id="exam-info">
+                                <p class="no-info">No examination findings discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-vials"></i> Laboratory Results</h3>
+                            <div class="info-grid" id="labs-info">
+                                <p class="no-info">No laboratory results discovered yet</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h3><i class="fas fa-x-ray"></i> Imaging Studies</h3>
+                            <div class="info-grid" id="imaging-info">
+                                <p class="no-info">No imaging results discovered yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnosis Submission -->
+                    <div class="diagnosis-section">
+                        <h3><i class="fas fa-diagnoses"></i> Submit Diagnosis</h3>
+                        <div class="diagnosis-form">
+                            <textarea id="diagnosis-input" placeholder="Enter your diagnosis and reasoning..." rows="4"></textarea>
+                            <button id="submit-diagnosis" class="submit-btn">
+                                <i class="fas fa-check-circle"></i>
+                                Submit Diagnosis & Continue to Reflection
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metacognitive Checkpoint (Hidden initially) -->
+                    <div class="metacognitive-checkpoint" id="metacognitive-checkpoint" style="display: none;">
+                        <h3><i class="fas fa-brain"></i> Clinical Reflection Checkpoint</h3>
+                        <p class="checkpoint-intro">Before we complete your evaluation, please take a moment to reflect on your diagnostic reasoning. This helps develop metacognitive awareness and improves clinical decision-making.</p>
+
+                        <div class="reflection-questions">
+                            <div class="reflection-question">
+                                <label for="supporting-evidence">
+                                    <i class="fas fa-check-circle"></i>
+                                    What is the single most compelling piece of evidence that supports your chosen diagnosis?
+                                </label>
+                                <textarea id="supporting-evidence" rows="3" placeholder="Describe the most important evidence supporting your diagnosis..."></textarea>
+                            </div>
+
+                            <div class="reflection-question">
+                                <label for="contradicting-evidence">
+                                    <i class="fas fa-times-circle"></i>
+                                    What is one piece of evidence that might argue against your diagnosis?
+                                </label>
+                                <textarea id="contradicting-evidence" rows="3" placeholder="Consider evidence that challenges your diagnosis..."></textarea>
+                            </div>
+
+                            <div class="reflection-question">
+                                <label for="alternative-diagnoses">
+                                    <i class="fas fa-list-alt"></i>
+                                    What else could this be? List at least two reasonable alternative diagnoses.
+                                </label>
+                                <textarea id="alternative-diagnoses" rows="3" placeholder="List alternative diagnoses and briefly explain why they could be considered..."></textarea>
+                            </div>
+
+                            <div class="reflection-question">
+                                <label for="additional-testing">
+                                    <i class="fas fa-search"></i>
+                                    For one of your alternative diagnoses, what specific information (test or question) would help rule it in or out?
+                                </label>
+                                <textarea id="additional-testing" rows="3" placeholder="Describe specific tests or questions that would help differentiate..."></textarea>
+                            </div>
+
+                            <div class="reflection-question">
+                                <label for="critical-conditions">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Have you considered and ruled out any potential 'must-not-miss' or life-threatening conditions?
+                                </label>
+                                <textarea id="critical-conditions" rows="3" placeholder="Discuss any critical conditions you considered and why you ruled them out..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="checkpoint-actions">
+                            <button id="submit-reflection" class="submit-btn reflection-btn">
+                                <i class="fas fa-brain"></i>
+                                Submit Reflection & Get Evaluation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clinical Interview (Anamnesis) Tab -->
+            <div id="anamnesis" class="tab-content active">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Clinical Interview - History Taking</h2>
+                        <p>Ask the patient's son about the history of present illness and medications</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="anamnesis-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="./assets/son_image.png" alt="Son Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-user avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Hello Doctor, I'm here with my mother. She's been having breathing problems and I'm worried about her. What would you like to know?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="anamnesis-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="anamnesis-input" placeholder="Ask about history, symptoms, medications..." rows="1"></textarea>
+                                <button type="submit" id="anamnesis-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Exam Tab -->
+            <div id="physical-exam" class="tab-content">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-stethoscope"></i> Physical Examination</h2>
+                        <p>Perform physical examination by asking for specific findings</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="exam-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="./assets/patient_image.png" alt="Patient Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-stethoscope avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Ready to perform physical examination. What would you like to examine?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="exam-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="exam-input" placeholder="Ask for examination findings (vital signs, cardiac, pulmonary, etc.)..." rows="1"></textarea>
+                                <button type="submit" id="exam-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Labs & Imaging Tab -->
+            <div id="exams" class="tab-content">
+                <div class="chat-interface">
+                    <div class="section-header">
+                        <h2><i class="fas fa-vials"></i> Laboratory & Imaging Studies</h2>
+                        <p>Order diagnostic tests by speaking with the resident</p>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="labs-chatbox" class="chat-log">
+                        <div class="message bot-message">
+                            <div class="avatar bot-avatar">
+                                <img src="./assets/resident_image.png" alt="Resident Avatar" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-user-md avatar-fallback" style="display: none;"></i>
+                            </div>
+                            <div class="message-bubble">
+                                <span>Hello Doctor, I'm the resident. What laboratory tests or imaging studies would you like me to order or review?</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-area">
+                        <form id="labs-form" class="chat-input-form">
+                            <div class="input-wrapper">
+                                <textarea id="labs-input" placeholder="Order labs, imaging, or ask for results..." rows="1"></textarea>
+                                <button type="submit" id="labs-send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="results" class="tab-content">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2><i class="fas fa-trophy"></i> Clinical Performance Analysis</h2>
+                        <p>Your performance in this clinical simulation</p>
+                    </div>
+
+                    <div class="results-content" id="results-content">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ES Module Scripts -->
+    <script type="module" src="./js/main.js"></script>
+
+</body>
+</html>

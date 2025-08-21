@@ -1,11 +1,12 @@
 # SmartDoc: Advanced AI-Powered Clinical Simulation Platform
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
-[![Flask](https://img.shields.io/badge/Flask-2.0%2B-green.svg)](https://flask.palletsprojects.com)
+[![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.1.1-green.svg)](https://flask.palletsprojects.com)
 [![LLM](https://img.shields.io/badge/LLM-Ollama%20Powered-purple.svg)](https://ollama.ai)
 [![License](https://img.shields.io/badge/License-Academic-orange.svg)](LICENSE)
+[![Architecture](https://img.shields.io/badge/Architecture-Monorepo-blue.svg)](https://monorepo.tools)
 
-> A comprehensive dissertation project featuring advanced AI systems for medical education, including LLM-powered discovery, cognitive bias detection, and metacognitive assessment.## 🎯 Project Overview
+> A comprehensive master's thesis project featuring advanced AI systems for medical education with professional monorepo architecture, including LLM-powered discovery, cognitive bias detection, and metacognitive assessment.## 🎯 Project Overview
 
 SmartDoc is a cutting-edge AI-powered clinical simulation platform designed to revolutionize medical education through realistic virtual standardized patient interactions. The system combines multiple AI technologies including Large Language Models, intent classification, cognitive bias detection, and metacognitive assessment to create an immersive learning environment.
 
@@ -18,24 +19,41 @@ SmartDoc is a cutting-edge AI-powered clinical simulation platform designed to r
 - **📊 AI-Powered Evaluation**: Comprehensive performance analysis using advanced LLM evaluation
 - **🌐 Modern Web Interface**: Responsive, professional medical simulation interface
 - **🔄 Deduplication System**: Label-based unique keys preventing duplicate information entries
-- **👥 Virtual Patient Personas**: Realistic patient representation with cultural context## 🏗️ Advanced Architecture
+- **👥 Virtual Patient Personas**: Realistic patient representation with cultural context## 🏗️ Professional Monorepo Architecture
+
+SmartDoc follows modern software engineering best practices with a clean monorepo structure:
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           SmartDoc AI Platform                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Student Query → LLM Intent Classifier → Intent-Driven Discovery Engine    │
-│                        ↓                            ↓                       │
-│  Cognitive Bias ← LLM Discovery Processor ← Context-Aware Categorization   │
-│  Detection               ↓                            ↓                       │
-│       ↓          Web Interface ← Patient Information ← Progressive Disclosure│
-│  Metacognitive           ↓                            ↓                       │
-│  Checkpoint      LLM Clinical Evaluator ← Comprehensive Analysis           │
-│       ↓                  ↓                            ↓                       │
-│  Educational    Advanced Results ← Performance Metrics ← Session Tracking   │
-│  Feedback               ↓                                                     │
-│              System Logger & Research Data Collection                      │
-└─────────────────────────────────────────────────────────────────────────────┘
+smart-doc/
+├── 📂 apps/                      # Applications
+│   └── 📂 api/                   # Flask web application
+│       ├── 📂 src/smartdoc_api/ # API source code
+│       ├── 📂 tests/            # API-specific tests
+│       └── 📄 pyproject.toml    # API dependencies
+├── 📂 packages/                  # Reusable packages
+│   ├── 📂 core/                 # Core AI logic
+│   │   ├── 📂 src/smartdoc_core/
+│   │   │   ├── 📂 intent/       # Intent classification
+│   │   │   ├── 📂 discovery/    # Discovery processing
+│   │   │   ├── 📂 clinical/     # Clinical evaluation
+│   │   │   ├── 📂 simulation/   # Simulation engines
+│   │   │   ├── 📂 config/       # Configuration
+│   │   │   └── 📂 utils/        # Utilities
+│   │   ├── 📂 tests/            # Core tests
+│   │   └── 📄 pyproject.toml    # Core dependencies
+│   └── 📂 shared/               # Shared utilities
+│       ├── 📂 src/smartdoc_shared/
+│       ├── 📂 tests/
+│       └── 📄 pyproject.toml
+├── 📂 configs/                   # Environment configs
+│   ├── 📄 default.yaml         # Base configuration
+│   ├── 📄 dev.yaml             # Development settings
+│   └── 📄 prod.yaml            # Production settings
+├── 📂 data/                      # Clinical cases & data
+├── 📂 scripts/                   # Development scripts
+├── 📂 deployments/              # Docker & deployment
+├── 📂 docs/                     # Documentation
+└── 📂 tests/                    # Integration tests
 ```
 
 ### 🚀 Core AI Components
@@ -46,7 +64,93 @@ SmartDoc is a cutting-edge AI-powered clinical simulation platform designed to r
 - **Cognitive Bias Detector**: Multi-modal bias detection (rule-based + LLM analysis)
 - **Clinical Evaluator**: Comprehensive LLM-powered performance assessment
 - **Metacognitive Framework**: Structured reflection with forcing strategies
-- **Session Management**: Real-time tracking with bias monitoring and deduplication## 📁 Advanced Project Structure```smart-doc/├── 📄 main.py                    # Application entry point├── 📄 requirements.txt           # Python dependencies├── 📄 README.md                  # This comprehensive guide├── 📂 data/                      # Comprehensive case data│   ├── 📂 cases/                 # Advanced patient cases│   │   ├── 📄 case01.json       # Legacy heart failure case│   │   ├── 📄 intent_driven_case.json  # Advanced IBD case with intent mapping│   │   └── 📄 mull_diagnostic_error.json  # Diagnostic challenge case│   └── 📂 mappings/              # Intent classification mappings│       └── 📄 case01_advanced_enhanced.json  # Comprehensive intent schemas├── 📂 smartdoc/                  # Core AI platform│   ├── 📂 ai/                    # Advanced AI components│   │   ├── 📄 discovery_processor.py    # LLM-powered discovery categorization│   │   ├── 📄 clinical_evaluator.py     # Comprehensive LLM evaluation│   │   └── 📄 intent_classifier.py      # Advanced intent classification│   ├── 📂 config/                # Configuration management│   │   └── 📄 settings.py       # Centralized configuration│   ├── 📂 core/                  # Enhanced dialogue system│   │   ├── 📄 dialogue_manager.py  # Legacy dialogue logic│   │   ├── 📄 state_machine.py     # FSM states and transitions│   │   └── 📄 intents.py           # Intent processing utilities│   ├── 📂 simulation/            # Advanced simulation engine│   │   ├── 📄 engine.py         # Intent-driven discovery manager│   │   └── 📄 session_tracker.py # Comprehensive session management│   ├── 📂 services/              # AI and external services│   │   ├── 📄 knowledge_manager.py     # Enhanced knowledge operations│   │   ├── 📄 llm_intent_classifier.py # LLM-powered classification│   │   └── 📄 nlg.py                   # Natural language generation│   ├── 📂 utils/                 # Enhanced utilities│   │   ├── 📄 bias_evaluator.py       # Cognitive bias detection│   │   ├── 📄 logger.py               # Advanced logging system│   │   ├── 📄 session_logger.py       # Session-specific logging│   │   └── 📄 exceptions.py           # Comprehensive error handling│   └── 📂 web/                   # Modern web interface│       ├── 📄 app.py            # Advanced Flask application│       └── 📂 templates/         # Professional UI templates│           └── 📄 index.html    # Comprehensive medical interface├── 📂 static/                    # Enhanced UI assets│   ├── 📄 style.css             # Professional medical interface styling│   ├── 📄 patient_image.png     # Patient visualization│   └── 📄 son_image.png         # Chatbot avatar├── 📂 demos/                     # Interactive demonstrations│   ├── 📄 demo_bias_detection.py      # Bias detection showcase│   └── 📄 demo_llm_intent_classification.py  # Intent classification demo├── 📂 tests/                     # Comprehensive testing│   └── 📄 test_integrated_bias_detection.py  # Bias system validation├── 📂 tools/                     # Development and analysis tools│   ├── 📄 advanced_nlu_enhancer.py        # NLU enhancement utilities│   ├── 📄 clinical_interview_evaluator.py # Interview analysis tools│   └── 📄 nlu_variation_generator.py      # Training data generation└── 📂 docs/                      # Extensive documentation    ├── 📄 PROJECT_DOCUMENTATION.md        # Comprehensive project guide    ├── 📄 DISSERTATION_GUIDE.md          # Academic framework    └── 📄 SYSTEM_CONFORMITY_REPORT.md    # System validation results```## 🚀 Getting Started### Prerequisites- **Python**: 3.8 or higher- **Ollama**: For LLM inference- **Git**: For version control### Installation1. **Clone the repository**   ```bash   git clone https://github.com/BrunoSena97/smart-doc.git   cd smart-doc   ```2. **Create virtual environment**   ```bash   python -m venv env   source env/bin/activate  # On Windows: env\Scripts\activate   ```3. **Install dependencies**   ```bash   pip install -r requirements.txt   ```4. **Configure Ollama with advanced models**   ```bash   # Install Ollama (see https://ollama.ai)   ollama serve      # Pull recommended models for optimal performance   ollama pull llama3.2:3b        # Primary model for intent classification   ollama pull gemma2:2b          # Alternative lightweight model   ollama pull qwen2.5:3b         # Advanced reasoning model   ```5. **Initialize the system**   ```bash   # Test system components   python -c "from smartdoc.config.settings import config; print('✅ Configuration loaded')"   python -c "from smartdoc.ai.clinical_evaluator import ClinicalEvaluator; print('✅ AI components ready')"   ```6. **Configure environment (optional)**   ```bash   cp .env.example .env   # Edit .env file with your LLM preferences   ```### 🚀 Running the Advanced Platform**Standard Mode** (Recommended):```bashpython main.py```**Development Mode** (with debugging):```bashSMARTDOC_FLASK_DEBUG=true python main.py```**Custom Configuration**:```bashSMARTDOC_OLLAMA_MODEL=llama3.2:3b python main.py```The advanced web interface will be available at `http://localhost:5000` with full AI capabilities.## ⚙️ Advanced ConfigurationSmartDoc features a sophisticated configuration system supporting multiple AI models and advanced settings:### 🎛️ Core Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_FLASK_HOST` | `127.0.0.1` | Web server host || `SMARTDOC_FLASK_PORT` | `5000` | Web server port || `SMARTDOC_FLASK_DEBUG` | `false` | Development debug mode |### 🤖 AI Model Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_OLLAMA_MODEL` | `llama3.2:3b` | Primary LLM model || `SMARTDOC_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server endpoint || `SMARTDOC_OLLAMA_TIMEOUT` | `30` | Request timeout (seconds) |### 📊 Case and Data Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_CASE_FILE` | `data/cases/intent_driven_case.json` | Active patient case || `SMARTDOC_INTENT_MAPPINGS` | `data/mappings/case01_advanced_enhanced.json` | Intent classification data |### 🔍 Advanced Features| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_BIAS_DETECTION` | `true` | Enable cognitive bias detection || `SMARTDOC_LLM_EVALUATION` | `true` | Enable comprehensive LLM evaluation || `SMARTDOC_METACOGNITIVE_CHECKPOINT` | `true` | Enable reflection checkpoints || `SMARTDOC_LOG_LEVEL` | `INFO` | System logging level |### 🎯 Supported Models- **llama3.2:3b** - Recommended for balanced performance- **gemma2:2b** - Lightweight option for resource-constrained environments  - **qwen2.5:3b** - Advanced reasoning capabilities- **mistral:7b** - High-quality responses (requires more resources)## 🧪 Advanced Usage Examples### 1. **Complete Clinical Simulation Workflow****Start the Platform**:```bashpython main.py# Navigate to http://localhost:5000```**Clinical Interview Phase**:```Doctor: "What brings you here today?"→ System detects: general_chief_complaint intent→ Patient responds as son: "My mother has been having breathing problems..."→ Progressive disclosure reveals: dyspnea information blockDoctor: "Tell me about her current medications"→ System detects: meds_current_list intent  → Reveals: current medications including Infliximab→ Triggers potential bias detection: anchoring on IBD treatment```**Information Discovery Tracking**:- Real-time progress: "Information Discovered: 8/22"- Categorized display: Demographics, HPI, Medications, Physical Exam, Labs, Imaging- Deduplication: Asking same question twice updates existing entry**Cognitive Bias Detection**:- **Anchoring Bias**: "Student fixated on initial IBD diagnosis despite cardiac symptoms"- **Confirmation Bias**: "Seeking information that confirms IBD while ignoring cardiac indicators"- **Premature Closure**: "Insufficient exploration before diagnosis submission"### 2. **Metacognitive Checkpoint Experience****Diagnosis Submission**:```Doctor submits: "Crohn's disease exacerbation"→ System triggers metacognitive checkpoint→ 5 structured reflection questions appear```**Reflection Questions** (with clinical reasoning focus):1. **Supporting Evidence**: "What supports your diagnosis?"2. **Contradicting Evidence**: "What challenges your diagnosis?"  3. **Alternative Diagnoses**: "What else could this be?"4. **Additional Testing**: "What test would help differentiate?"5. **Critical Conditions**: "Any must-not-miss conditions?"### 3. **Advanced AI Evaluation**
+- **Session Management**: Real-time tracking with bias monitoring and deduplication## 📁 Professional Project Structure
+
+The project now follows industry-standard monorepo practices with clear separation of concerns:
+
+```
+smart-doc/
+├── � apps/                      # Applications
+│   └── 📂 api/                   # Flask web service
+├── 📂 packages/                  # Core business logic
+│   ├── � core/                 # AI and simulation engine
+│   └── 📂 shared/               # Common utilities
+├── 📂 configs/                   # Environment configurations
+├── 📂 data/                      # Clinical cases and research data
+├── � scripts/                   # Development automation
+├── 📂 deployments/              # Container and deployment configs
+├── 📂 docs/                     # Comprehensive documentation
+├── � tests/                    # Integration testing
+├── 📂 old_structure/            # Archived legacy code
+├── 📄 Makefile                  # Development commands
+└── 📄 README.md                 # This guide
+```
+
+### 🎯 Package Architecture
+
+#### � `packages/core` - SmartDoc Core Engine
+- **Intent Classification**: 27 clinical intents with LLM processing
+- **Discovery Engine**: Progressive information disclosure system
+- **Cognitive Bias Detection**: Real-time bias identification and analysis
+- **Clinical Evaluation**: Comprehensive LLM-powered assessment
+- **Simulation Management**: Session tracking and metacognitive checkpoints
+
+#### � `packages/shared` - Common Utilities
+- **Schemas**: Pydantic models for data validation
+- **Types**: Shared type definitions
+- **Constants**: System-wide configuration constants
+
+#### 🌐 `apps/api` - Web Application
+- **Flask Interface**: Professional medical simulation UI
+- **REST Endpoints**: API for simulation interaction
+- **Static Assets**: CSS, images, and frontend resources
+- **Templates**: Jinja2 templates for web interface## 🚀 Getting Started
+
+### Prerequisites
+- **Python**: 3.13+ (recommended for modern features)
+- **Ollama**: For LLM inference
+- **Git**: For version control
+
+### Quick Installation
+
+1. **Clone and setup environment**
+   ```bash
+   git clone https://github.com/BrunoSena97/smart-doc.git
+   cd smart-doc
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install packages** (modern monorepo approach)
+   ```bash
+   # Install all packages in development mode
+   pip install -e packages/core/
+   pip install -e packages/shared/
+   pip install -e apps/api/
+   ```
+
+3. **Configure Ollama**
+   ```bash
+   # Install Ollama (see https://ollama.ai)
+   ollama serve
+
+   # Pull recommended model
+   ollama pull llama3.2:3b
+   ```
+
+4. **Run the application**
+   ```bash
+   # Using make (recommended)
+   make api
+
+   # Or using script
+   ./scripts/run_api.sh
+
+   # Or directly
+   python apps/api/src/smartdoc_api/main.py
+   ```
+
+The platform will be available at `http://localhost:5000`## ⚙️ Advanced ConfigurationSmartDoc features a sophisticated configuration system supporting multiple AI models and advanced settings:### 🎛️ Core Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_FLASK_HOST` | `127.0.0.1` | Web server host || `SMARTDOC_FLASK_PORT` | `5000` | Web server port || `SMARTDOC_FLASK_DEBUG` | `false` | Development debug mode |### 🤖 AI Model Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_OLLAMA_MODEL` | `llama3.2:3b` | Primary LLM model || `SMARTDOC_OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server endpoint || `SMARTDOC_OLLAMA_TIMEOUT` | `30` | Request timeout (seconds) |### 📊 Case and Data Configuration| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_CASE_FILE` | `data/cases/intent_driven_case.json` | Active patient case || `SMARTDOC_INTENT_MAPPINGS` | `data/mappings/case01_advanced_enhanced.json` | Intent classification data |### 🔍 Advanced Features| Variable | Default | Description ||----------|---------|-------------|| `SMARTDOC_BIAS_DETECTION` | `true` | Enable cognitive bias detection || `SMARTDOC_LLM_EVALUATION` | `true` | Enable comprehensive LLM evaluation || `SMARTDOC_METACOGNITIVE_CHECKPOINT` | `true` | Enable reflection checkpoints || `SMARTDOC_LOG_LEVEL` | `INFO` | System logging level |### 🎯 Supported Models- **llama3.2:3b** - Recommended for balanced performance- **gemma2:2b** - Lightweight option for resource-constrained environments  - **qwen2.5:3b** - Advanced reasoning capabilities- **mistral:7b** - High-quality responses (requires more resources)## 🧪 Advanced Usage Examples### 1. **Complete Clinical Simulation Workflow****Start the Platform**:```bashpython main.py# Navigate to http://localhost:5000```**Clinical Interview Phase**:```Doctor: "What brings you here today?"→ System detects: general_chief_complaint intent→ Patient responds as son: "My mother has been having breathing problems..."→ Progressive disclosure reveals: dyspnea information blockDoctor: "Tell me about her current medications"→ System detects: meds_current_list intent  → Reveals: current medications including Infliximab→ Triggers potential bias detection: anchoring on IBD treatment```**Information Discovery Tracking**:- Real-time progress: "Information Discovered: 8/22"- Categorized display: Demographics, HPI, Medications, Physical Exam, Labs, Imaging- Deduplication: Asking same question twice updates existing entry**Cognitive Bias Detection**:- **Anchoring Bias**: "Student fixated on initial IBD diagnosis despite cardiac symptoms"- **Confirmation Bias**: "Seeking information that confirms IBD while ignoring cardiac indicators"- **Premature Closure**: "Insufficient exploration before diagnosis submission"### 2. **Metacognitive Checkpoint Experience****Diagnosis Submission**:```Doctor submits: "Crohn's disease exacerbation"→ System triggers metacognitive checkpoint→ 5 structured reflection questions appear```**Reflection Questions** (with clinical reasoning focus):1. **Supporting Evidence**: "What supports your diagnosis?"2. **Contradicting Evidence**: "What challenges your diagnosis?"  3. **Alternative Diagnoses**: "What else could this be?"4. **Additional Testing**: "What test would help differentiate?"5. **Critical Conditions**: "Any must-not-miss conditions?"### 3. **Advanced AI Evaluation**
 
 **LLM-Powered Analysis**:
 ```json
