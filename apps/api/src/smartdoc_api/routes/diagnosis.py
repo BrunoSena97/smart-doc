@@ -8,6 +8,10 @@ from flask import request, jsonify
 from . import bp
 import uuid
 
+# Import repository functions for data persistence
+from smartdoc_api.services.repo import submit_diagnosis
+from smartdoc_api.services.auth_service import require_auth
+
 # Import real SmartDoc components
 try:
     from smartdoc_core.clinical.evaluator import ClinicalEvaluator
@@ -32,6 +36,7 @@ except ImportError as e:
 
 
 @bp.post("/diagnosis")
+@require_auth
 def v1_submit_diagnosis():
     """
     Submit a diagnosis for evaluation.
@@ -69,7 +74,7 @@ def v1_submit_diagnosis():
             sys_logger.log_system(
                 "info", f"[V1] Evaluating diagnosis with SmartDoc: {diagnosis[:50]}..."
             )
-            
+
             # TODO: Implement real evaluation with clinical_evaluator
             # For now, use the same logic as legacy
             discovered_count = session_data.get("discovered_count", 0)
@@ -79,6 +84,19 @@ def v1_submit_diagnosis():
             discovery_percentage = (discovered_count / 20) * 100 if discovered_count else 0
             bias_score = max(0, 100 - (bias_warnings * 10))
             overall_score = round((discovery_percentage * 0.6) + (bias_score * 0.4))
+
+            # Persist diagnosis
+            submit_diagnosis(
+                session_id=data.get("session_id", "unknown_session"),  # include session_id in FE calls
+                diagnosis_text=diagnosis,
+                score_overall=overall_score,
+                score_breakdown={
+                    "information_discovery": discovery_percentage,
+                    "bias_awareness": bias_score
+                },
+                feedback=f"You discovered {discovered_count} clinical findings. Your diagnosis: '{diagnosis}'",
+                reflections=None
+            )
 
             return jsonify({
                 "score": f"{overall_score}/100",
@@ -109,6 +127,7 @@ def v1_submit_diagnosis():
 
 
 @bp.post("/diagnosis/reflection")
+@require_auth
 def v1_submit_diagnosis_with_reflection():
     """
     Submit a diagnosis with metacognitive reflection for comprehensive evaluation.
@@ -165,7 +184,7 @@ def v1_submit_diagnosis_with_reflection():
             sys_logger.log_system(
                 "info", f"[V1] Evaluating diagnosis with reflection: {diagnosis[:50]}..."
             )
-            
+
             # TODO: Implement real comprehensive evaluation with clinical_evaluator
             # For now, use enhanced mock evaluation
             discovered_count = session_data.get("discovered_count", 0)
@@ -176,8 +195,22 @@ def v1_submit_diagnosis_with_reflection():
             bias_score = max(0, 100 - (bias_warnings * 10))
             reflection_quality = len([r for r in metacognitive_responses.values() if len(r.strip()) >= 10])
             reflection_bonus = min(10, reflection_quality * 2)  # Up to 10 bonus points
-            
+
             overall_score = min(100, round((discovery_percentage * 0.5) + (bias_score * 0.3) + (reflection_bonus * 2)))
+
+            # Persist diagnosis with reflection
+            submit_diagnosis(
+                session_id=data.get("session_id", "unknown_session"),
+                diagnosis_text=diagnosis,
+                score_overall=overall_score,
+                score_breakdown={
+                    "information_gathering": int(discovery_percentage * 0.8),
+                    "cognitive_bias_awareness": bias_score,
+                    "diagnostic_accuracy": overall_score
+                },
+                feedback="Comprehensive evaluation completed with metacognitive reflection.",
+                reflections=metacognitive_responses
+            )
 
             return jsonify({
                 "score": f"{overall_score}/100",
@@ -231,7 +264,7 @@ def v1_submit_diagnosis_with_reflection():
 def v1_diagnosis_health():
     """Health check for diagnosis functionality."""
     return jsonify({
-        "status": "ok", 
+        "status": "ok",
         "endpoint": "diagnosis",
         "smartdoc_available": SMARTDOC_AVAILABLE
     })

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartDoc - Login</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+    <style>
+      .login-container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .login-input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+
+      .login-button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .login-button:hover {
+        background: #0056b3;
+      }
+
+      .login-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .error-message {
+        color: #dc3545;
+        margin-top: 0.5rem;
+        font-size: 14px;
+      }
+
+      .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .logo h1 {
+        color: #333;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="logo">
+        <h1>SmartDoc</h1>
+        <p>Clinical Simulation Platform</p>
+      </div>
+
+      <form class="login-form" id="loginForm">
+        <input
+          id="accessCode"
+          type="password"
+          class="login-input"
+          placeholder="Enter your access code"
+          required
+        />
+        <button id="loginButton" type="submit" class="login-button">
+          Login
+        </button>
+        <div
+          id="errorMessage"
+          class="error-message"
+          style="display: none"
+        ></div>
+      </form>
+    </div>
+
+    <script type="module">
+      import { login } from "./js/api.js";
+
+      const form = document.getElementById("loginForm");
+      const codeInput = document.getElementById("accessCode");
+      const loginButton = document.getElementById("loginButton");
+      const errorMessage = document.getElementById("errorMessage");
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+      }
+
+      function hideError() {
+        errorMessage.style.display = "none";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideError();
+
+        const code = codeInput.value.trim();
+        if (!code) {
+          showError("Please enter your access code");
+          return;
+        }
+
+        loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
+
+        try {
+          const response = await login(code);
+
+          // Store the token
+          localStorage.setItem("smartdoc_token", response.token);
+
+          // Redirect to main app
+          window.location.href = "./index.html";
+        } catch (error) {
+          console.error("Login failed:", error);
+          showError(
+            error.message || "Login failed. Please check your access code."
+          );
+        } finally {
+          loginButton.disabled = false;
+          loginButton.textContent = "Login";
+        }
+      });
+
+      // Focus the input
+      codeInput.focus();
+    </script>
+  </body>
+</html>

@@ -89,6 +89,29 @@ clean: ## Clean up build artifacts
 
 check: format lint type-check test ## Run all checks (format, lint, type-check, test)
 
+# Database operations
+db-rev: ## Generate a new database migration
+	cd apps/api && poetry run alembic revision --autogenerate -m "auto"
+
+db-up: ## Apply all pending database migrations
+	cd apps/api && poetry run alembic upgrade head
+
+db-down: ## Rollback one database migration
+	cd apps/api && poetry run alembic downgrade -1
+
+db-reset: ## Reset database (WARNING: deletes all data)
+	cd apps/api && rm -f var/dev.sqlite3 && poetry run alembic upgrade head
+
+db-inspect: ## Inspect the current database schema
+	cd apps/api && poetry run python -c "import sqlite3; db=sqlite3.connect('var/dev.sqlite3'); [print(row) for row in db.execute('SELECT name FROM sqlite_master WHERE type=\"table\";')]; db.close()"
+
+db-peek:
+	cd apps/api && poetry run sqlite3 instance/smartdoc_dev.sqlite3 \
+	"SELECT 'conversations',COUNT(*) FROM conversations UNION ALL \
+	 SELECT 'messages',COUNT(*) FROM messages UNION ALL \
+	 SELECT 'sessions',COUNT(*) FROM simulation_sessions UNION ALL \
+	 SELECT 'discoveries',COUNT(*) FROM discovery_events;"
+
 # Legacy aliases
 dev: api ## Alias for api
 run: api ## Alias for api

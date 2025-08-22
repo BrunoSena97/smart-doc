@@ -29,5 +29,5 @@ data:
 
 # Session management
 session:
-  default_timeout: 3600  # 1 hour
+  default_timeout: 3600 # 1 hour
   max_sessions: 100

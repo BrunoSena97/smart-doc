@@ -5,10 +5,28 @@ A Flask-based REST API for the SmartDoc virtual patient simulation system.
 Provides endpoints for clinical simulation, chat interactions, and performance evaluation.
 """
 
+import os
+import yaml
 from flask import Flask
 from flask_cors import CORS
+from .db import init_app as db_init
 
 __version__ = "0.1.0"
+
+
+def _load_config():
+    """Load configuration from YAML files based on environment."""
+    env = os.getenv("SMARTDOC_ENV", "dev")
+    # Navigate to repo root more reliably
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+    config_path = os.path.join(root, "configs", f"{env}.yaml")
+
+    try:
+        with open(config_path, "r") as f:
+            return yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        print(f"Warning: Config file {config_path} not found, using defaults")
+        return {}
 
 
 def create_app() -> Flask:
@@ -18,7 +36,14 @@ def create_app() -> Flask:
     Returns:
         Flask: Configured Flask application instance
     """
-    app = Flask(__name__)
+    # Set instance path to be outside src/ directory
+    # Navigate from src/smartdoc_api to apps/api/instance
+    instance_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "instance"
+    )
+
+    app = Flask(__name__, instance_path=instance_path)
 
     # Enable CORS for frontend communication
     CORS(
@@ -31,13 +56,20 @@ def create_app() -> Flask:
         },
     )
 
-    # Load configuration
+    # Load configuration from YAML
+    cfg = _load_config()
+    app.config["DATABASE"] = cfg.get("database", {})
     app.config["SECRET_KEY"] = "smartdoc-dev-key-change-in-production"
+
+    # Initialize database
+    db_init(app)
 
     # Register blueprints
     from .routes import bp as api_v1
+    from .routes.auth import bp as auth_bp
 
     app.register_blueprint(api_v1, url_prefix="/api/v1")
+    app.register_blueprint(auth_bp, url_prefix="/api/v1")
 
     # Legacy routes (for backward compatibility during migration)
     from .routes.legacy import bp as legacy_bp

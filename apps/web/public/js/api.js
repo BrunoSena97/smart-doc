@@ -1,14 +1,35 @@
 import { API_BASE_URL, V1_BASE_URL, PREFER_V1, DEBUG } from "./config.js";
+import { state } from "./state.js";
 
 function log(...args) {
   if (DEBUG) console.debug("[API]", ...args);
 }
 
+// Auth helper functions
+export function authHeaders() {
+  const token = localStorage.getItem("smartdoc_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function isAuthenticated() {
+  return !!localStorage.getItem("smartdoc_token");
+}
+
+export function clearAuth() {
+  localStorage.removeItem("smartdoc_token");
+}
+
 async function request(url, options = {}) {
   log("Request:", url, options);
 
+  const headers = {
+    "Content-Type": "application/json",
+    ...authHeaders(),
+    ...(options.headers || {}),
+  };
+
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers,
     ...options,
   });
 
@@ -66,7 +87,11 @@ async function v1ChatRequest(message, context = "anamnesis") {
   const url = `${V1_BASE_URL}/chat`;
   return request(url, {
     method: "POST",
-    body: JSON.stringify({ message, context }),
+    body: JSON.stringify({
+      message,
+      context,
+      session_id: state.sessionId,
+    }),
   });
 }
 
@@ -100,7 +125,10 @@ async function v1SubmitDiagnosis(payload) {
   const url = `${V1_BASE_URL}/diagnosis`;
   return request(url, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      session_id: state.sessionId,
+    }),
   });
 }
 
@@ -130,7 +158,10 @@ async function v1SubmitDiagnosisWithReflection(payload) {
   const url = `${V1_BASE_URL}/diagnosis/reflection`;
   return request(url, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      session_id: state.sessionId,
+    }),
   });
 }
 
@@ -146,4 +177,27 @@ async function legacySubmitDiagnosisWithReflection(payload) {
 // Legacy compatibility exports (for gradual migration)
 export async function getBotResponse({ message, context, session_id }) {
   return legacyChatRequest(message, context);
+}
+
+// Auth API endpoints
+export async function login(code) {
+  const url = `${V1_BASE_URL}/auth/login`;
+  return request(url, {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function logout() {
+  const url = `${V1_BASE_URL}/auth/logout`;
+  try {
+    await request(url, { method: "POST" });
+  } finally {
+    clearAuth();
+  }
+}
+
+export async function getProfile() {
+  const url = `${V1_BASE_URL}/auth/me`;
+  return request(url, { method: "GET" });
 }

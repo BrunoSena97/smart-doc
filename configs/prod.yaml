@@ -14,3 +14,8 @@ logging:
 ollama:
   base_url: "http://ollama-service:11434"
   timeout: 60
+
+database:
+  url: "sqlite:////var/smartdoc/data/prod.sqlite3" # or postgres+psycopg2://user:pass@host/db
+  echo: false
+  pool_recycle: 1800

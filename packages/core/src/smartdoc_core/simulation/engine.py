@@ -20,6 +20,8 @@ from smartdoc_core.simulation.state_manager import (
 )
 from smartdoc_core.intent.classifier import LLMIntentClassifier
 from smartdoc_core.discovery.processor import LLMDiscoveryProcessor
+from smartdoc_core.llm.providers.ollama import OllamaProvider
+from smartdoc_core.discovery.prompts.default import DefaultDiscoveryPrompt
 from smartdoc_core.simulation.bias_analyzer import BiasEvaluator
 
 
@@ -49,7 +51,14 @@ class IntentDrivenDisclosureManager:
         self.case_data = None
         self.progressive_manager = ProgressiveDisclosureManager(case_file_path)
         self.intent_classifier = LLMIntentClassifier()
-        self.discovery_processor = LLMDiscoveryProcessor()
+
+        # Initialize modular discovery processor with dependency injection
+        provider = OllamaProvider(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL)
+        prompt_builder = DefaultDiscoveryPrompt()
+        self.discovery_processor = LLMDiscoveryProcessor(
+            provider=provider,
+            prompt_builder=prompt_builder
+        )
 
         # Enhanced intent-to-block mappings
         self.intent_block_mappings = {}
