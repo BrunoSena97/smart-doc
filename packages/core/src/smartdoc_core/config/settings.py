@@ -16,7 +16,7 @@ class SmartDocConfig:
     case_file: str = "data/raw/cases/intent_driven_case.json"
 
     # LLM Configuration (Ollama)
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://172.19.0.1:11434"
     ollama_model: str = "gemma3:4b-it-q4_K_M"
 
     @classmethod
@@ -55,7 +55,7 @@ class SmartDocConfig:
         if "data" in config_data and "cases_path" in config_data["data"]:
             case_file = os.path.join(config_data["data"]["cases_path"], "intent_driven_case.json")
 
-        ollama_base_url = "http://localhost:11434"
+        ollama_base_url = "http://172.19.0.1:11434"
         ollama_model = "gemma3:4b-it-q4_K_M"
         if "ollama" in config_data:
             ollama_base_url = config_data["ollama"].get("base_url", ollama_base_url)
