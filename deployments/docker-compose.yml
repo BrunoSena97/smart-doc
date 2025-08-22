@@ -1,0 +1,30 @@
+services:
+  smartdoc:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    container_name: smartdoc
+    environment:
+      # App
+      FLASK_ENV: production
+      LOG_LEVEL: INFO
+      # External Ollama (running on host with GPU)
+      SMARTDOC_OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+      OLLAMA_MODEL: "gemma3:4b-it-q4_K_M"
+      # Database
+      SMARTDOC_DB_URL: "sqlite:////data/smartdoc.sqlite3"
+    ports:
+      - "8000:8000"
+    volumes:
+      - smartdoc_data:/data
+      - ../apps/web/public:/app/web:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  smartdoc_data:

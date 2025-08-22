@@ -94,6 +94,24 @@ def create_app() -> Flask:
         """Kubernetes-style health check endpoint."""
         return {"ok": True}
 
+    # Static file serving for the web frontend
+    @app.route("/")
+    def index():
+        """Serve the main web application."""
+        from flask import send_from_directory
+        # Web files are mounted at /app/web in the container
+        return send_from_directory("/app/web", "index.html")
+
+    @app.route("/<path:filename>")
+    def serve_static_files(filename):
+        """Serve static assets (CSS, JS, images)."""
+        from flask import send_from_directory
+        try:
+            return send_from_directory("/app/web", filename)
+        except Exception:
+            # If file not found, serve index.html for SPA routing
+            return send_from_directory("/app/web", "index.html")
+
     return app
 
 

@@ -5,21 +5,53 @@ Seed default LLM profiles and agent prompts for the admin system.
 
 def seed_default_data():
     """Create default LLM profiles and agent prompts."""
-    
+
     from smartdoc_api.db import get_session
-    from smartdoc_api.db.models import LLMProfile, AgentPrompt
+    from smartdoc_api.db.models import LLMProfile, AgentPrompt, User
     from sqlalchemy import select
-    
+    from passlib.context import CryptContext
+    from datetime import datetime
+
     print("🌱 Seeding default admin data...")
-    
+
     with get_session() as s:
-        # Check if we already have data
+        # Create admin user first
+        existing_admin = s.execute(select(User).where(User.role == "admin")).scalars().first()
+
+        if not existing_admin:
+            print("👤 Creating default admin user...")
+
+            # Hash the admin code
+            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+            code_hash = pwd_context.hash("#Admin13")
+
+            admin_user = User(
+                display_name="admin",
+                code_hash=code_hash,
+                code_label="ADMIN",
+                is_active=True,
+                expires_at=None,  # Never expires
+                usage_limit=None,  # Unlimited usage
+                usage_count=0,
+                role="admin",
+                email="admin@smartdoc.local",
+                medical_experience="expert",
+                age=None,
+                sex="prefer_not_to_say"
+            )
+            s.add(admin_user)
+            s.commit()
+            print("✅ Created admin user: admin (code: #Admin13)")
+        else:
+            print(f"ℹ️  Admin user already exists: {existing_admin.display_name}")
+
+        # Check if we already have LLM profiles
         existing_profiles = s.execute(select(LLMProfile)).scalars().all()
-        
+
         if existing_profiles:
             print(f"ℹ️  Found {len(existing_profiles)} existing LLM profiles")
             return
-        
+
         # Create default LLM profile
         default_profile = LLMProfile(
             name="Default Ollama",
@@ -32,9 +64,9 @@ def seed_default_data():
         )
         s.add(default_profile)
         s.flush()  # Get the ID
-        
+
         print(f"✅ Created default LLM profile: {default_profile.name}")
-        
+
         # Create default agent prompts
         agent_prompts = [
             {
@@ -79,7 +111,7 @@ Key characteristics:
 Always provide only objective examination findings without clinical interpretation."""
             }
         ]
-        
+
         for prompt_data in agent_prompts:
             prompt = AgentPrompt(
                 agent_key=prompt_data["agent_key"],
@@ -90,7 +122,7 @@ Always provide only objective examination findings without clinical interpretati
             )
             s.add(prompt)
             print(f"✅ Created prompt for agent: {prompt_data['agent_key']}")
-        
+
         s.commit()
         print("🎉 Default admin data seeded successfully!")
 
@@ -98,9 +130,9 @@ if __name__ == "__main__":
     import sys
     import os
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-    
+
     from smartdoc_api import create_app
     app = create_app()
-    
+
     with app.app_context():
         seed_default_data()
