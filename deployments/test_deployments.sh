@@ -26,36 +26,36 @@ log_error() {
 test_single_container() {
     log_step "Testing Single-Container Deployment"
     echo "======================================"
-    
+
     cd /Users/bruno.sena/Projects/personal/masters/smart-doc/deployments/
-    
+
     # Build and start
     log_step "Building and starting single container..."
     docker-compose -f compose-single.yaml build
     docker-compose -f compose-single.yaml up -d
-    
+
     # Wait for health
     log_step "Waiting for service to be healthy..."
     local max_attempts=30
     local attempt=0
-    
+
     while [[ $attempt -lt $max_attempts ]]; do
         if curl -sf http://localhost:8000/healthz >/dev/null 2>&1; then
             log_step "✅ Single-container deployment healthy!"
             break
         fi
-        
+
         ((attempt++))
         echo "Waiting for health check... ($attempt/$max_attempts)"
         sleep 10
     done
-    
+
     if [[ $attempt -eq $max_attempts ]]; then
         log_error "❌ Single-container deployment failed health check"
         docker-compose -f compose-single.yaml logs --tail=50
         return 1
     fi
-    
+
     # Test endpoints
     log_step "Testing endpoints..."
     if curl -sf http://localhost:8000/healthz; then
@@ -63,59 +63,59 @@ test_single_container() {
     else
         echo "❌ API endpoint failed"
     fi
-    
+
     # Check Ollama in container
     if docker-compose -f compose-single.yaml exec -T smartdoc curl -sf http://localhost:11434/api/tags >/dev/null; then
         echo "✅ Ollama endpoint working"
     else
         echo "❌ Ollama endpoint failed"
     fi
-    
+
     # Show container status
     echo ""
     echo "Container status:"
     docker-compose -f compose-single.yaml ps
-    
+
     # Stop
     log_step "Stopping single-container deployment..."
     docker-compose -f compose-single.yaml down
-    
+
     echo ""
 }
 
 test_multi_container() {
     log_step "Testing Multi-Container Deployment"
     echo "===================================="
-    
+
     cd /Users/bruno.sena/Projects/personal/masters/smart-doc/deployments/
-    
+
     # Build and start
     log_step "Building and starting multi-container..."
     docker-compose build
     docker-compose up -d
-    
+
     # Wait for health
     log_step "Waiting for services to be healthy..."
     local max_attempts=30
     local attempt=0
-    
+
     while [[ $attempt -lt $max_attempts ]]; do
         if curl -sf http://localhost:8000/healthz >/dev/null 2>&1; then
             log_step "✅ Multi-container deployment healthy!"
             break
         fi
-        
+
         ((attempt++))
         echo "Waiting for health check... ($attempt/$max_attempts)"
         sleep 10
     done
-    
+
     if [[ $attempt -eq $max_attempts ]]; then
         log_error "❌ Multi-container deployment failed health check"
         docker-compose logs --tail=50
         return 1
     fi
-    
+
     # Test endpoints
     log_step "Testing endpoints..."
     if curl -sf http://localhost:8000/healthz; then
@@ -123,22 +123,22 @@ test_multi_container() {
     else
         echo "❌ API endpoint failed"
     fi
-    
+
     if curl -sf http://localhost:8000 >/dev/null; then
         echo "✅ Web endpoint working"
     else
         echo "❌ Web endpoint failed"
     fi
-    
+
     # Show services status
     echo ""
     echo "Services status:"
     docker-compose ps
-    
+
     # Stop
     log_step "Stopping multi-container deployment..."
     docker-compose down
-    
+
     echo ""
 }
 
@@ -170,13 +170,13 @@ main() {
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo ""
-    
+
     # Check if we're in the right directory
     if [[ ! -f "/Users/bruno.sena/Projects/personal/masters/smart-doc/deployments/compose.yaml" ]]; then
         log_error "Deployment files not found. Please run from the correct directory."
         exit 1
     fi
-    
+
     echo "This script will test both deployment architectures."
     echo "Each test will start the services, verify health, then stop them."
     echo ""
@@ -185,13 +185,13 @@ main() {
         echo "Test cancelled."
         exit 0
     fi
-    
+
     # Test single-container
     test_single_container
-    
+
     # Test multi-container
     test_multi_container
-    
+
     # Show summary
     show_summary
 }

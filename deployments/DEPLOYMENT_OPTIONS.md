@@ -7,12 +7,14 @@ You now have **two deployment architectures** to choose from, both optimized for
 **Simpler, more efficient, easier to manage**
 
 ### Quick Start
+
 ```bash
 cd deployments/
 make deploy-single
 ```
 
 ### Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Single Container                      │
@@ -29,6 +31,7 @@ make deploy-single
 ```
 
 ### Benefits
+
 - ✅ **Simpler networking** (everything on localhost)
 - ✅ **Faster startup** (no service dependencies)
 - ✅ **Better resource efficiency** (shared memory, processes)
@@ -37,6 +40,7 @@ make deploy-single
 - ✅ **Model warmup** (pre-loads models on startup)
 
 ### Management Commands
+
 ```bash
 # Deploy
 make deploy-single              # Production deployment
@@ -60,12 +64,14 @@ make down-single
 **More granular, better for complex deployments**
 
 ### Quick Start
+
 ```bash
 cd deployments/
 make deploy
 ```
 
 ### Architecture
+
 ```
 ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
 │   Nginx     │────│   Flask API  │────│  Ollama + GPU   │
@@ -81,12 +87,14 @@ make deploy
 ```
 
 ### Benefits
+
 - ✅ **Service isolation** (easier to scale individual services)
 - ✅ **Independent updates** (update API without affecting Ollama)
 - ✅ **Resource limits** (per-service resource control)
 - ✅ **Monitoring granularity** (per-service metrics)
 
 ### Management Commands
+
 ```bash
 # Deploy
 make deploy                    # Production deployment
@@ -107,6 +115,7 @@ make down
 ## 🤔 Which Should You Choose?
 
 ### Choose **Single-Container** if:
+
 - ✅ You want **simplicity** and **ease of management**
 - ✅ You're running on a **single machine**
 - ✅ You want **faster startup times**
@@ -114,6 +123,7 @@ make down
 - ✅ You want **built-in backups and monitoring**
 
 ### Choose **Multi-Container** if:
+
 - ✅ You need **fine-grained service control**
 - ✅ You want to **scale services independently**
 - ✅ You have **complex networking requirements**
@@ -121,17 +131,18 @@ make down
 
 ## 📊 Performance Comparison
 
-| Aspect | Single-Container | Multi-Container |
-|--------|------------------|-----------------|
-| **Startup Time** | ~30-60s | ~60-90s |
-| **Memory Usage** | Lower (shared) | Higher (isolated) |
+| Aspect              | Single-Container   | Multi-Container      |
+| ------------------- | ------------------ | -------------------- |
+| **Startup Time**    | ~30-60s            | ~60-90s              |
+| **Memory Usage**    | Lower (shared)     | Higher (isolated)    |
 | **Network Latency** | Lowest (localhost) | Low (Docker network) |
-| **Management** | Simpler | More complex |
-| **Debugging** | Easier | More granular |
+| **Management**      | Simpler            | More complex         |
+| **Debugging**       | Easier             | More granular        |
 
 ## 🚀 Quick Migration
 
 ### From Multi-Container to Single-Container
+
 ```bash
 # Stop current deployment
 make down
@@ -143,6 +154,7 @@ make deploy-single
 ```
 
 ### From Single-Container to Multi-Container
+
 ```bash
 # Stop single-container
 make down-single

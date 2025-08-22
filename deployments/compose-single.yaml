@@ -28,11 +28,11 @@ services:
       # Database URL for the app
       SMARTDOC_DB_URL: "sqlite:////data/smartdoc.sqlite3"
     ports:
-      - "8000:8000"   # container's Gunicorn 8000 -> host 8000
+      - "8000:8000" # container's Gunicorn 8000 -> host 8000
     volumes:
-      - smartdoc_db:/data                      # SQLite
-      - smartdoc_logs:/var/log/smartdoc        # our logs
-      - smartdoc_ollama:/root/.ollama          # models cache
+      - smartdoc_db:/data # SQLite
+      - smartdoc_logs:/var/log/smartdoc # our logs
+      - smartdoc_ollama:/root/.ollama # models cache
       # Mount the web assets for serving
       - ../apps/web/public:/app/web:ro
     healthcheck:
