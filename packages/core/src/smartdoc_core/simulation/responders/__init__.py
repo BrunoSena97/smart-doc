@@ -12,7 +12,7 @@ from .exam_objective import ExamObjectiveResponder
 
 __all__ = [
     "Responder",
-    "AnamnesisSonResponder", 
+    "AnamnesisSonResponder",
     "LabsResidentResponder",
     "ExamObjectiveResponder"
 ]

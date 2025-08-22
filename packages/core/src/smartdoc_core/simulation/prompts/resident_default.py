@@ -8,11 +8,11 @@ Builds prompts for the medical resident persona in the SmartDoc simulation.
 def build_resident_prompt(doctor_question: str, clinical_points: str) -> str:
     """
     Build a prompt for the medical resident persona.
-    
+
     Args:
         doctor_question: The attending physician's question
         clinical_points: Formatted clinical results/data points
-        
+
     Returns:
         Formatted prompt for LLM generation
     """
@@ -22,7 +22,7 @@ def build_resident_prompt(doctor_question: str, clinical_points: str) -> str:
         "You speak directly and professionally to the attending physician, providing clear medical information and recommendations.\n"
         "Be concise, professional, and factual."
     )
-    
+
     return f"""{persona}
 
 The attending physician asked: "{doctor_question}"

@@ -12,47 +12,47 @@ from .base import Responder
 class ExamObjectiveResponder(Responder):
     """
     Responder for exam context using objective clinical findings.
-    
+
     Provides direct, objective clinical findings without LLM generation,
     as physical examination results should be factual and unembellished.
     """
 
     def build_prompt(
-        self, 
-        *, 
-        intent_id: str, 
-        doctor_question: str, 
-        clinical_data: List[Dict], 
+        self,
+        *,
+        intent_id: str,
+        doctor_question: str,
+        clinical_data: List[Dict],
         context: str
     ) -> str:
         """
         Build prompt for examination findings (not typically used).
-        
+
         Physical examination responder typically doesn't use LLM generation,
         but this method is required by the interface.
-        
+
         Returns:
             Empty string as prompts are not used for objective findings
         """
         return ""  # Not used for objective exam findings
 
     def respond(
-        self, 
-        *, 
-        intent_id: str, 
-        doctor_question: str, 
-        clinical_data: List[Dict], 
+        self,
+        *,
+        intent_id: str,
+        doctor_question: str,
+        clinical_data: List[Dict],
         context: str
     ) -> str:
         """
         Generate response by concatenating objective findings.
-        
+
         Args:
             intent_id: The classified intent ID
             doctor_question: The doctor's examination request
             clinical_data: List of clinical examination data
             context: The clinical context (should be 'exam')
-            
+
         Returns:
             Concatenated objective clinical findings
         """
@@ -63,10 +63,10 @@ class ExamObjectiveResponder(Responder):
             content = data.get("content")
             summary = data.get("summary")
             finding = content or summary
-            
+
             if finding:
                 findings.append(finding)
-        
+
         if findings:
             return " ".join(findings)
         else:

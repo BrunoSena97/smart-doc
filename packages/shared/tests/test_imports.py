@@ -55,16 +55,16 @@ except Exception as e:
     print(f"❌ Bias evaluator import failed: {e}")
 
 try:
-    from smartdoc_core.simulation.session_tracker import SessionLogger
+    from smartdoc_core.simulation.session_logger import SessionLogger
     print("✅ Session logger import successful!")
 except Exception as e:
     print(f"❌ Session logger import failed: {e}")
 
 try:
-    from smartdoc_core.simulation.state_manager import ProgressiveDisclosureManager
-    print("✅ State manager import successful!")
+    from smartdoc_core.simulation.disclosure_store import ProgressiveDisclosureStore
+    print("✅ Disclosure store import successful!")
 except Exception as e:
-    print(f"❌ State manager import failed: {e}")
+    print(f"❌ Disclosure store import failed: {e}")
 
 try:
     from smartdoc_core.simulation.engine import IntentDrivenDisclosureManager

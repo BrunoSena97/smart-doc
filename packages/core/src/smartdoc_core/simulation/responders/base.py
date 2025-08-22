@@ -13,7 +13,7 @@ from smartdoc_core.llm.providers.base import LLMProvider
 class Responder(ABC):
     """
     Abstract base class for simulation responders.
-    
+
     Each responder handles a specific context (anamnesis, labs, exam) and persona,
     using dependency injection for LLM providers and prompts.
     """
@@ -21,7 +21,7 @@ class Responder(ABC):
     def __init__(self, provider: Optional[LLMProvider] = None):
         """
         Initialize responder with optional LLM provider.
-        
+
         Args:
             provider: LLM provider instance for generating responses
         """
@@ -29,44 +29,44 @@ class Responder(ABC):
 
     @abstractmethod
     def build_prompt(
-        self, 
-        *, 
-        intent_id: str, 
-        doctor_question: str, 
-        clinical_data: List[Dict], 
+        self,
+        *,
+        intent_id: str,
+        doctor_question: str,
+        clinical_data: List[Dict],
         context: str
     ) -> str:
         """
         Build the prompt for LLM generation.
-        
+
         Args:
             intent_id: The classified intent ID
             doctor_question: The doctor's original question
             clinical_data: List of clinical data dictionaries with label, summary, content
             context: The clinical context (anamnesis, exam, labs)
-            
+
         Returns:
             Formatted prompt string for LLM
         """
         pass
 
     def respond(
-        self, 
-        *, 
-        intent_id: str, 
-        doctor_question: str, 
-        clinical_data: List[Dict], 
+        self,
+        *,
+        intent_id: str,
+        doctor_question: str,
+        clinical_data: List[Dict],
         context: str
     ) -> str:
         """
         Generate a response using the LLM provider.
-        
+
         Args:
             intent_id: The classified intent ID
             doctor_question: The doctor's original question
             clinical_data: List of clinical data dictionaries
             context: The clinical context
-            
+
         Returns:
             Generated response text
         """
@@ -76,10 +76,10 @@ class Responder(ABC):
             clinical_data=clinical_data,
             context=context
         )
-        
+
         if not self.provider:
             return self._fallback()
-            
+
         # Use provider with appropriate generation parameters
         text = self.provider.generate(prompt)
         return text.strip().strip('"')

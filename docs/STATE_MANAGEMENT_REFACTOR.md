@@ -7,14 +7,16 @@ This document describes the comprehensive refactor of SmartDoc's state managemen
 ## Architecture Changes
 
 ### Before: Monolithic + Global State
+
 - `state_manager.py` handled both state management and file I/O
 - `session_tracker.py` used global `current_session` singleton
 - Hard dependencies on file system and configuration
 - Difficult to test, no dependency injection
 
 ### After: Clean DI + Modular Design
+
 - **`disclosure_store.py`**: Pure state management with optional persistence hooks
-- **`session_logger.py`**: Abstract interface + in-memory implementation  
+- **`session_logger.py`**: Abstract interface + in-memory implementation
 - **`types.py`**: Centralized data structures
 - **`engine.py`**: Dependency injection throughout
 
@@ -33,7 +35,7 @@ class InformationBlock:
     revealed_at: Optional[datetime] = None
     revealed_by_query: Optional[str] = None
 
-@dataclass  
+@dataclass
 class ProgressiveDisclosureSession:
     session_id: str
     case_id: str
@@ -44,6 +46,7 @@ class ProgressiveDisclosureSession:
 ```
 
 **Benefits:**
+
 - Single source of truth for data structures
 - Eliminates circular imports
 - Clean separation between logic and data
@@ -53,16 +56,16 @@ class ProgressiveDisclosureSession:
 ```python
 class SessionLogger(ABC):
     @abstractmethod
-    def log_interaction(self, *, intent_id: str, user_query: str, 
-                       vsp_response: str, nlu_output: Optional[Dict] = None, 
+    def log_interaction(self, *, intent_id: str, user_query: str,
+                       vsp_response: str, nlu_output: Optional[Dict] = None,
                        dialogue_state: Optional[str] = None) -> None: ...
-    
-    @abstractmethod  
+
+    @abstractmethod
     def log_bias_warning(self, bias_event: Dict[str, Any]) -> None: ...
-    
+
     @abstractmethod
     def get_interactions(self) -> List[Dict[str, Any]]: ...
-    
+
     @abstractmethod
     def export(self) -> Dict[str, Any]: ...
 
@@ -72,6 +75,7 @@ class InMemorySessionLogger(SessionLogger):
 ```
 
 **Benefits:**
+
 - No global state - each session gets its own logger
 - Easy to test with mocks
 - Pluggable implementations (memory, database, file)
@@ -91,6 +95,7 @@ class ProgressiveDisclosureStore:
 ```
 
 **Benefits:**
+
 - Pure in-memory state management
 - Optional persistence via callbacks (no DB coupling)
 - Case data can be injected or loaded from file
@@ -104,7 +109,7 @@ class IntentDrivenDisclosureManager:
         self,
         case_file_path: Optional[str] = None,
         provider=None,                              # LLM provider
-        intent_classifier=None,                     # Intent classifier  
+        intent_classifier=None,                     # Intent classifier
         discovery_processor=None,                   # Discovery processor
         responders: Optional[Dict[str, Any]] = None, # Context responders
         session_logger_factory=None,                # Logger factory
@@ -115,6 +120,7 @@ class IntentDrivenDisclosureManager:
 ```
 
 **Benefits:**
+
 - Full dependency injection - everything is configurable
 - No hardcoded providers or classifiers
 - Per-session loggers created via factory
@@ -124,6 +130,7 @@ class IntentDrivenDisclosureManager:
 ## Usage Examples
 
 ### Basic Usage (Default Components)
+
 ```python
 # Uses default providers, in-memory logging
 engine = IntentDrivenDisclosureManager()
@@ -131,6 +138,7 @@ session_id = engine.start_intent_driven_session()
 ```
 
 ### Advanced Usage (Custom Components)
+
 ```python
 # Custom provider and components
 custom_provider = CustomLLMProvider()
@@ -145,12 +153,13 @@ def db_logger_factory(session_id):
 
 engine = IntentDrivenDisclosureManager(
     provider=custom_provider,
-    store=custom_store, 
+    store=custom_store,
     session_logger_factory=db_logger_factory
 )
 ```
 
 ### Testing (Easy Mocking)
+
 ```python
 mock_provider = Mock()
 mock_store = Mock(spec=ProgressiveDisclosureStore)
@@ -168,11 +177,13 @@ engine = IntentDrivenDisclosureManager(
 ## Database Integration Strategy
 
 ### Current Architecture (Preparation)
+
 - **Hooks**: Store and engine accept `on_reveal`, `on_interaction` callbacks
 - **Interfaces**: `SessionLogger` abstract base enables DB implementations
 - **No Coupling**: Core logic doesn't import SQLAlchemy or database code
 
 ### Future Implementation (API Layer)
+
 ```python
 # In your Flask app
 def save_discovery_to_db(payload):
@@ -199,24 +210,26 @@ engine = IntentDrivenDisclosureManager(
 ## Migration Guide
 
 ### Import Changes
+
 ```python
 # OLD
 from smartdoc_core.simulation.state_manager import ProgressiveDisclosureManager
 from smartdoc_core.simulation.session_tracker import get_current_session
 
-# NEW  
+# NEW
 from smartdoc_core.simulation.disclosure_store import ProgressiveDisclosureStore
 from smartdoc_core.simulation.session_logger import SessionLogger, InMemorySessionLogger
 from smartdoc_core.simulation.types import InformationBlock, ProgressiveDisclosureSession
 ```
 
 ### API Changes
+
 ```python
 # OLD - Global session access
 session_logger = get_current_session()
 session_logger.log_interaction(...)
 
-# NEW - Injected session logger  
+# NEW - Injected session logger
 logger = engine._session_loggers[session_id]
 logger.log_interaction(...)
 
@@ -225,6 +238,7 @@ summary = engine.get_session_summary(session_id)
 ```
 
 ### Backwards Compatibility
+
 - All public API methods remain the same
 - Constructor signatures extended (old params still work)
 - Default behavior unchanged for existing code
@@ -232,26 +246,29 @@ summary = engine.get_session_summary(session_id)
 ## Testing Strategy
 
 ### Unit Tests
+
 - Each component tested in isolation
 - Mock all dependencies
 - Verify interfaces and contracts
 
-### Integration Tests  
+### Integration Tests
+
 - Test engine with real components
 - Verify session lifecycle
 - Test persistence hooks
 
 ### Example Test
+
 ```python
 def test_dependency_injection():
     mock_provider = Mock()
     mock_store = Mock(spec=ProgressiveDisclosureStore)
-    
+
     engine = IntentDrivenDisclosureManager(
         provider=mock_provider,
         store=mock_store
     )
-    
+
     assert engine.provider is mock_provider
     assert engine.store is mock_store
 ```
@@ -259,11 +276,13 @@ def test_dependency_injection():
 ## Performance Impact
 
 ### Memory
+
 - **Reduced**: No global state reduces memory leaks
 - **Controlled**: Each session has isolated state
 - **Configurable**: Can swap in lightweight loggers for production
 
 ### CPU
+
 - **Minimal**: Same core algorithms
 - **Improved**: Better caching via dependency injection
 - **Scalable**: Multiple concurrent sessions without conflicts
@@ -271,18 +290,20 @@ def test_dependency_injection():
 ## Future Enhancements
 
 ### Admin UI Ready
+
 - **Provider Selection**: Choose different LLM models per context
-- **Prompt Configuration**: Swap prompt builders via admin interface  
+- **Prompt Configuration**: Swap prompt builders via admin interface
 - **Analytics**: Rich session data via database loggers
 - **A/B Testing**: Easy to swap components for experiments
 
 ### Database Implementations
+
 ```python
 class DatabaseSessionLogger(SessionLogger):
     def __init__(self, session_id: str, db_session):
         self.session_id = session_id
         self.db = db_session
-    
+
     def log_interaction(self, **kwargs):
         interaction = InteractionModel(**kwargs)
         self.db.add(interaction)
@@ -290,6 +311,7 @@ class DatabaseSessionLogger(SessionLogger):
 ```
 
 ### Multi-tenant Support
+
 ```python
 # Different configurations per tenant
 tenant_config = get_tenant_config(tenant_id)
@@ -304,11 +326,11 @@ engine = IntentDrivenDisclosureManager(
 
 This refactor achieves the main goals:
 
-✅ **No Globals**: All state is explicitly managed and passed  
-✅ **DI-Friendly**: Everything can be injected and configured  
-✅ **DB Hooks**: Clean persistence without coupling  
-✅ **Crisp Responsibilities**: Each component has one clear job  
-✅ **Easy Testing**: Full mock support and isolated testing  
-✅ **Admin Ready**: Pluggable components for UI configuration  
+✅ **No Globals**: All state is explicitly managed and passed
+✅ **DI-Friendly**: Everything can be injected and configured
+✅ **DB Hooks**: Clean persistence without coupling
+✅ **Crisp Responsibilities**: Each component has one clear job
+✅ **Easy Testing**: Full mock support and isolated testing
+✅ **Admin Ready**: Pluggable components for UI configuration
 
 The architecture is now ready for database integration, multi-tenancy, and advanced admin features while maintaining clean separation of concerns.

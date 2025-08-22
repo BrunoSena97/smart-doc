@@ -23,10 +23,6 @@ try:
     from smartdoc_core.clinical.evaluator import ClinicalEvaluator
     from smartdoc_core.utils.logger import sys_logger
     from smartdoc_core.config.settings import config
-    from smartdoc_core.simulation.session_tracker import (
-        get_current_session,
-        start_new_session,
-    )
 
     SMARTDOC_AVAILABLE = True
 
@@ -47,6 +43,21 @@ try:
 
     intent_driven_manager = IntentDrivenDisclosureManager(case_file_path=case_file_path)
     clinical_evaluator = ClinicalEvaluator()
+
+    # Global session tracking for API compatibility
+    active_sessions = {}
+
+    def get_current_session_summary(session_id: str):
+        """Get session summary for a specific session."""
+        if intent_driven_manager:
+            return intent_driven_manager.get_session_summary(session_id)
+        return {"error": "Engine not available"}
+
+    def start_new_session() -> str:
+        """Start a new session and return session ID."""
+        if intent_driven_manager:
+            return intent_driven_manager.start_intent_driven_session()
+        return "mock_session_id"
 
     print("✅ SmartDoc components initialized successfully for v1 API!")
 

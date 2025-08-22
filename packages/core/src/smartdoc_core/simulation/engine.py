@@ -37,7 +37,7 @@ from smartdoc_core.discovery.prompts.default import DefaultDiscoveryPrompt
 from smartdoc_core.simulation.bias_analyzer import BiasEvaluator
 from smartdoc_core.simulation.responders import (
     AnamnesisSonResponder,
-    LabsResidentResponder, 
+    LabsResidentResponder,
     ExamObjectiveResponder
 )
 
@@ -46,13 +46,13 @@ class IntentDrivenDisclosureManager:
     """
     Manages intent-driven progressive disclosure where natural conversation
     triggers information discovery rather than manual clicking.
-    
+
     Uses dependency injection for provider, classifiers, and responders
     to support configurable LLM services and personas.
     """
 
     def __init__(
-        self, 
+        self,
         case_file_path: Optional[str] = None,
         provider=None,
         intent_classifier=None,
@@ -66,7 +66,7 @@ class IntentDrivenDisclosureManager:
     ):
         """
         Initialize the Intent-Driven Disclosure Manager with dependency injection.
-        
+
         Args:
             case_file_path: Path to case file (defaults to config)
             provider: LLM provider instance (defaults to Ollama from config)
@@ -93,7 +93,7 @@ class IntentDrivenDisclosureManager:
 
         # Initialize providers and components with dependency injection
         self.provider = provider or OllamaProvider(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL)
-        
+
         self.intent_classifier = intent_classifier or LLMIntentClassifier(provider=self.provider)
 
         # Initialize modular discovery processor with dependency injection
@@ -540,7 +540,7 @@ class IntentDrivenDisclosureManager:
         logger = self._session_loggers.get(session_id)
         if logger:
             return logger.get_interactions()
-        
+
         # Fallback to discovery events if no logger
         interactions = []
         events = self.discovery_events.get(session_id, [])
@@ -659,11 +659,11 @@ class IntentDrivenDisclosureManager:
 
         clinical_data = []
         discoveries = []
-        
+
         for block_id in discovery_result.get("new_discoveries", []):
             if block_id in session.blocks:
                 block = session.blocks[block_id]
-                
+
                 # Use LLM Discovery Processor to categorize and label the discovery
                 discovery_info = self.discovery_processor.process_discovery(
                     intent_id=intent_result["intent_id"],
@@ -671,7 +671,7 @@ class IntentDrivenDisclosureManager:
                     patient_response="",
                     clinical_content=block.content,
                 )
-                
+
                 discoveries.append({
                     "block_id": block_id,
                     "block_type": block.block_type,
@@ -683,7 +683,7 @@ class IntentDrivenDisclosureManager:
                     "summary": block.content if context in ("exam", "labs") else discovery_info["summary"],
                     "confidence": discovery_info["confidence"],
                 })
-                
+
                 clinical_data.append({
                     "type": block.block_type,
                     "content": block.content,
@@ -693,7 +693,7 @@ class IntentDrivenDisclosureManager:
 
         # Choose responder based on context
         responder = self.responders.get(context) or self.responders["anamnesis"]
-        
+
         # Generate response text
         if discoveries:
             text = responder.respond(
@@ -702,7 +702,7 @@ class IntentDrivenDisclosureManager:
                 clinical_data=clinical_data,
                 context=context,
             )
-            
+
             # Note: Discovery events are now automatically persisted via store hooks
         else:
             # No new discoveries → use context-appropriate fallback
@@ -719,7 +719,7 @@ class IntentDrivenDisclosureManager:
             "discovery_count": len(discoveries),
             "has_discoveries": bool(discoveries)
         }
-        
+
         # Log interaction with session logger
         logger = self._session_loggers.get(session_id)
         if logger:
@@ -730,7 +730,7 @@ class IntentDrivenDisclosureManager:
                 nlu_output=intent_result,
                 dialogue_state=context.upper()
             )
-        
+
         return response
 
     def _generate_exam_fallback_response(self, intent_id: str) -> str:

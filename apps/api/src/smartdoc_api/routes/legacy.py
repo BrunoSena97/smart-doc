@@ -16,10 +16,6 @@ try:
     from smartdoc_core.clinical.evaluator import ClinicalEvaluator
     from smartdoc_core.utils.logger import sys_logger
     from smartdoc_core.config.settings import config
-    from smartdoc_core.simulation.session_tracker import (
-        get_current_session,
-        start_new_session,
-    )
 
     SMARTDOC_AVAILABLE = True
 
@@ -41,6 +37,21 @@ try:
     intent_driven_manager = IntentDrivenDisclosureManager(case_file_path=case_file_path)
     clinical_evaluator = ClinicalEvaluator()
 
+    # Global session tracking for legacy API compatibility
+    active_sessions = {}
+
+    def get_current_session_summary(session_id: str):
+        """Get session summary for a specific session."""
+        if intent_driven_manager:
+            return intent_driven_manager.get_session_summary(session_id)
+        return {"error": "Engine not available"}
+
+    def start_new_session() -> str:
+        """Start a new session and return session ID."""
+        if intent_driven_manager:
+            return intent_driven_manager.start_intent_driven_session()
+        return "mock_session_id"
+
     print("✅ SmartDoc components initialized successfully!")
 
 except ImportError as e:
@@ -56,37 +67,11 @@ except ImportError as e:
     intent_driven_manager = None
     clinical_evaluator = None
 
-    _current_session = None
+    def get_current_session_summary(session_id: str):
+        return {"error": "SmartDoc core not available", "session_id": session_id}
 
-    def get_current_session():
-        global _current_session
-        return _current_session
-
-    def start_new_session():
-        global _current_session
-
-        class MockSession:
-            def __init__(self):
-                self.interactions = []
-                self.session_id = f"mock_session_{uuid.uuid4().hex[:8]}"
-
-            def log_interaction(self, **kwargs):
-                self.interactions.append(kwargs)
-
-            def get_interactions(self):
-                return self.interactions
-
-            def get_bias_summary(self):
-                return {"bias_warnings": []}
-
-            def get_latest_bias_warning(self):
-                return None
-
-            def save_session(self):
-                pass
-
-        _current_session = MockSession()
-        return _current_session
+    def start_new_session() -> str:
+        return f"mock_session_{uuid.uuid4().hex[:8]}"
 
 
 bp = Blueprint("legacy", __name__)

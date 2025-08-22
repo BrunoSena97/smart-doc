@@ -8,11 +8,11 @@ Builds prompts for the son persona in the SmartDoc simulation.
 def build_patient_prompt(doctor_question: str, clinical_points: str) -> str:
     """
     Build a prompt for the patient's son persona.
-    
+
     Args:
         doctor_question: The doctor's original question
         clinical_points: Formatted clinical data points
-        
+
     Returns:
         Formatted prompt for LLM generation
     """
@@ -22,7 +22,7 @@ def build_patient_prompt(doctor_question: str, clinical_points: str) -> str:
         "You speak naturally to the doctor, providing information based on what you know about your mother's condition.\n"
         "Answer naturally without inventing new medical facts."
     )
-    
+
     return f"""{persona}
 
 The doctor just asked: "{doctor_question}"

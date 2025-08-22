@@ -19,12 +19,12 @@ class SessionLogger(ABC):
 
     @abstractmethod
     def log_interaction(
-        self, 
-        *, 
-        intent_id: str, 
-        user_query: str, 
+        self,
+        *,
+        intent_id: str,
+        user_query: str,
         vsp_response: str,
-        nlu_output: Optional[Dict] = None, 
+        nlu_output: Optional[Dict] = None,
         dialogue_state: Optional[str] = None
     ) -> None:
         """Log a single interaction between user and VSP."""
@@ -73,12 +73,12 @@ class InMemorySessionLogger(SessionLogger):
         sys_logger.log_system("info", f"Started new session logger: {session_id}")
 
     def log_interaction(
-        self, 
-        *, 
-        intent_id: str, 
-        user_query: str, 
+        self,
+        *,
+        intent_id: str,
+        user_query: str,
         vsp_response: str,
-        nlu_output: Optional[Dict] = None, 
+        nlu_output: Optional[Dict] = None,
         dialogue_state: Optional[str] = None
     ) -> None:
         """Log a single interaction between user and VSP."""
@@ -137,7 +137,7 @@ class InMemorySessionLogger(SessionLogger):
         """Get comprehensive session summary."""
         start = datetime.fromisoformat(self._data["start_time"])
         duration_minutes = round((datetime.now() - start).total_seconds() / 60, 1)
-        
+
         return {
             "session_id": self.session_id,
             "duration_minutes": duration_minutes,
