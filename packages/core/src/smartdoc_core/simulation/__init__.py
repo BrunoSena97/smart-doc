@@ -11,17 +11,18 @@ This module contains the core simulation components for SmartDoc:
 # Import all simulation components
 from .engine import IntentDrivenDisclosureManager
 from .bias_analyzer import BiasEvaluator
-from .session_tracker import SessionLogger
-from .state_manager import ProgressiveDisclosureManager
+from .session_logger import SessionLogger, InMemorySessionLogger
+from .disclosure_store import ProgressiveDisclosureStore
 
 __all__ = [
     "IntentDrivenDisclosureManager",
     "BiasEvaluator",
     "SessionLogger",
-    "ProgressiveDisclosureManager",
+    "InMemorySessionLogger",
+    "ProgressiveDisclosureStore",
 ]
 
 # Convenience aliases
 BiasAnalyzer = BiasEvaluator
 SessionTracker = SessionLogger
-StateManager = ProgressiveDisclosureManager
+StateManager = ProgressiveDisclosureStore

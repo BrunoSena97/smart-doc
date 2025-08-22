@@ -11,8 +11,15 @@ python = "^3.11"
 flask = "^3.0.0"
 flask-cors = "^4.0.0"
 python-dotenv = "^1.0.1"
+pyyaml = "^6.0.0"
+pyjwt = "^2.9"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+bcrypt = "~4.0.0"  # Pin to 4.0.x to avoid compatibility issues
 # Bring in your core package as a local path dependency (editable)
 smartdoc-core = { path = "../../packages/core", develop = true }
+sqlalchemy = "^2.0.43"
+alembic = "^1.16.4"
+psycopg2-binary = ">=2.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

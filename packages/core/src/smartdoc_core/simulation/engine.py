@@ -2,54 +2,112 @@
 Simulation Engine for SmartDoc Virtual Patient System
 
 This module orchestrates the core simulation engine that integrates AI intent classification
-with progressive information disclosure, enabling natural conversation-driven clinical interviews.
+with progressive information disclosure, enabling natural conver                        bias_warning = {
+                            "bias_type": bias_result.get("bias_type"),
+                            "message": bias_result.get("message"),
+                            "confidence": bias_result.get("confidence", 0.5),
+                        }
+                        sys_logger.log_system(
+                            "warning",
+                            f"Bias detected: {bias_result.get('bias_type')} - {bias_result.get('message')}",
+                        )
+
+                        # Log bias warning to session logger
+                        logger = self._session_loggers.get(session_id)
+                        if logger:
+                            logger.log_bias_warning(bias_warning)
+
+                except Exception as bias_error:cal interviews.
 """
 
 import json
 import uuid
-import requests
-from typing import Dict, List, Set, Optional, Any, Tuple
-from dataclasses import dataclass, field
+from typing import Dict, List, Set, Optional, Any, Tuple, Callable
 from datetime import datetime
 
 from smartdoc_core.utils.logger import sys_logger
 from smartdoc_core.config.settings import config
-from smartdoc_core.simulation.state_manager import (
-    ProgressiveDisclosureManager,
-    InformationBlock,
-)
+from smartdoc_core.simulation.disclosure_store import ProgressiveDisclosureStore
+from smartdoc_core.simulation.session_logger import SessionLogger, create_session_logger
+from smartdoc_core.simulation.types import DiscoveryEvent, InformationBlock
 from smartdoc_core.intent.classifier import LLMIntentClassifier
 from smartdoc_core.discovery.processor import LLMDiscoveryProcessor
+from smartdoc_core.llm.providers.ollama import OllamaProvider
+from smartdoc_core.discovery.prompts.default import DefaultDiscoveryPrompt
 from smartdoc_core.simulation.bias_analyzer import BiasEvaluator
-
-
-@dataclass
-class DiscoveryEvent:
-    """Represents a discovery event triggered by an intent."""
-
-    event_id: str
-    session_id: str
-    intent_id: str
-    user_query: str
-    discovered_blocks: List[str]
-    timestamp: datetime
-    trigger_type: str  # 'direct', 'indirect', 'follow_up'
-    confidence: float
+from smartdoc_core.simulation.responders import (
+    AnamnesisSonResponder,
+    LabsResidentResponder,
+    ExamObjectiveResponder
+)
 
 
 class IntentDrivenDisclosureManager:
     """
     Manages intent-driven progressive disclosure where natural conversation
     triggers information discovery rather than manual clicking.
+
+    Uses dependency injection for provider, classifiers, and responders
+    to support configurable LLM services and personas.
     """
 
-    def __init__(self, case_file_path: str = None):
-        """Initialize the Intent-Driven Disclosure Manager."""
+    def __init__(
+        self,
+        case_file_path: Optional[str] = None,
+        provider=None,
+        intent_classifier=None,
+        discovery_processor=None,
+        responders: Optional[Dict[str, Any]] = None,
+        bias_evaluator_cls=BiasEvaluator,
+        session_logger_factory=None,
+        store: Optional[ProgressiveDisclosureStore] = None,
+        on_discovery: Optional[Callable] = None,
+        on_message: Optional[Callable] = None
+    ):
+        """
+        Initialize the Intent-Driven Disclosure Manager with dependency injection.
+
+        Args:
+            case_file_path: Path to case file (defaults to config)
+            provider: LLM provider instance (defaults to Ollama from config)
+            intent_classifier: Intent classifier instance (defaults to LLMIntentClassifier)
+            discovery_processor: Discovery processor instance (defaults to LLMDiscoveryProcessor)
+            responders: Dict mapping context to responder instances
+            bias_evaluator_cls: Bias evaluator class (defaults to BiasEvaluator)
+            session_logger_factory: Factory function for creating session loggers
+            store: Progressive disclosure store instance (defaults to new ProgressiveDisclosureStore)
+            on_discovery: Optional callback for discovery events (for DB persistence)
+            on_message: Optional callback for message events (for DB persistence)
+        """
         self.case_file_path = case_file_path or config.CASE_FILE
-        self.case_data = None
-        self.progressive_manager = ProgressiveDisclosureManager(case_file_path)
-        self.intent_classifier = LLMIntentClassifier()
-        self.discovery_processor = LLMDiscoveryProcessor()
+
+        # Initialize disclosure store (state management) with dependency injection
+        self.store = store or ProgressiveDisclosureStore(
+            case_file_path=self.case_file_path,
+            on_reveal=on_discovery,
+            on_interaction=on_message
+        )
+
+        # Session logger factory for creating loggers per session
+        self.session_logger_factory = session_logger_factory or create_session_logger
+
+        # Initialize providers and components with dependency injection
+        self.provider = provider or OllamaProvider(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL)
+
+        self.intent_classifier = intent_classifier or LLMIntentClassifier(provider=self.provider)
+
+        # Initialize modular discovery processor with dependency injection
+        self.discovery_processor = discovery_processor or LLMDiscoveryProcessor(
+            provider=self.provider,
+            prompt_builder=DefaultDiscoveryPrompt()
+        )
+
+        # Initialize responders by context with dependency injection
+        self.responders = responders or {
+            "anamnesis": AnamnesisSonResponder(self.provider),
+            "labs": LabsResidentResponder(self.provider),
+            "exam": ExamObjectiveResponder(),  # No provider needed for objective findings
+        }
 
         # Enhanced intent-to-block mappings
         self.intent_block_mappings = {}
@@ -58,29 +116,32 @@ class IntentDrivenDisclosureManager:
         # Discovery tracking
         self.discovery_events: Dict[str, List[DiscoveryEvent]] = {}
 
+        # Session loggers (one per session)
+        self._session_loggers: Dict[str, SessionLogger] = {}
+
         # Initialize bias analyzer with case data
         self.bias_analyzer = None
-        if self.progressive_manager.case_data:
+        if self.store.case_data and bias_evaluator_cls:
             try:
-                self.bias_analyzer = BiasEvaluator(self.progressive_manager.case_data)
+                self.bias_analyzer = bias_evaluator_cls(self.store.case_data)
                 sys_logger.log_system("info", "Bias analyzer initialized successfully")
             except Exception as e:
                 sys_logger.log_system(
                     "warning", f"Bias analyzer initialization failed: {e}"
                 )
 
-        sys_logger.log_system("info", "Intent-Driven Disclosure Manager initialized")
+                sys_logger.log_system("info", "Intent-Driven Disclosure Manager initialized (refactored with DI)")
 
     def load_enhanced_mappings(self):
         """Load intent-to-block mappings directly from JSON case file."""
-        if not self.progressive_manager.case_data:
+        if not self.store.case_data:
             self.intent_block_mappings = {}
             sys_logger.log_system(
                 "warning", "No case data available - using empty mappings"
             )
             return
 
-        case_data = self.progressive_manager.case_data
+        case_data = self.store.case_data
 
         if "intentBlockMappings" in case_data:
             self.intent_block_mappings = case_data["intentBlockMappings"]
@@ -96,16 +157,19 @@ class IntentDrivenDisclosureManager:
                 "No intentBlockMappings found in case file - using empty mappings",
             )
 
-    def start_intent_driven_session(self, session_id: str = None) -> str:
+    def start_intent_driven_session(self, session_id: Optional[str] = None) -> str:
         """Start a new intent-driven disclosure session."""
         if session_id is None:
             session_id = f"intent_session_{uuid.uuid4().hex[:8]}"
 
         # Start progressive disclosure session
-        pd_session = self.progressive_manager.start_new_session(session_id)
+        pd_session = self.store.start_new_session(session_id)
 
         # Initialize discovery tracking
         self.discovery_events[session_id] = []
+
+        # Create session logger
+        self._session_loggers[session_id] = self.session_logger_factory(session_id)
 
         sys_logger.log_system("info", f"Started intent-driven session: {session_id}")
         return session_id
@@ -175,13 +239,7 @@ class IntentDrivenDisclosureManager:
                             f"Bias detected: {bias_result.get('bias_type')} - {bias_result.get('message')}",
                         )
 
-                        # Log bias warning to session tracker
-                        from smartdoc_core.simulation.session_tracker import (
-                            get_current_session,
-                        )
-
-                        session_logger = get_current_session()
-                        session_logger.log_bias_warning(bias_warning)
+                        # Log bias warning to session logger (already handled above)
 
                 except Exception as bias_error:
                     sys_logger.log_system(
@@ -230,7 +288,7 @@ class IntentDrivenDisclosureManager:
         self, session_id: str, intent_id: str, user_query: str, confidence: float
     ) -> Dict[str, Any]:
         """Discover information blocks based on the classified intent."""
-        session = self.progressive_manager.get_session(session_id)
+        session = self.store.get_session(session_id)
         if not session:
             return {
                 "discovered_blocks": [],
@@ -250,7 +308,7 @@ class IntentDrivenDisclosureManager:
                     and not session.blocks[block_id].is_revealed
                 ):
                     # Reveal the block
-                    reveal_result = self.progressive_manager.reveal_block(
+                    reveal_result = self.store.reveal_block(
                         session_id, block_id, user_query
                     )
                     if reveal_result.get("success"):
@@ -264,245 +322,6 @@ class IntentDrivenDisclosureManager:
             "intent_id": intent_id,
             "confidence": confidence,
         }
-
-    def _generate_discovery_response(
-        self, session_id: str, intent_result: Dict, discovery_result: Dict, context: str = "anamnesis"
-    ) -> Dict[str, Any]:
-        """Generate a response using LLM for natural conversation."""
-        discovered_blocks = discovery_result["discovered_blocks"]
-        session = self.progressive_manager.get_session(session_id)
-
-        discoveries = []
-        clinical_data = []
-
-        # Collect discovered information and process with LLM Discovery Processor
-        for block_id in discovered_blocks:
-            if block_id in session.blocks:
-                block = session.blocks[block_id]
-
-                # Use LLM Discovery Processor to categorize and label the discovery
-                discovery_info = self.discovery_processor.process_discovery(
-                    intent_id=intent_result["intent_id"],
-                    doctor_question=intent_result.get("original_input", ""),
-                    patient_response="",  # Will be generated by LLM patient response
-                    clinical_content=block.content,
-                )
-
-                # For physical examination blocks, use actual clinical content
-                # For other blocks, use the LLM summary for better readability
-                if block.block_type == "PhysicalExam":
-                    summary_value = block.content
-                else:
-                    summary_value = discovery_info["summary"]
-
-                discoveries.append(
-                    {
-                        "block_id": block_id,
-                        "block_type": block.block_type,
-                        "content": block.content,
-                        "is_critical": block.is_critical,
-                        "discovery_notification": f"📋 **New Information Discovered**: {discovery_info['label']}",
-                        # New structured discovery data using fixed labels
-                        "label": discovery_info["label"],
-                        "category": discovery_info["category"],
-                        "summary": summary_value,
-                        "confidence": discovery_info["confidence"],
-                    }
-                )
-
-                # Collect clinical data for LLM generation
-                clinical_data.append(
-                    {
-                        "type": block.block_type,
-                        "content": block.content,
-                        "label": discovery_info["label"],
-                        "summary": discovery_info["summary"],
-                    }
-                )
-
-        # Generate natural patient response using LLM
-        if discoveries:
-            response_text = self._generate_llm_patient_response(
-                intent_result["intent_id"],
-                intent_result.get("original_input", ""),
-                clinical_data,
-                context,
-            )
-        else:
-            # No new discoveries - use contextual fallback
-            response_text = self._generate_patient_fallback_response(
-                intent_result, session
-            )
-
-        return {
-            "text": response_text,
-            "discoveries": discoveries,
-            "discovery_count": len(discoveries),
-            "has_discoveries": len(discoveries) > 0,
-        }
-
-    def _generate_llm_patient_response(
-        self, intent_id: str, doctor_question: str, clinical_data: List[Dict], context: str = "anamnesis"
-    ) -> str:
-        """Generate natural patient response using LLM based on discovered clinical data."""
-
-        # Create context about the clinical scenario based on current conversation context
-        scenario_context = self._get_persona_context(context)
-
-        # Format the clinical data for the LLM using the structured labels
-        data_points = []
-        for item in clinical_data:
-            label = item.get("label", item["type"])
-            summary = item.get("summary", item["content"])
-            data_points.append(f"- {label}: {summary}")
-
-        clinical_info = (
-            "\n".join(data_points) if data_points else "No specific clinical data"
-        )
-
-        # Create the prompt
-        prompt = f"""{scenario_context}
-
-The doctor just asked: "{doctor_question}"
-
-Based ONLY on the following clinical information that has just been revealed, formulate a single, natural, conversational response. Do not add any medical information not present in the data. Speak in character as described above.
-
-Clinical Data:
-{clinical_info}
-
-Your response (keep it natural and conversational):"""
-
-        try:
-            # Call the LLM to generate natural response
-            response = self._call_llm_for_response(prompt)
-            return response.strip('"').strip()
-        except Exception as e:
-            sys_logger.log_system("warning", f"LLM response generation failed: {e}")
-            # Fallback to a generic response
-            return "Let me tell you what I know about that."
-
-    def _get_persona_context(self, context: str = "anamnesis") -> str:
-        """Get the appropriate persona context based on the current conversation context."""
-        if context == "labs":
-            return """You are a medical resident working in the emergency department.
-You are professional, knowledgeable, and helpful. You can order tests, review results, and provide clinical information.
-You speak directly and professionally to the attending physician, providing clear medical information and recommendations."""
-        elif context == "exam":
-            # Physical exam doesn't use persona-based responses, it provides direct clinical findings
-            return """You are providing objective physical examination findings.
-Speak in clear, professional medical language with factual clinical observations."""
-        else:
-            # Default to son persona for anamnesis
-            return """You are the English-speaking son of an elderly Spanish-speaking woman in the emergency department.
-You are translating for your mother who only speaks Spanish. You are concerned but trying to be helpful.
-You speak naturally to the doctor, providing information based on what you know about your mother's condition."""
-
-    def _generate_labs_response(
-        self,
-        session_id: str,
-        intent_result: Dict[str, Any],
-        discovery_result: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        """Generate resident response for laboratory/imaging context."""
-        discovered_blocks = discovery_result.get("new_discoveries", [])
-        session = self.progressive_manager.get_session(session_id)
-
-        discoveries = []
-        clinical_data = []
-
-        # Collect discovered information
-        for block_id in discovered_blocks:
-            if block_id in session.blocks:
-                block = session.blocks[block_id]
-
-                # Use LLM Discovery Processor to categorize and label the discovery
-                discovery_info = self.discovery_processor.process_discovery(
-                    intent_id=intent_result["intent_id"],
-                    doctor_question=intent_result.get("original_input", ""),
-                    patient_response="",  # Not used for labs context
-                    clinical_content=block.content,
-                )
-
-                discoveries.append(
-                    {
-                        "block_id": block_id,
-                        "block_type": block.block_type,
-                        "content": block.content,
-                        "is_critical": block.is_critical,
-                        "discovery_notification": f"📋 **Test Result**: {discovery_info['label']}",
-                        "label": discovery_info["label"],
-                        "category": discovery_info["category"],
-                        "summary": block.content,  # Use actual clinical content for labs
-                        "confidence": discovery_info["confidence"],
-                    }
-                )
-
-                # Collect clinical data for LLM generation
-                clinical_data.append(
-                    {
-                        "type": block.block_type,
-                        "content": block.content,
-                        "label": discovery_info["label"],
-                        "summary": discovery_info["summary"],
-                    }
-                )
-
-        # Generate resident response
-        if discoveries:
-            response_text = self._generate_llm_labs_response(
-                intent_result["intent_id"],
-                intent_result.get("original_input", ""),
-                clinical_data,
-            )
-        else:
-            # No results available - offer to order tests
-            response_text = self._generate_labs_fallback_response(
-                intent_result["intent_id"]
-            )
-
-        return {
-            "text": response_text,
-            "discoveries": discoveries,
-            "discovery_count": len(discoveries),
-            "has_discoveries": len(discoveries) > 0,
-        }
-
-    def _generate_llm_labs_response(
-        self, intent_id: str, doctor_question: str, clinical_data: List[Dict]
-    ) -> str:
-        """Generate resident response for lab/imaging requests."""
-        # Use resident persona context
-        scenario_context = self._get_persona_context("labs")
-
-        # Format the clinical data
-        data_points = []
-        for item in clinical_data:
-            label = item.get("label", item["type"])
-            content = item.get("content", item.get("summary", ""))
-            data_points.append(f"- {label}: {content}")
-
-        clinical_info = (
-            "\n".join(data_points) if data_points else "No specific results available"
-        )
-
-        # Create the prompt for resident response
-        prompt = f"""{scenario_context}
-
-The attending physician just asked: "{doctor_question}"
-
-Based on the following test results/clinical information, provide a professional response as the resident:
-
-Test Results/Clinical Information:
-{clinical_info}
-
-Your response as the resident (professional and direct):"""
-
-        try:
-            response = self._call_llm_for_response(prompt)
-            return response.strip('"').strip()
-        except Exception as e:
-            sys_logger.log_system("warning", f"LLM labs response generation failed: {e}")
-            return "I can review the results for you or order additional tests as needed."
 
     def _generate_labs_fallback_response(self, intent_id: str) -> str:
         """Generate appropriate resident response when requested tests are not available."""
@@ -519,53 +338,6 @@ Your response as the resident (professional and direct):"""
             intent_id,
             "I can order that test for you. What specific information are you looking for?",
         )
-
-    def _call_llm_for_response(self, prompt: str) -> str:
-        """Call the LLM API for response generation."""
-        payload = {
-            "model": self.intent_classifier.model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.7,  # Higher temperature for more natural responses
-                "top_p": 0.9,
-                "max_tokens": 150,
-            },
-        }
-
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.post(
-            f"{self.intent_classifier.ollama_url}/api/generate",
-            json=payload,
-            headers=headers,
-            timeout=30,
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            return result.get("response", "I'm not sure how to answer that.")
-        else:
-            raise Exception(f"LLM API error: {response.status_code}")
-
-    def _create_natural_patient_response(
-        self, response_parts: list, intent_result: Dict, discovery_result: Dict
-    ) -> str:
-        """Create a natural patient response from discovered information."""
-
-        # If we have discovered information, use it directly
-        if response_parts:
-            response = " ".join(response_parts)
-
-            # Add natural transitions for multiple pieces of information
-            if len(response_parts) > 1:
-                return response.replace(". ", ". Also, ")
-
-            return response
-
-        # If no new information was discovered, we shouldn't be calling this method
-        # The caller should use _generate_patient_fallback_response instead
-        return "I'm not sure I have new information about that."
 
     def _generate_patient_fallback_response(self, intent_result: Dict, session) -> str:
         """Generate a fallback response when no new information is discovered."""
@@ -672,7 +444,7 @@ Your response as the resident (professional and direct):"""
 
     def _get_session_discovery_stats(self, session_id: str) -> Dict[str, Any]:
         """Get discovery statistics for the session."""
-        session = self.progressive_manager.get_session(session_id)
+        session = self.store.get_session(session_id)
         events = self.discovery_events.get(session_id, [])
 
         if not session:
@@ -705,7 +477,7 @@ Your response as the resident (professional and direct):"""
     def get_session_discoveries(self, session_id: str) -> Dict[str, Any]:
         """Get all discoveries for a session."""
         events = self.discovery_events.get(session_id, [])
-        session = self.progressive_manager.get_session(session_id)
+        session = self.store.get_session(session_id)
 
         if not session:
             return {"success": False, "error": "Session not found"}
@@ -733,7 +505,7 @@ Your response as the resident (professional and direct):"""
 
     def get_available_information_summary(self, session_id: str) -> Dict[str, Any]:
         """Get a summary of available vs. discovered information."""
-        session = self.progressive_manager.get_session(session_id)
+        session = self.store.get_session(session_id)
         if not session:
             return {"success": False, "error": "Session not found"}
 
@@ -765,9 +537,12 @@ Your response as the resident (professional and direct):"""
 
     def _get_session_interactions(self, session_id: str) -> List[Dict[str, Any]]:
         """Get session interactions formatted for bias analysis."""
-        interactions = []
+        logger = self._session_loggers.get(session_id)
+        if logger:
+            return logger.get_interactions()
 
-        # Convert discovery events to interaction format for bias analysis
+        # Fallback to discovery events if no logger
+        interactions = []
         events = self.discovery_events.get(session_id, [])
 
         for event in events:
@@ -782,6 +557,13 @@ Your response as the resident (professional and direct):"""
             interactions.append(interaction)
 
         return interactions
+
+    def get_session_summary(self, session_id: str) -> Dict[str, Any]:
+        """Get comprehensive session summary including logs and bias analysis."""
+        logger = self._session_loggers.get(session_id)
+        if logger:
+            return logger.get_session_summary()
+        return {"error": "Session logger not found"}
 
     def _discover_blocks_for_intent_with_context(
         self,
@@ -858,45 +640,27 @@ Your response as the resident (professional and direct):"""
         discovery_result: Dict[str, Any],
         context: str,
     ) -> Dict[str, Any]:
-        """Generate response with context-appropriate persona."""
+        """Generate response with context-appropriate responder using dependency injection."""
         # Check if intent was filtered due to context
         if discovery_result.get("context_filtered"):
             return self._generate_context_filtered_response(
                 intent_result["intent_id"], context
             )
 
-        # For physical examination context, provide direct clinical findings
-        if context == "exam":
-            return self._generate_exam_response(
-                session_id, intent_result, discovery_result
-            )
+        # Collect clinical_data consistently
+        session = self.store.get_session(session_id)
+        if not session:
+            return {
+                "text": "Session not found",
+                "discoveries": [],
+                "discovery_count": 0,
+                "has_discoveries": False
+            }
 
-        # For labs context, use resident persona
-        if context == "labs":
-            return self._generate_labs_response(
-                session_id, intent_result, discovery_result
-            )
-
-        # Use existing response generation for anamnesis (son persona)
-        return self._generate_discovery_response(
-            session_id, intent_result, discovery_result, context
-        )
-
-    def _generate_exam_response(
-        self,
-        session_id: str,
-        intent_result: Dict[str, Any],
-        discovery_result: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        """Generate direct clinical findings for physical examination context."""
-        discovered_blocks = discovery_result.get("new_discoveries", [])
-        session = self.progressive_manager.get_session(session_id)
-
+        clinical_data = []
         discoveries = []
-        clinical_findings = []
 
-        # Collect discovered examination findings
-        for block_id in discovered_blocks:
+        for block_id in discovery_result.get("new_discoveries", []):
             if block_id in session.blocks:
                 block = session.blocks[block_id]
 
@@ -904,41 +668,70 @@ Your response as the resident (professional and direct):"""
                 discovery_info = self.discovery_processor.process_discovery(
                     intent_id=intent_result["intent_id"],
                     doctor_question=intent_result.get("original_input", ""),
-                    patient_response="",  # Not used for exam context
+                    patient_response="",
                     clinical_content=block.content,
                 )
 
-                discoveries.append(
-                    {
-                        "block_id": block_id,
-                        "block_type": block.block_type,
-                        "content": block.content,
-                        "is_critical": block.is_critical,
-                        "discovery_notification": f"📋 **Examination Finding**: {discovery_info['label']}",
-                        "label": discovery_info["label"],
-                        "category": discovery_info["category"],
-                        "summary": block.content,  # Use actual clinical content instead of generic summary
-                        "confidence": discovery_info["confidence"],
-                    }
-                )
+                discoveries.append({
+                    "block_id": block_id,
+                    "block_type": block.block_type,
+                    "content": block.content,
+                    "is_critical": block.is_critical,
+                    "discovery_notification": f"📋 **{context.title()} Information**: {discovery_info['label']}",
+                    "label": discovery_info["label"],
+                    "category": discovery_info["category"],
+                    "summary": block.content if context in ("exam", "labs") else discovery_info["summary"],
+                    "confidence": discovery_info["confidence"],
+                })
 
-                # Collect clinical findings directly
-                clinical_findings.append(block.content)
+                clinical_data.append({
+                    "type": block.block_type,
+                    "content": block.content,
+                    "label": discovery_info["label"],
+                    "summary": discovery_info["summary"],
+                })
 
-        # Generate direct clinical response
+        # Choose responder based on context
+        responder = self.responders.get(context) or self.responders["anamnesis"]
+
+        # Generate response text
         if discoveries:
-            response_text = " ".join(clinical_findings)
-        else:
-            # No findings available for this examination
-            exam_intent = intent_result["intent_id"]
-            response_text = self._generate_exam_fallback_response(exam_intent)
+            text = responder.respond(
+                intent_id=intent_result["intent_id"],
+                doctor_question=intent_result.get("original_input", ""),
+                clinical_data=clinical_data,
+                context=context,
+            )
 
-        return {
-            "text": response_text,
+            # Note: Discovery events are now automatically persisted via store hooks
+        else:
+            # No new discoveries → use context-appropriate fallback
+            if context == "exam":
+                text = self._generate_exam_fallback_response(intent_result["intent_id"])
+            elif context == "labs":
+                text = self._generate_labs_fallback_response(intent_result["intent_id"])
+            else:
+                text = self._generate_patient_fallback_response(intent_result, session)
+
+        response = {
+            "text": text,
             "discoveries": discoveries,
             "discovery_count": len(discoveries),
-            "has_discoveries": len(discoveries) > 0,
+            "has_discoveries": bool(discoveries)
         }
+
+        # Log interaction with session logger
+        logger = self._session_loggers.get(session_id)
+        if logger:
+            logger.log_interaction(
+                intent_id=intent_result["intent_id"],
+                user_query=intent_result.get("original_input", ""),
+                vsp_response=response["text"],
+                nlu_output=intent_result,
+                dialogue_state=context.upper()
+            )
+
+        return response
 
     def _generate_exam_fallback_response(self, intent_id: str) -> str:
         """Generate appropriate response when requested examination findings are not available."""

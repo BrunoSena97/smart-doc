@@ -12,3 +12,8 @@ logging:
 # Dev-specific Ollama settings (if different)
 ollama:
   base_url: "http://localhost:11434"
+
+database:
+  url: "sqlite:///smartdoc_dev.sqlite3"
+  echo: false
+  pool_recycle: 1800

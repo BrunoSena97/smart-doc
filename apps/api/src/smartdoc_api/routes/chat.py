@@ -10,16 +10,19 @@ from . import bp
 import uuid
 import os
 
+# Import repository functions for data persistence
+from smartdoc_api.services.repo import (
+    get_or_create_conversation_for_session,
+    add_message, ensure_session, add_discoveries, add_biases, MessageRole
+)
+from smartdoc_api.services.auth_service import require_auth
+
 # Import real SmartDoc components
 try:
     from smartdoc_core.simulation.engine import IntentDrivenDisclosureManager
     from smartdoc_core.clinical.evaluator import ClinicalEvaluator
     from smartdoc_core.utils.logger import sys_logger
     from smartdoc_core.config.settings import config
-    from smartdoc_core.simulation.session_tracker import (
-        get_current_session,
-        start_new_session,
-    )
 
     SMARTDOC_AVAILABLE = True
 
@@ -41,6 +44,21 @@ try:
     intent_driven_manager = IntentDrivenDisclosureManager(case_file_path=case_file_path)
     clinical_evaluator = ClinicalEvaluator()
 
+    # Global session tracking for API compatibility
+    active_sessions = {}
+
+    def get_current_session_summary(session_id: str):
+        """Get session summary for a specific session."""
+        if intent_driven_manager:
+            return intent_driven_manager.get_session_summary(session_id)
+        return {"error": "Engine not available"}
+
+    def start_new_session() -> str:
+        """Start a new session and return session ID."""
+        if intent_driven_manager:
+            return intent_driven_manager.start_intent_driven_session()
+        return "mock_session_id"
+
     print("✅ SmartDoc components initialized successfully for v1 API!")
 
 except ImportError as e:
@@ -58,6 +76,7 @@ except ImportError as e:
 
 
 @bp.post("/chat")
+@require_auth
 def v1_chat():
     """
     Process a chat message and return AI response with full SmartDoc functionality.
@@ -92,6 +111,13 @@ def v1_chat():
 
     if not message:
         return jsonify({"error": "message is required"}), 400
+
+    # 1) Make sure a conversation exists and is linked to this session
+    conv_id = get_or_create_conversation_for_session(session_id, title=f"Session {session_id}")
+
+    # 2) Log the user's message
+    add_message(conv_id, MessageRole.user, message, context=context)
+    ensure_session(session_id, conv_id)
 
     # Try to use real SmartDoc engine
     if SMARTDOC_AVAILABLE and intent_driven_manager:
@@ -163,6 +189,15 @@ def v1_chat():
                         f"[V1] Discovery bias warning sent to frontend: {discovery_result['bias_warning']['bias_type']}",
                     )
 
+                # Persist assistant reply + discoveries/biases
+                add_message(conv_id, MessageRole.assistant, response_text, context=context)
+
+                if response_data.get("discovery_events"):
+                    add_discoveries(session_id, response_data["discovery_events"])
+
+                if response_data.get("bias_warnings"):
+                    add_biases(session_id, response_data["bias_warnings"])
+
                 return jsonify(response_data)
             else:
                 sys_logger.log_system(
@@ -200,6 +235,10 @@ def v1_chat():
         "confidence": 0.5,
         "block_id": f"mock_block_{uuid.uuid4().hex[:8]}",
     }
+
+    # Persist assistant reply + mock discovery
+    add_message(conv_id, MessageRole.assistant, response_text, context=context)
+    add_discoveries(session_id, [discovery_event])
 
     return jsonify({
         "reply": response_text,  # v1 format

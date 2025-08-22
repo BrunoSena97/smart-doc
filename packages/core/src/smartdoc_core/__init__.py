@@ -16,7 +16,7 @@ from .simulation import (
     IntentDrivenDisclosureManager,
     BiasEvaluator,
     SessionLogger,
-    ProgressiveDisclosureManager,
+    ProgressiveDisclosureStore,
     # Convenience aliases
     BiasAnalyzer,
     SessionTracker,
@@ -51,6 +51,7 @@ __all__ = [
     "DiscoveryProcessor",
     "ClinicalEvaluator",
     "IntentDrivenDisclosureManager",
+    "ProgressiveDisclosureStore",
     "BiasAnalyzer",
     "SessionTracker",
     "StateManager",

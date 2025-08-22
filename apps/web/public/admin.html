@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartDoc Admin</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+      .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Override main.css body restrictions for admin page */
+      body {
+        height: auto !important;
+        overflow: auto !important;
+        min-height: 100vh;
+      }
+
+      .admin-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+
+      .admin-section h2 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      .form-group textarea {
+        height: 100px;
+        resize: vertical;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .btn:hover {
+        background: #0056b3;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .data-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+
+      .data-table tbody tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .status-indicator {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .auth-section {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+      }
+
+      .logged-in {
+        background: #d4edda;
+        border-color: #c3e6cb;
+      }
+
+      .code-display {
+        font-family: monospace;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        margin-top: 10px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        color: #333;
+      }
+
+      .close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .close:hover {
+        color: #333;
+      }
+
+      .prompt-content {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .prompt-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .meta-item {
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
+      }
+
+      .meta-label {
+        font-weight: bold;
+        color: #555;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+      }
+
+      .meta-value {
+        color: #333;
+      }
+
+      /* Action buttons styling */
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+
+      .action-buttons .btn {
+        margin: 0;
+        font-size: 12px;
+        padding: 6px 10px;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <header>
+        <h1>🏥 SmartDoc Admin Panel</h1>
+        <p>Manage users, LLM profiles, and agent prompts</p>
+      </header>
+
+      <!-- Authentication Section -->
+      <section id="auth-section" class="admin-section auth-section">
+        <h2>🔐 Authentication</h2>
+        <div id="login-form">
+          <div class="form-group">
+            <label for="access-code">Access Code:</label>
+            <input
+              type="password"
+              id="access-code"
+              placeholder="Enter your admin access code"
+            />
+          </div>
+          <button id="login-btn" class="btn">Login</button>
+        </div>
+        <div id="auth-status" class="hidden">
+          <p>✅ Logged in as admin</p>
+          <button id="logout-btn" class="btn btn-secondary">Logout</button>
+        </div>
+      </section>
+
+      <!-- Admin Content (hidden until logged in) -->
+      <div id="admin-content" class="hidden">
+        <!-- Users Management -->
+        <section class="admin-section">
+          <h2>👥 Users Management</h2>
+
+          <button id="refresh-users" class="btn btn-secondary">
+            🔄 Refresh
+          </button>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="user-name">Display Name:</label>
+              <input type="text" id="user-name" placeholder="John Doe" />
+            </div>
+            <div class="form-group">
+              <label for="user-email">Email:</label>
+              <input
+                type="email"
+                id="user-email"
+                placeholder="john@example.com"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="user-age">Age:</label>
+              <input type="number" id="user-age" placeholder="25" />
+            </div>
+            <div class="form-group">
+              <label for="user-sex">Sex:</label>
+              <select id="user-sex">
+                <option value="">Select...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="user-role">Role:</label>
+              <select id="user-role">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="user-experience">Medical Experience:</label>
+              <input
+                type="text"
+                id="user-experience"
+                placeholder="Medical student, Resident, etc."
+              />
+            </div>
+            <div class="form-group">
+              <label for="user-label">Label/Cohort:</label>
+              <input
+                type="text"
+                id="user-label"
+                placeholder="pilot, cohort-2024, etc."
+              />
+            </div>
+          </div>
+
+          <button id="create-user" class="btn">➕ Create User</button>
+
+          <div id="users-table-container">
+            <table id="users-table" class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Usage</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div id="user-code-display" class="hidden">
+            <h4>🔑 New User Access Code</h4>
+            <div class="code-display">
+              <strong>Access Code:</strong> <span id="new-user-code"></span>
+            </div>
+            <p><em>Save this code! It won't be shown again.</em></p>
+          </div>
+        </section>
+
+        <!-- LLM Profiles Management -->
+        <section class="admin-section">
+          <h2>🤖 LLM Profiles</h2>
+
+          <button id="refresh-profiles" class="btn btn-secondary">
+            🔄 Refresh
+          </button>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-name">Profile Name:</label>
+              <input
+                type="text"
+                id="profile-name"
+                placeholder="Default GPT-4"
+              />
+            </div>
+            <div class="form-group">
+              <label for="profile-provider">Provider:</label>
+              <select id="profile-provider">
+                <option value="ollama">Ollama</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-model">Model:</label>
+              <input
+                type="text"
+                id="profile-model"
+                placeholder="gemma3:4b-it-q4_K_M"
+              />
+            </div>
+            <div class="form-group">
+              <label for="profile-temperature">Temperature:</label>
+              <input
+                type="number"
+                id="profile-temperature"
+                step="0.01"
+                value="0.1"
+                min="0"
+                max="2"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-top-p">Top P:</label>
+              <input
+                type="number"
+                id="profile-top-p"
+                step="0.01"
+                value="0.9"
+                min="0"
+                max="1"
+              />
+            </div>
+            <div class="form-group">
+              <label for="profile-max-tokens">Max Tokens:</label>
+              <input
+                type="number"
+                id="profile-max-tokens"
+                placeholder="Optional"
+              />
+            </div>
+            <div class="form-group">
+              <label for="profile-default" style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
+                <input type="checkbox" id="profile-default" style="width: auto; margin: 0;" /> Set as Default
+              </label>
+              </label>
+            </div>
+          </div>
+
+          <button id="create-profile" class="btn">➕ Create Profile</button>
+
+          <div id="profiles-table-container">
+            <table id="profiles-table" class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Provider</th>
+                  <th>Model</th>
+                  <th>Temp</th>
+                  <th>Top P</th>
+                  <th>Default</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Agent Prompts Management -->
+        <section class="admin-section">
+          <h2>💬 Agent Prompts</h2>
+
+          <button id="refresh-prompts" class="btn btn-secondary">
+            🔄 Refresh
+          </button>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prompt-agent">Agent:</label>
+              <select id="prompt-agent">
+                <option value="son">Son (Patient Translator)</option>
+                <option value="resident">Resident (Medical Assistant)</option>
+                <option value="exam">Exam (Objective Findings)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="prompt-profile">LLM Profile:</label>
+              <select id="prompt-profile">
+                <option value="">Default/Any</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prompt-text">Prompt Text:</label>
+            <textarea
+              id="prompt-text"
+              placeholder="Enter the system prompt for this agent..."
+            ></textarea>
+          </div>
+
+          <button id="create-prompt" class="btn">➕ Create Prompt</button>
+
+          <div id="prompts-table-container">
+            <table id="prompts-table" class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Agent</th>
+                  <th>Profile</th>
+                  <th>Version</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Audit Logs -->
+        <section class="admin-section">
+          <h2>📋 Recent Activity</h2>
+          <button id="refresh-logs" class="btn btn-secondary">
+            🔄 Refresh
+          </button>
+
+          <div id="logs-table-container">
+            <table id="logs-table" class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Prompt View Modal -->
+    <div id="prompt-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Agent Prompt Details</h3>
+          <button class="close" onclick="closePromptModal()">&times;</button>
+        </div>
+
+        <div class="prompt-meta">
+          <div class="meta-item">
+            <div class="meta-label">Agent</div>
+            <div class="meta-value" id="modal-agent"></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">LLM Profile</div>
+            <div class="meta-value" id="modal-profile"></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Version</div>
+            <div class="meta-value" id="modal-version"></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status</div>
+            <div class="meta-value" id="modal-status"></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Created</div>
+            <div class="meta-value" id="modal-created"></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Updated</div>
+            <div class="meta-value" id="modal-updated"></div>
+          </div>
+        </div>
+
+        <div class="meta-label">Prompt Text:</div>
+        <div class="prompt-content" id="modal-prompt-text"></div>
+      </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+  </body>
+</html>

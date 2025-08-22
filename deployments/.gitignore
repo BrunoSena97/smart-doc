@@ -1,0 +1,10 @@
+# Environment files with secrets
+.env.local
+.env.production
+
+# Docker volumes
+volumes/
+
+# Temporary files
+*.tmp
+*.log

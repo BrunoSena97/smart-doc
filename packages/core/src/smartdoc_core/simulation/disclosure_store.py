@@ -1,97 +1,78 @@
 """
-Simulation State Manager for SmartDoc Virtual Patient System
+Progressive Disclosure Store for SmartDoc Virtual Patient System
 
 This module manages the state of clinical simulation sessions, including progressive
 disclosure of information blocks, session tracking, and providing the foundation
 for cognitive bias detection through temporal information sequencing.
+
+Refactored to use dependency injection and optional persistence hooks.
 """
 
 import json
-import time
-from typing import Dict, List, Set, Optional, Any
-from dataclasses import dataclass, field
+from typing import Dict, List, Set, Optional, Any, Callable
 from datetime import datetime
 
 from smartdoc_core.utils.logger import sys_logger
-from smartdoc_core.config.settings import config
+from smartdoc_core.simulation.types import (
+    InformationBlock,
+    StudentInteraction,
+    ProgressiveDisclosureSession,
+)
 
 
-@dataclass
-class InformationBlock:
-    """Represents a single discoverable information block."""
-
-    block_id: str
-    block_type: str  # History, PhysicalExam, Labs, Imaging
-    content: str
-    is_critical: bool
-    is_revealed: bool = False
-    revealed_at: Optional[datetime] = None
-    revealed_by_query: Optional[str] = None
-
-
-@dataclass
-class StudentInteraction:
-    """Tracks a student's interaction with the progressive disclosure system."""
-
-    timestamp: datetime
-    action: str  # 'reveal_block', 'submit_hypothesis', 'request_category'
-    block_id: Optional[str] = None
-    category: Optional[str] = None
-    hypothesis: Optional[str] = None
-    reasoning: Optional[str] = None
-
-
-@dataclass
-class ProgressiveDisclosureSession:
-    """Manages a single progressive disclosure session."""
-
-    session_id: str
-    case_id: str
-    start_time: datetime
-    blocks: Dict[str, InformationBlock] = field(default_factory=dict)
-    revealed_blocks: Set[str] = field(default_factory=set)
-    interactions: List[StudentInteraction] = field(default_factory=list)
-    working_hypotheses: List[Dict[str, str]] = field(default_factory=list)
-    final_diagnosis: Optional[str] = None
-    session_complete: bool = False
-
-
-class ProgressiveDisclosureManager:
+class ProgressiveDisclosureStore:
     """
     Manages progressive disclosure of clinical information for virtual patient simulations.
 
-    This class implements the progressive disclosure methodology described in the dissertation,
-    where information is revealed gradually to simulate realistic clinical information gathering
-    and enable proper cognitive bias detection.
+    This class implements the progressive disclosure methodology with dependency injection
+    and optional persistence hooks for database integration.
     """
 
-    def __init__(self, case_file_path: str = None):
+    def __init__(
+        self,
+        case_file_path: Optional[str] = None,
+        case_data: Optional[Dict] = None,
+        on_reveal: Optional[Callable] = None,
+        on_interaction: Optional[Callable] = None,
+    ):
         """
-        Initialize the Progressive Disclosure Manager.
+        Initialize the Progressive Disclosure Store.
 
         Args:
-            case_file_path: Path to the JSON case file. If None, uses config default.
+            case_file_path: Path to the JSON case file
+            case_data: Pre-loaded case data (takes precedence over file_path)
+            on_reveal: Optional callback for block revelation events (for DB persistence)
+            on_interaction: Optional callback for interaction events (for DB persistence)
         """
-        self.case_file_path = case_file_path or config.CASE_FILE
-        self.case_data = None
+        self.case_file_path = case_file_path
+        self.case_data = case_data
         self.active_sessions: Dict[str, ProgressiveDisclosureSession] = {}
-        self.load_case_data()
+        self._on_reveal = on_reveal
+        self._on_interaction = on_interaction
+
+        # Load case data if not provided
+        if not self.case_data and self.case_file_path:
+            self.load_case_data()
 
     def load_case_data(self) -> bool:
         """Load case data from JSON file."""
+        if not self.case_file_path:
+            sys_logger.log_system("warning", "No case file path provided")
+            return False
+
         try:
             with open(self.case_file_path, "r", encoding="utf-8") as f:
                 self.case_data = json.load(f)
 
             sys_logger.log_system(
                 "info",
-                f"Progressive Disclosure: Loaded case {self.case_data.get('caseId')}",
+                f"Progressive Disclosure Store: Loaded case {self.case_data.get('caseId')}",
             )
             return True
 
         except Exception as e:
             sys_logger.log_system(
-                "error", f"Progressive Disclosure: Failed to load case data: {e}"
+                "error", f"Progressive Disclosure Store: Failed to load case data: {e}"
             )
             return False
 
@@ -128,7 +109,7 @@ class ProgressiveDisclosureManager:
 
         self.active_sessions[session_id] = session
         sys_logger.log_system(
-            "info", f"Progressive Disclosure: Started session {session_id}"
+            "info", f"Progressive Disclosure Store: Started session {session_id}"
         )
 
         return session
@@ -214,7 +195,7 @@ class ProgressiveDisclosureManager:
         return blocks
 
     def reveal_block(
-        self, session_id: str, block_id: str, query: str = None
+        self, session_id: str, block_id: str, query: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Reveal a specific information block.
@@ -244,7 +225,7 @@ class ProgressiveDisclosureManager:
                     "blockType": block.block_type,
                     "content": block.content,
                     "isCritical": block.is_critical,
-                    "revealedAt": block.revealed_at.isoformat(),
+                    "revealedAt": block.revealed_at.isoformat() if block.revealed_at else None,
                 },
             }
 
@@ -260,12 +241,16 @@ class ProgressiveDisclosureManager:
         )
         session.interactions.append(interaction)
 
+        # Fire persistence hooks
+        self._emit_reveal_event(session_id, block)
+        self._emit_interaction_event(session_id, interaction)
+
         # Check for bias triggers
         bias_analysis = self._analyze_bias_potential(session, block_id)
 
         sys_logger.log_system(
             "info",
-            f"Progressive Disclosure: Block '{block_id}' revealed in session {session_id}",
+            f"Progressive Disclosure Store: Block '{block_id}' revealed in session {session_id}",
         )
 
         return {
@@ -307,9 +292,12 @@ class ProgressiveDisclosureManager:
         )
         session.interactions.append(interaction)
 
+        # Fire persistence hook
+        self._emit_interaction_event(session_id, interaction)
+
         sys_logger.log_system(
             "info",
-            f"Progressive Disclosure: Hypothesis added in session {session_id}: {hypothesis}",
+            f"Progressive Disclosure Store: Hypothesis added in session {session_id}: {hypothesis}",
         )
 
         return {"success": True, "hypothesis": hypothesis_entry}
@@ -333,7 +321,7 @@ class ProgressiveDisclosureManager:
 
         sys_logger.log_system(
             "info",
-            f"Progressive Disclosure: Session {session_id} completed with diagnosis: {diagnosis}",
+            f"Progressive Disclosure Store: Session {session_id} completed with diagnosis: {diagnosis}",
         )
 
         return {
@@ -354,6 +342,40 @@ class ProgressiveDisclosureManager:
             "learningObjectives": self.case_data.get("learningObjectives", []),
             "initialPresentation": self.case_data.get("initialPresentation", {}),
         }
+
+    def _emit_reveal_event(self, session_id: str, block: InformationBlock):
+        """Emit block revelation event to optional callback for DB persistence."""
+        if self._on_reveal:
+            try:
+                payload = {
+                    "session_id": session_id,
+                    "block_id": block.block_id,
+                    "block_type": block.block_type,
+                    "content": block.content,
+                    "is_critical": block.is_critical,
+                    "revealed_at": block.revealed_at,
+                    "revealed_by_query": block.revealed_by_query,
+                }
+                self._on_reveal(payload)
+            except Exception as e:
+                sys_logger.log_system("warning", f"on_reveal hook failed: {e}")
+
+    def _emit_interaction_event(self, session_id: str, interaction: StudentInteraction):
+        """Emit interaction event to optional callback for DB persistence."""
+        if self._on_interaction:
+            try:
+                payload = {
+                    "session_id": session_id,
+                    "timestamp": interaction.timestamp,
+                    "action": interaction.action,
+                    "block_id": interaction.block_id,
+                    "category": interaction.category,
+                    "hypothesis": interaction.hypothesis,
+                    "reasoning": interaction.reasoning,
+                }
+                self._on_interaction(payload)
+            except Exception as e:
+                sys_logger.log_system("warning", f"on_interaction hook failed: {e}")
 
     def _get_category_description(self, category: str) -> str:
         """Get description for information categories."""

@@ -1,35 +1,57 @@
 #!/usr/bin/env python3
 """
 LLM-based Discovery Processing Service for SmartDoc
-Uses Ollama to analyze discovered clinical information and categorize it with fixed labels
+Uses configurable LLM providers to analyze discovered clinical information and categorize it with fixed labels
 """
 
-import requests
 import json
-from typing import Dict, Any, Optional, List
+import time
+from typing import Dict, Any, Optional
 from smartdoc_core.utils.logger import sys_logger
 from smartdoc_core.config.settings import config
+from smartdoc_core.llm.providers import OllamaProvider
+from .prompts.default import DefaultDiscoveryPrompt
+from .types import DiscoveryLLMOut
 
 
 class LLMDiscoveryProcessor:
     """
     LLM-based discovery processor that analyzes clinical information blocks
     and categorizes them using fixed labels to prevent duplication.
+
+    Uses dependency injection for provider and prompt builder to support
+    different LLM services and customizable prompts.
     """
 
-    def __init__(self, ollama_url: str = None, model: str = None):
+    def __init__(self, provider=None, prompt_builder=None, discovery_schema: Optional[Dict[str, Dict[str, str]]] = None):
         """
         Initialize the LLM Discovery Processor.
 
         Args:
-            ollama_url (str): URL for Ollama API (defaults to config value)
-            model (str): Model name to use (defaults to config value)
+            provider: LLM provider instance (defaults to Ollama from config)
+            prompt_builder: Prompt builder instance (defaults to DefaultDiscoveryPrompt)
+            discovery_schema: Custom discovery schema (defaults to built-in schema)
         """
-        self.ollama_url = ollama_url or config.OLLAMA_BASE_URL
-        self.model = model or config.OLLAMA_MODEL
+        # Use dependency injection with sensible defaults
+        self.provider = provider or OllamaProvider(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL)
+        self.prompt_builder = prompt_builder or DefaultDiscoveryPrompt()
 
-        # Define fixed discovery categories and labels
-        self.discovery_schema = {
+        # Use provided schema or default
+        self.discovery_schema = discovery_schema or self._default_schema()
+        self.all_labels = self._flatten_labels(self.discovery_schema)
+
+        # Simple circuit breaker state
+        self._fail_count = 0
+        self._open_until: float = 0.0
+
+        sys_logger.log_system(
+            "info",
+            f"LLMDiscoveryProcessor initialized with {len(self.all_labels)} possible labels",
+        )
+
+    def _default_schema(self) -> Dict[str, Dict[str, str]]:
+        """Get the default discovery schema."""
+        return {
             "patient_profile": {
                 "Patient Age": "Patient's age and demographic information",
                 "Language Barrier": "Communication and language needs",
@@ -78,19 +100,16 @@ class LLMDiscoveryProcessor:
             },
         }
 
-        # Create flat mapping of all possible labels
-        self.all_labels = {}
-        for category, labels in self.discovery_schema.items():
+    def _flatten_labels(self, schema: Dict[str, Dict[str, str]]) -> Dict[str, Dict[str, str]]:
+        """Create flat mapping of all possible labels."""
+        all_labels = {}
+        for category, labels in schema.items():
             for label, description in labels.items():
-                self.all_labels[label] = {
+                all_labels[label] = {
                     "category": category,
                     "description": description,
                 }
-
-        sys_logger.log_system(
-            "info",
-            f"LLMDiscoveryProcessor initialized with {len(self.all_labels)} possible labels",
-        )
+        return all_labels
 
     def process_discovery(
         self,
@@ -98,170 +117,127 @@ class LLMDiscoveryProcessor:
         doctor_question: str,
         patient_response: str,
         clinical_content: str,
+        *,
+        agent: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Process a discovery event and return structured categorization.
 
         Args:
-            intent_id (str): The classified intent from the doctor's question
-            doctor_question (str): The doctor's original question
-            patient_response (str): The patient's/family's response
-            clinical_content (str): The raw clinical content from the information block
+            intent_id: The classified intent from the doctor's question
+            doctor_question: The doctor's original question
+            patient_response: The patient's/family's response
+            clinical_content: The raw clinical content from the information block
+            agent: Optional agent type for prompt customization
 
         Returns:
             Dict containing structured discovery information with fixed labels
         """
-        try:
-            # Create prompt for LLM discovery processing
-            prompt = self._create_discovery_prompt(
-                intent_id, doctor_question, patient_response, clinical_content
+        # Simple circuit breaker check
+        now = time.time()
+        if now < self._open_until:
+            return self._fallback_discovery_processing(
+                intent_id, clinical_content, "circuit_open"
             )
 
-            # Call Ollama API
-            response = self._call_ollama(prompt)
+        try:
+            # Build prompt using injected prompt builder
+            prompt = self.prompt_builder.build(
+                schema=self.discovery_schema,
+                all_labels=self.all_labels,
+                intent_id=intent_id,
+                doctor_question=doctor_question,
+                patient_response=patient_response,
+                clinical_content=clinical_content,
+            )
+
+            # Call LLM via injected provider
+            response = self.provider.generate(
+                prompt, temperature=0.1, top_p=0.9, timeout_s=30
+            )
 
             # Parse LLM response
             result = self._parse_discovery_response(
                 response, intent_id, clinical_content
             )
 
+            # Reset circuit breaker on success
+            self._fail_count = 0
+
             sys_logger.log_system(
                 "debug",
-                f"Discovery processed: {intent_id} -> {result.get('label', 'unknown')} (confidence: {result.get('confidence', 0):.2f})",
+                f"Discovery processed: {intent_id} -> {result.get('label', 'unknown')} "
+                f"(confidence: {result.get('confidence', 0):.2f})",
             )
 
             return result
 
         except Exception as e:
-            sys_logger.log_system("warning", f"LLM Discovery Processing error: {e}")
+            # Circuit breaker logic
+            self._fail_count += 1
+            if self._fail_count >= 3:
+                self._open_until = time.time() + 60  # 1 minute cool-off
+
+            sys_logger.log_system(
+                "warning",
+                f"LLM Discovery Processing failed (#{self._fail_count}): {e}"
+            )
+
             # Fallback to rule-based classification
             return self._fallback_discovery_processing(
                 intent_id, clinical_content, str(e)
             )
 
-    def _create_discovery_prompt(
-        self,
-        intent_id: str,
-        doctor_question: str,
-        patient_response: str,
-        clinical_content: str,
-    ) -> str:
-        """Create a prompt for the LLM to process discovery information."""
-
-        # Create label options for the prompt
-        label_list = []
-        for label, info in self.all_labels.items():
-            label_list.append(
-                f"- {label}: {info['description']} (category: {info['category']})"
-            )
-
-        prompt = f"""You are a clinical AI assistant. Analyze this clinical information exchange and categorize it using ONE of the predefined labels.
-
-CLINICAL CONTEXT:
-- Doctor's Intent: {intent_id}
-- Doctor asked: "{doctor_question}"
-- Patient/Family responded: "{patient_response}"
-- Clinical Content: "{clinical_content}"
-
-AVAILABLE LABELS (choose EXACTLY one):
-{chr(10).join(label_list)}
-
-INSTRUCTIONS:
-1. Analyze the clinical content and context
-2. Choose the MOST APPROPRIATE label from the list above
-3. Provide a clean, clinical summary suitable for medical records
-4. Assess confidence in the categorization
-
-RESPOND with ONLY a JSON object in this exact format:
-{{
-    "label": "exact_label_from_list_above",
-    "category": "category_name",
-    "summary": "clean clinical summary (1-2 sentences)",
-    "confidence": 0.95,
-    "reasoning": "brief explanation of label choice"
-}}
-
-The label MUST be one of the exact labels listed above. Do not create new labels."""
-
-        return prompt
-
-    def _call_ollama(self, prompt: str) -> str:
-        """Call the Ollama API with the given prompt."""
-        payload = {
-            "model": self.model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.1,  # Low temperature for consistent categorization
-                "top_p": 0.9,
-            },
-        }
-
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.post(
-            f"{self.ollama_url}/api/generate", json=payload, headers=headers, timeout=30
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            return result.get("response", "")
-        else:
-            raise Exception(
-                f"Ollama API error: {response.status_code} - {response.text}"
-            )
-
     def _parse_discovery_response(
         self, llm_response: str, intent_id: str, clinical_content: str
     ) -> Dict[str, Any]:
-        """Parse the LLM's JSON response into structured discovery data."""
+        """Parse the LLM's JSON response into structured discovery data using Pydantic."""
         try:
             # Try to extract JSON from response
-            llm_response = llm_response.strip()
+            text = llm_response.strip()
 
             # Handle cases where LLM adds extra text around JSON
-            if "{" in llm_response and "}" in llm_response:
-                start = llm_response.find("{")
-                end = llm_response.rfind("}") + 1
-                json_str = llm_response[start:end]
-
-                parsed = json.loads(json_str)
-
-                # Validate required fields
-                label = parsed.get("label", "")
-                category = parsed.get("category", "")
-                summary = parsed.get("summary", clinical_content)
-                confidence = float(parsed.get("confidence", 0.5))
-                reasoning = parsed.get("reasoning", "LLM classification")
-
-                # Ensure label is valid
-                if label not in self.all_labels:
-                    # Try to find a close match or use fallback
-                    label = self._find_fallback_label(intent_id, clinical_content)
-                    category = self.all_labels[label]["category"]
-                    confidence = max(
-                        0.3, confidence * 0.5
-                    )  # Reduce confidence for fallback
-
-                # Ensure category matches label
-                if label in self.all_labels:
-                    category = self.all_labels[label]["category"]
-
-                return {
-                    "label": label,
-                    "category": category,
-                    "summary": summary,
-                    "confidence": confidence,
-                    "reasoning": reasoning,
-                    "original_content": clinical_content,
-                    "intent_context": intent_id,
-                }
-
-            else:
-                # Fallback if JSON parsing fails
+            if "{" not in text or "}" not in text:
                 return self._create_fallback_result(
-                    intent_id, clinical_content, "Could not parse LLM response"
+                    intent_id, clinical_content, "no_json"
                 )
+
+            json_str = text[text.find("{"):text.rfind("}") + 1]
+            data = json.loads(json_str)
+
+            # Validate with Pydantic
+            dto = DiscoveryLLMOut(
+                label=data.get("label", ""),
+                category=data.get("category", ""),
+                summary=data.get("summary", clinical_content),
+                confidence=float(data.get("confidence", 0.5)),
+                reasoning=data.get("reasoning", "LLM classification"),
+            )
+
+            label = dto.label
+            category = dto.category
+            confidence = dto.confidence
+
+            # Ensure label is valid
+            if label not in self.all_labels:
+                # Try to find a close match or use fallback
+                label = self._find_fallback_label(intent_id, clinical_content)
+                category = self.all_labels[label]["category"]
+                confidence = max(0.3, confidence * 0.5)  # Reduce confidence for fallback
+
+            # Ensure category matches label
+            if label in self.all_labels:
+                category = self.all_labels[label]["category"]
+
+            return {
+                "label": label,
+                "category": category,
+                "summary": dto.summary,
+                "confidence": confidence,
+                "reasoning": dto.reasoning,
+                "original_content": clinical_content,
+                "intent_context": intent_id,
+            }
 
         except (json.JSONDecodeError, ValueError, KeyError) as e:
             # Fallback for parsing errors
@@ -379,8 +355,8 @@ The label MUST be one of the exact labels listed above. Do not create new labels
         intent_id: str,
         clinical_content: str,
         error_msg: str,
-        label: str = None,
-        category: str = None,
+        label: Optional[str] = None,
+        category: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Create a fallback result structure."""
         if not label:
