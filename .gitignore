@@ -1,3 +1,10 @@
+# =============================================================================
+# SmartDoc Monorepo .gitignore
+# =============================================================================
+
+# ================================
+# Python - Standard
+# ================================
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -27,20 +34,12 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-
-# logs
-logs/
-*.log
-smartdoc_conversation_log.txt
-system_log.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -61,26 +60,6 @@ cover/
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -89,49 +68,7 @@ profile_default/
 ipython_config.py
 
 # pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
+.python-version
 
 # Environments
 .env
@@ -142,55 +79,101 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# ================================
+# Dependency Management
+# ================================
+# Poetry - Keep lock files for reproducible builds
+# poetry.lock  # Uncomment if you don't want to track lock files
 
-# Rope project settings
-.ropeproject
+# PDM
+.pdm.toml
+.pdm-python
+.pdm-build/
 
-# mkdocs documentation
-/site
+# PEP 582
+__pypackages__/
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# ================================
+# Web Framework Specific
+# ================================
+# Flask
+instance/
+.webassets-cache
 
-# Pyre type checker
-.pyre/
+# Django
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
+# ================================
+# IDE and Development Tools
+# ================================
+# VS Code
+.vscode/
 
 # PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+.idea/
 
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
+# Cursor AI
 .cursorignore
 .cursorindexingignore
 
+# Vim/Emacs
+*.swp
+*.swo
+*~
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Linters and formatters
+.ruff_cache/
+
+# ================================
+# Operating System
+# ================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+ehthumbs.db
+Thumbs.db
+
+# ================================
+# SmartDoc Monorepo Specific
+# ================================
+# Application logs and runtime files
+logs/
+*.log
+system_log.txt
+smartdoc_conversation_log.txt
+
+# Database files (development)
+apps/api/instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Model artifacts
+models/
+runs/
+checkpoints/
+
+# Data processing artifacts
+data/processed/
+data/interim/
+data/cache/
+
+# Legacy and cleanup artifacts
 old_structure/
-
-
-
-# Project cleanup artifacts - organizational files
 data/archive/
 docs/archive/
 docs/summaries/
@@ -198,50 +181,35 @@ docs/summaries/
 **/archive/
 **/summaries/
 
-# SmartDoc specific
-data/processed/
-data/interim/
-models/
-runs/
-
-# IDE and tools
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-venv/
-.venv/
-logs/
-models/
-**/__pycache__/
-*.pyc
-.DS_Store
-runs/
-*.log
-system_log.txt
-apps/api/system_log.txt
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-*.egg-info/
-dist/
+# Build and deployment artifacts
 build/
-venv/
-.venv/
-**/__pycache__/
-*.py[cod]
-.DS_Store
-logs/
-models/
-runs/
-*.log
-instance/
-.github/
+dist/
+
+# ================================
+# Documentation
+# ================================
+# Sphinx
+docs/_build/
+
+# MkDocs
+/site
+
+# ================================
+# Temporary and Cache Files
+# ================================
+# General cache
+.cache/
+*.tmp
+*.temp
+
+# Python cache
+*.pyc
+*.pyo
+
+# Other tools
+.scrapy
+.pybuilder/
+target/
+cython_debug/
+
+.github/instructions/instructions.instructions.md
