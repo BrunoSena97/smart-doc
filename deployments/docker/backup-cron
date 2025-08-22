@@ -1,0 +1,6 @@
+# deployments/docker/backup-cron
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Run at 03:15 every day
+15 3 * * * root test -f /data/smartdoc.sqlite3 && cp /data/smartdoc.sqlite3 /var/log/smartdoc/backups/smartdoc-$(date +\%F).sqlite3 && find /var/log/smartdoc/backups -type f -mtime +14 -delete || true

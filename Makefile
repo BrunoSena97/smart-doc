@@ -74,9 +74,17 @@ deploy-check: ## Check prerequisites for production deployment
 	@echo "🔍 Checking production deployment prerequisites..."
 	./scripts/check_prerequisites.sh
 
-deploy: ## Deploy to production with GPU support (Traefik setup)
-	@echo "🚀 Deploying SmartDoc to production with GPU acceleration..."
+deploy: ## Deploy to production with GPU support (multi-container)
+	@echo "🚀 Deploying SmartDoc with multi-container architecture..."
 	cd deployments && docker compose up --build -d
+
+deploy-single: ## Deploy to production with GPU support (single-container, RECOMMENDED)
+	@echo "🚀 Deploying SmartDoc with single-container architecture..."
+	cd deployments && docker compose -f compose-single.yaml up --build -d
+
+deploy-test: ## Test both deployment architectures
+	@echo "🧪 Testing both deployment architectures..."
+	cd deployments && ./test_deployments.sh
 
 deploy-dev: ## Deploy development version with GPU support (for testing)
 	@echo "🔧 Deploying SmartDoc in development mode with GPU..."
