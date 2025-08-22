@@ -54,84 +54,31 @@ test-api: ## Quick test of API endpoints
 	@echo "\nChat API:" && curl -s -X POST http://localhost:8000/api/v1/chat -H "Content-Type: application/json" -d '{"message":"test"}'
 	@echo "\nLegacy chat:" && curl -s -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d '{"message":"test"}'
 
+# Docker deployment commands (requires external Ollama)
+deploy: ## Deploy production (requires external Ollama running)
+	@echo "🚀 Deploying SmartDoc with external Ollama..."
+	@echo "📋 Ensure Ollama is running: ollama serve"
+	cd deployments && docker compose up --build -d
+
+deploy-dev: ## Deploy with logs (development mode)
+	@echo "🔧 Deploying SmartDoc in development mode..."
+	cd deployments && docker compose up --build
+
+deploy-down: ## Stop deployment
+	@echo "⏹️ Stopping deployment..."
+	cd deployments && docker compose down
+
+deploy-logs: ## Show deployment logs
+	@echo "📋 Showing deployment logs..."
+	cd deployments && docker compose logs -f
+
+deploy-health: ## Check deployment health
+	@echo "🏥 Checking deployment health..."
+	@curl -s http://localhost:8000/health | jq '.' || echo "Deployment not responding"
+
 docker-build: ## Build Docker containers
 	@echo "🐳 Building Docker containers..."
 	cd deployments && docker compose build
-
-docker-up: ## Start Docker containers
-	@echo "🐳 Starting Docker containers..."
-	cd deployments && docker compose up --build
-
-docker-down: ## Stop Docker containers
-	cd deployments && docker compose down
-
-# Production deployment commands
-deploy-production: ## Complete automated production deployment
-	@echo "🚀 Starting automated production deployment..."
-	./scripts/deploy_production.sh
-
-deploy-check: ## Check prerequisites for production deployment
-	@echo "🔍 Checking production deployment prerequisites..."
-	./scripts/check_prerequisites.sh
-
-deploy: ## Deploy to production with GPU support (multi-container)
-	@echo "🚀 Deploying SmartDoc with multi-container architecture..."
-	cd deployments && docker compose up --build -d
-
-deploy-single: ## Deploy to production with GPU support (single-container, RECOMMENDED)
-	@echo "🚀 Deploying SmartDoc with single-container architecture..."
-	cd deployments && docker compose -f compose-single.yaml up --build -d
-
-deploy-test: ## Test both deployment architectures
-	@echo "🧪 Testing both deployment architectures..."
-	cd deployments && ./test_deployments.sh
-
-deploy-dev: ## Deploy development version with GPU support (for testing)
-	@echo "🔧 Deploying SmartDoc in development mode with GPU..."
-	cd deployments && docker compose up --build
-
-deploy-status: ## Check deployment status and GPU utilization
-	@echo "📊 Checking deployment status..."
-	cd deployments && make status
-
-deploy-monitor: ## Launch interactive deployment monitoring
-	@echo "📊 Starting deployment monitoring..."
-	cd deployments && make monitor
-
-deploy-setup-models: ## Setup Ollama models for GPU deployment
-	@echo "🤖 Setting up Ollama models..."
-	cd deployments && make setup-models
-
-dev-up: ## Start development environment with Docker (live reload)
-	@echo "🚀 Starting development environment..."
-	cd deployments && docker compose --profile dev up --build
-
-prod-up: ## Start production environment with Docker
-	@echo "🏭 Starting production environment..."
-	cd deployments && docker compose --profile prod up --build -d
-
-down: ## Stop all Docker containers
-	@echo "⏹️ Stopping containers..."
-	cd deployments && docker compose down
-
-logs: ## Show Docker container logs
-	@echo "📋 Showing container logs..."
-	cd deployments && docker compose logs -f api
-
-logs-web: ## Show web container logs
-	cd deployments && docker compose logs -f web
-
-ps: ## Show running containers
-	@echo "📊 Container status:"
-	cd deployments && docker compose ps
-
-restart: ## Restart containers
-	@echo "🔄 Restarting containers..."
-	cd deployments && docker compose restart
-
-test-deployment: ## Test deployment health
-	@echo "🧪 Testing deployment..."
-	cd deployments && python test_deployment.py
 
 format: ## Format and lint code
 	@echo "🧹 Formatting code..."
@@ -173,7 +120,7 @@ db-reset: ## Reset database (WARNING: deletes all data)
 db-inspect: ## Inspect the current database schema
 	cd apps/api && poetry run python -c "import sqlite3; db=sqlite3.connect('var/dev.sqlite3'); [print(row) for row in db.execute('SELECT name FROM sqlite_master WHERE type=\"table\";')]; db.close()"
 
-db-peek:
+db-peek: ## Quick database stats
 	cd apps/api && poetry run sqlite3 instance/smartdoc_dev.sqlite3 \
 	"SELECT 'conversations',COUNT(*) FROM conversations UNION ALL \
 	 SELECT 'messages',COUNT(*) FROM messages UNION ALL \

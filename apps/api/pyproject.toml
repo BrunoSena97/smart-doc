@@ -15,6 +15,7 @@ pyyaml = "^6.0.0"
 pyjwt = "^2.9"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 bcrypt = "~4.0.0"  # Pin to 4.0.x to avoid compatibility issues
+gunicorn = "^21.2.0"  # Production WSGI server
 # Bring in your core package as a local path dependency (editable)
 smartdoc-core = { path = "../../packages/core", develop = true }
 sqlalchemy = "^2.0.43"
