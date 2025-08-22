@@ -25,6 +25,12 @@ class User(Base):
     usage_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime)
+    # Admin-related fields
+    email: Mapped[str | None] = mapped_column(String(255), index=True)
+    age: Mapped[int | None] = mapped_column(Integer)
+    sex: Mapped[str | None] = mapped_column(String(20))
+    medical_experience: Mapped[str | None] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(20), default="user", nullable=False)  # 'admin' | 'user'
 
 class AuthSession(Base):
     __tablename__ = "auth_sessions"
@@ -109,3 +115,39 @@ class ReflectionResponse(Base):
     answer: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
     diagnosis = relationship("DiagnosisSubmission", back_populates="reflections")
+
+class LLMProfile(Base):
+    __tablename__ = "llm_profiles"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False)  # 'ollama', 'openai', etc.
+    model: Mapped[str] = mapped_column(String(255), nullable=False)
+    temperature: Mapped[float] = mapped_column(Float, default=0.1, nullable=False)
+    top_p: Mapped[float] = mapped_column(Float, default=0.9, nullable=False)
+    max_tokens: Mapped[int | None] = mapped_column(Integer)
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    # Relationship to agent prompts
+    prompts = relationship("AgentPrompt", back_populates="profile", cascade="all, delete-orphan")
+
+class AgentPrompt(Base):
+    __tablename__ = "agent_prompts"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    agent_key: Mapped[str] = mapped_column(String(64), nullable=False)  # 'son', 'resident', 'exam'
+    profile_id: Mapped[int | None] = mapped_column(ForeignKey("llm_profiles.id"), index=True)
+    prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    # Relationship
+    profile = relationship("LLMProfile", back_populates="prompts")
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    actor_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    action: Mapped[str] = mapped_column(String(128), nullable=False)
+    payload: Mapped[str | None] = mapped_column(Text)  # JSON string
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    # Relationship
+    actor = relationship("User")

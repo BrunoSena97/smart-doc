@@ -10,10 +10,11 @@ logging:
   level: "WARNING"
   file: "/var/log/smartdoc/application.log"
 
-# Production Ollama settings
+# Production Ollama settings - using Docker internal service
 ollama:
-  base_url: "http://ollama-service:11434"
+  base_url: "http://ollama:11434" # Internal Docker service
   timeout: 60
+  model: "gemma3:4b-it-q4_K_M" # Default production model
 
 database:
   url: "sqlite:////var/smartdoc/data/prod.sqlite3" # or postgres+psycopg2://user:pass@host/db

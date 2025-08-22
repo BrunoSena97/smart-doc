@@ -58,7 +58,13 @@ def create_app() -> Flask:
 
     # Load configuration from YAML
     cfg = _load_config()
-    app.config["DATABASE"] = cfg.get("database", {})
+
+    # Database configuration - support environment override
+    db_config = cfg.get("database", {})
+    if "SMARTDOC_DB_URL" in os.environ:
+        db_config["url"] = os.environ["SMARTDOC_DB_URL"]
+
+    app.config["DATABASE"] = db_config
     app.config["SECRET_KEY"] = "smartdoc-dev-key-change-in-production"
 
     # Initialize database
@@ -67,18 +73,29 @@ def create_app() -> Flask:
     # Register blueprints
     from .routes import bp as api_v1
     from .routes.auth import bp as auth_bp
+    from .routes.admin import bp as admin_bp
 
     app.register_blueprint(api_v1, url_prefix="/api/v1")
     app.register_blueprint(auth_bp, url_prefix="/api/v1")
+    app.register_blueprint(admin_bp)  # Already has /api/v1/admin prefix
 
     # Legacy routes (for backward compatibility during migration)
     from .routes.legacy import bp as legacy_bp
 
     app.register_blueprint(legacy_bp)
 
-    # Health check endpoint
+    # Health check endpoints
     @app.get("/health")
     def health():
         return {"status": "ok", "service": "smartdoc-api", "version": __version__}
 
+    @app.get("/healthz")
+    def healthz():
+        """Kubernetes-style health check endpoint."""
+        return {"ok": True}
+
     return app
+
+
+# Application instance for WSGI servers (Gunicorn, etc.)
+app = create_app()

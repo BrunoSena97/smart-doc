@@ -59,11 +59,71 @@ docker-build: ## Build Docker containers
 	cd deployments && docker compose build
 
 docker-up: ## Start Docker containers
-	@echo "� Starting Docker containers..."
+	@echo "🐳 Starting Docker containers..."
 	cd deployments && docker compose up --build
 
 docker-down: ## Stop Docker containers
 	cd deployments && docker compose down
+
+# Production deployment commands
+deploy-production: ## Complete automated production deployment
+	@echo "🚀 Starting automated production deployment..."
+	./scripts/deploy_production.sh
+
+deploy-check: ## Check prerequisites for production deployment
+	@echo "🔍 Checking production deployment prerequisites..."
+	./scripts/check_prerequisites.sh
+
+deploy: ## Deploy to production with GPU support (Traefik setup)
+	@echo "🚀 Deploying SmartDoc to production with GPU acceleration..."
+	cd deployments && docker compose up --build -d
+
+deploy-dev: ## Deploy development version with GPU support (for testing)
+	@echo "🔧 Deploying SmartDoc in development mode with GPU..."
+	cd deployments && docker compose up --build
+
+deploy-status: ## Check deployment status and GPU utilization
+	@echo "📊 Checking deployment status..."
+	cd deployments && make status
+
+deploy-monitor: ## Launch interactive deployment monitoring
+	@echo "📊 Starting deployment monitoring..."
+	cd deployments && make monitor
+
+deploy-setup-models: ## Setup Ollama models for GPU deployment
+	@echo "🤖 Setting up Ollama models..."
+	cd deployments && make setup-models
+
+dev-up: ## Start development environment with Docker (live reload)
+	@echo "🚀 Starting development environment..."
+	cd deployments && docker compose --profile dev up --build
+
+prod-up: ## Start production environment with Docker
+	@echo "🏭 Starting production environment..."
+	cd deployments && docker compose --profile prod up --build -d
+
+down: ## Stop all Docker containers
+	@echo "⏹️ Stopping containers..."
+	cd deployments && docker compose down
+
+logs: ## Show Docker container logs
+	@echo "📋 Showing container logs..."
+	cd deployments && docker compose logs -f api
+
+logs-web: ## Show web container logs
+	cd deployments && docker compose logs -f web
+
+ps: ## Show running containers
+	@echo "📊 Container status:"
+	cd deployments && docker compose ps
+
+restart: ## Restart containers
+	@echo "🔄 Restarting containers..."
+	cd deployments && docker compose restart
+
+test-deployment: ## Test deployment health
+	@echo "🧪 Testing deployment..."
+	cd deployments && python test_deployment.py
 
 format: ## Format and lint code
 	@echo "🧹 Formatting code..."
