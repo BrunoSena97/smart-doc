@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  smartdoc:
+    build:
+      context: ..
+      dockerfile: deployments/docker/Dockerfile.smartdoc
+    container_name: smartdoc
+    # GPU passthrough; requires NVIDIA Container Toolkit on the HOST
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      # App
+      FLASK_ENV: production
+      LOG_LEVEL: INFO
+      # Ollama
+      OLLAMA_KEEP_ALIVE: 10m
+      OLLAMA_NUM_GPU: "1"
+      # SmartDoc config overrides (adjust as you like)
+      OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+      OLLAMA_MODEL: "gemma3:4b-it-q4_K_M"
+      SMARTDOC_ENV: "prod"
+      SMARTDOC_DB_PATH: "/data/smartdoc.sqlite3"
+      # Database URL for the app
+      SMARTDOC_DB_URL: "sqlite:////data/smartdoc.sqlite3"
+    ports:
+      - "8000:8000"   # container's Gunicorn 8000 -> host 8000
+    volumes:
+      - smartdoc_db:/data                      # SQLite
+      - smartdoc_logs:/var/log/smartdoc        # our logs
+      - smartdoc_ollama:/root/.ollama          # models cache
+      # Mount the web assets for serving
+      - ../apps/web/public:/app/web:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/healthz || exit 1"]
+      interval: 20s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  smartdoc_db:
+  smartdoc_logs:
+  smartdoc_ollama:

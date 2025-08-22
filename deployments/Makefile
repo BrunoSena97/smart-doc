@@ -3,44 +3,93 @@
 
 .PHONY: help deploy deploy-dev down logs health setup-models monitor clean
 
+# SmartDoc Deployment Management
+# RTX 4070 Ti SUPER Optimized
+
+.PHONY: help deploy deploy-single deploy-dev down logs health setup-models monitor clean
+
 help: ## Show this help message
 	@echo "SmartDoc Deployment Commands (RTX 4070 Ti SUPER Optimized)"
 	@echo "=========================================================="
+	@echo "Multi-container (current):"
+	@echo "  make deploy                # Multi-container deployment (Ollama + API + Web)"
+	@echo ""
+	@echo "Single-container (new):"
+	@echo "  make deploy-single         # Single container with everything included"
+	@echo "  make deploy-single-dev     # Single container with logs"
+	@echo ""
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-deploy: ## Deploy production services with GPU support
-	@echo "🚀 Deploying SmartDoc with GPU acceleration..."
+deploy: ## Deploy multi-container services with GPU support
+	@echo "🚀 Deploying SmartDoc with multi-container architecture..."
 	docker-compose up -d
 	@echo "✅ Deployment complete! Services starting..."
 	@echo "📊 Run 'make setup-models' to configure Ollama models"
 
-deploy-dev: ## Deploy with logs attached for development
+deploy-single: ## Deploy single-container service with GPU support (RECOMMENDED)
+	@echo "🚀 Deploying SmartDoc with single-container architecture..."
+	docker-compose -f compose-single.yaml up -d
+	@echo "✅ Single-container deployment complete!"
+	@echo "📊 Ollama models will be automatically pulled during startup"
+
+deploy-single-dev: ## Deploy single-container with logs attached for development
+	@echo "🔧 Starting single-container development deployment with logs..."
+	docker-compose -f compose-single.yaml up
+
+deploy-dev: ## Deploy multi-container with logs attached for development
 	@echo "🔧 Starting development deployment with logs..."
 	docker-compose up
 
 down: ## Stop all services and remove containers
 	@echo "🛑 Stopping all services..."
-	docker-compose down
+	docker-compose down || true
+	docker-compose -f compose-single.yaml down || true
 
-logs: ## Show logs from all services
+down-single: ## Stop single-container deployment
+	@echo "🛑 Stopping single-container deployment..."
+	docker-compose -f compose-single.yaml down
+
+logs: ## Show logs from all services (multi-container)
 	docker-compose logs -f
 
-logs-api: ## Show API service logs
+logs-single: ## Show logs from single container
+	docker-compose -f compose-single.yaml logs -f smartdoc
+
+logs-api: ## Show API service logs (multi-container)
 	docker-compose logs -f api
 
-logs-ollama: ## Show Ollama service logs
+logs-ollama: ## Show Ollama service logs (multi-container)
 	docker-compose logs -f ollama
 
-logs-web: ## Show web service logs
+logs-web: ## Show web service logs (multi-container)
 	docker-compose logs -f web
 
-health: ## Check health of all services
+health: ## Check health of all services (auto-detect deployment type)
 	@echo "🏥 Checking service health..."
-	@docker-compose ps
+	@if docker-compose -f compose-single.yaml ps smartdoc 2>/dev/null | grep -q "Up"; then \
+		echo "Single-container deployment detected:"; \
+		docker-compose -f compose-single.yaml ps; \
+		echo ""; \
+		echo "🌐 Testing endpoints..."; \
+		curl -s http://localhost:8000/healthz && echo "✅ API healthy" || echo "❌ API unhealthy"; \
+		echo "🤖 Checking Ollama in container..."; \
+		docker-compose -f compose-single.yaml exec smartdoc curl -s http://localhost:11434/api/tags >/dev/null && echo "✅ Ollama healthy" || echo "❌ Ollama unhealthy"; \
+	else \
+		echo "Multi-container deployment:"; \
+		docker-compose ps; \
+		echo ""; \
+		echo "🌐 Testing web endpoint..."; \
+		curl -s http://localhost:8000/healthz && echo "✅ API healthy" || echo "❌ API unhealthy"; \
+		curl -s http://localhost:8000 > /dev/null && echo "✅ Web healthy" || echo "❌ Web unhealthy"; \
+	fi
+
+health-single: ## Check health of single-container deployment
+	@echo "🏥 Checking single-container health..."
+	@docker-compose -f compose-single.yaml ps
 	@echo ""
-	@echo "🌐 Testing web endpoint..."
+	@echo "🌐 Testing endpoints..."
 	@curl -s http://localhost:8000/healthz && echo "✅ API healthy" || echo "❌ API unhealthy"
-	@curl -s http://localhost:8000 > /dev/null && echo "✅ Web healthy" || echo "❌ Web unhealthy"
+	@docker-compose -f compose-single.yaml exec smartdoc curl -s http://localhost:11434/api/tags >/dev/null && echo "✅ Ollama healthy" || echo "❌ Ollama unhealthy"
 
 setup-models: ## Interactive Ollama model setup for RTX 4070 Ti SUPER
 	@echo "🤖 Setting up Ollama models..."
