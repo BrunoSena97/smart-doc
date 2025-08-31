@@ -1,25 +1,49 @@
 services:
-  smartdoc:
+
+  ollama:
+    image: ollama/ollama:0.11.7
+    container_name: ollama
+    environment:
+      # Listen on all interfaces so other containers can reach it
+      OLLAMA_HOST: "0.0.0.0"
+      # Optional tuning:
+      OLLAMA_KEEP_ALIVE: "24h"
+      OLLAMA_CONTEXT_LENGTH: "4096"
+    volumes:
+      - smartdoc_ollama:/root/.ollama
+    ports:
+      - "11434:11434"   # expose for manual testing if you want
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "curl -fsS http://127.0.0.1:11434/api/tags >/dev/null"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+smartdoc:
     build:
       context: ..
       dockerfile: deployments/Dockerfile
     container_name: smartdoc
     environment:
-      # App
       FLASK_ENV: production
       LOG_LEVEL: INFO
-      # External Ollama (running on host with GPU)
-      SMARTDOC_OLLAMA_BASE_URL: "http://172.19.0.1:11434"
+      # Point SmartDoc at the **service name** (internal Docker DNS):
+      SMARTDOC_OLLAMA_BASE_URL: "http://ollama:11434"
       OLLAMA_MODEL: "gemma3:4b-it-q4_K_M"
-      # Database
+      # SQLite file persisted in a volume
       SMARTDOC_DB_URL: "sqlite:////data/smartdoc.sqlite3"
+    depends_on:
+      ollama:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
       - smartdoc_data:/data
       - ../apps/web/public:/app/web:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/healthz || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/healthz >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -28,3 +52,4 @@ services:
 
 volumes:
   smartdoc_data:
+  smartdoc_ollama:
