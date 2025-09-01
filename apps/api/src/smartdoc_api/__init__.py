@@ -74,10 +74,12 @@ def create_app() -> Flask:
     from .routes import bp as api_v1
     from .routes.auth import bp as auth_bp
     from .routes.admin import bp as admin_bp
+    from .routes.evaluation import bp as evaluation_bp
 
     app.register_blueprint(api_v1, url_prefix="/api/v1")
     app.register_blueprint(auth_bp, url_prefix="/api/v1")
     app.register_blueprint(admin_bp)  # Already has /api/v1/admin prefix
+    app.register_blueprint(evaluation_bp)  # Already has /api/v1/evaluation prefix
 
     # Legacy routes (for backward compatibility during migration)
     from .routes.legacy import bp as legacy_bp
