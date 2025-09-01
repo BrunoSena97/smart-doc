@@ -31,9 +31,8 @@ from smartdoc_core.simulation.disclosure_store import ProgressiveDisclosureStore
 from smartdoc_core.simulation.session_logger import SessionLogger, create_session_logger
 from smartdoc_core.simulation.types import DiscoveryEvent, InformationBlock
 from smartdoc_core.intent.classifier import LLMIntentClassifier
-from smartdoc_core.discovery.processor import LLMDiscoveryProcessor
+from smartdoc_core.discovery.processor import DiscoveryClassifier
 from smartdoc_core.llm.providers.ollama import OllamaProvider
-from smartdoc_core.discovery.prompts.default import DefaultDiscoveryPrompt
 from smartdoc_core.simulation.bias_analyzer import BiasEvaluator
 from smartdoc_core.simulation.responders import (
     AnamnesisSonResponder,
@@ -97,10 +96,13 @@ class IntentDrivenDisclosureManager:
         self.intent_classifier = intent_classifier or LLMIntentClassifier(provider=self.provider)
 
         # Initialize modular discovery processor with dependency injection
-        self.discovery_processor = discovery_processor or LLMDiscoveryProcessor(
+        self.discovery_processor = discovery_processor or DiscoveryClassifier(
             provider=self.provider,
-            prompt_builder=DefaultDiscoveryPrompt()
+            mode="deterministic"  # Use deterministic mode for intent-driven cases
         )
+
+        # Build case labels mapping for deterministic discovery classification
+        self.case_labels_map = self._build_case_labels_mapping()
 
         # Initialize responders by context with dependency injection
         self.responders = responders or {
@@ -156,6 +158,108 @@ class IntentDrivenDisclosureManager:
                 "warning",
                 "No intentBlockMappings found in case file - using empty mappings",
             )
+
+    def _build_case_labels_mapping(self) -> Dict[str, Dict[str, str]]:
+        """
+        Build case labels mapping from information blocks for deterministic discovery.
+        Maps blockId -> {label, category, description}
+        """
+        case_labels_map = {}
+
+        if not self.store.case_data or "informationBlocks" not in self.store.case_data:
+            return case_labels_map
+
+        # Mapping from blockType and content patterns to discovery labels
+        block_type_to_labels = {
+            "Demographics": {
+                "age": "Patient Age",
+                "language": "Language Barrier",
+                "records": "Medical Records",
+                "social": "Social Context"
+            },
+            "History": {
+                "chief": "Chief Complaint",
+                "onset": "Onset and Duration",
+                "shortness": "Shortness of Breath",
+                "dyspnea": "Shortness of Breath",
+                "cough": "Cough Symptoms",
+                "weight": "Weight Loss",
+                "appetite": "Appetite Changes",
+                "eating": "Appetite Changes",
+                "chest_pain": "Pertinent Negatives",
+                "fever": "Pertinent Negatives",
+                "chills": "Pertinent Negatives",
+                "medical_care": "Recent Medical Care",
+                "pmh": "Past Medical History"
+            },
+            "Medications": {
+                "current": "Current Medications",
+                "uncertainty": "Medication Uncertainty",
+                "arthritis": "Arthritis Medications",
+                "infliximab": "Arthritis Medications",
+                "blood_pressure": "Blood Pressure Medications",
+                "diabetes": "Diabetes Medications"
+            },
+            "PhysicalExam": {
+                "vital": "Vital Signs",
+                "general": "General Appearance",
+                "cardiac": "Heart Examination",
+                "cardiovascular": "Heart Examination",
+                "respiratory": "Lung Examination",
+                "pulmonary": "Lung Examination"
+            },
+            "Labs": {
+                "default": "Lab Results"
+            },
+            "Imaging": {
+                "chest": "Chest X-ray",
+                "echo": "Echocardiogram",
+                "ct": "CT Scan",
+                "default": "Other Imaging"
+            }
+        }
+
+        for block in self.store.case_data["informationBlocks"]:
+            block_id = block["blockId"]
+            block_type = block["blockType"]
+            content = block["content"].lower()
+
+            # Find appropriate label based on block type and content
+            label = "Clinical Concerns"  # Default
+
+            if block_type in block_type_to_labels:
+                type_labels = block_type_to_labels[block_type]
+
+                # Look for keyword matches in content
+                for keyword, candidate_label in type_labels.items():
+                    if keyword == "default":
+                        label = candidate_label
+                    elif keyword in content or keyword in block_id.lower():
+                        label = candidate_label
+                        break
+
+            # Map block type to category
+            category = self._map_block_type_to_category(block_type)
+
+            case_labels_map[block_id] = {
+                "label": label,
+                "category": category,
+                "description": f"{label} information from {block_type.lower()}"
+            }
+
+        sys_logger.log_system("info", f"Built case labels mapping for {len(case_labels_map)} blocks")
+        return case_labels_map
+
+    def _map_block_type_to_category(self, block_type: str) -> str:
+        """Map block type to discovery category."""
+        return {
+            "Demographics": "patient_profile",
+            "History": "presenting_symptoms",
+            "Medications": "current_medications",
+            "PhysicalExam": "physical_examination",
+            "Labs": "diagnostic_results",
+            "Imaging": "diagnostic_results"
+        }.get(block_type, "clinical_assessment")
 
     def start_intent_driven_session(self, session_id: Optional[str] = None) -> str:
         """Start a new intent-driven disclosure session."""
@@ -664,12 +768,15 @@ class IntentDrivenDisclosureManager:
             if block_id in session.blocks:
                 block = session.blocks[block_id]
 
-                # Use LLM Discovery Processor to categorize and label the discovery
+                # Use Discovery Processor to categorize and label the discovery
                 discovery_info = self.discovery_processor.process_discovery(
+                    block_id=block_id,
+                    block_type=block.block_type,
+                    clinical_content=block.content,
                     intent_id=intent_result["intent_id"],
                     doctor_question=intent_result.get("original_input", ""),
                     patient_response="",
-                    clinical_content=block.content,
+                    case_labels_map=self.case_labels_map,
                 )
 
                 discoveries.append({
