@@ -97,6 +97,10 @@ class ProgressiveDisclosureStore:
                 block_type=block_data["blockType"],
                 content=block_data["content"],
                 is_critical=block_data.get("isCritical", False),
+                group_id=block_data.get("groupId"),
+                level=block_data.get("level"),
+                prerequisites=block_data.get("prerequisites"),
+                reveal_policy=block_data.get("revealPolicy", "escalate"),
             )
             blocks[block.block_id] = block
 

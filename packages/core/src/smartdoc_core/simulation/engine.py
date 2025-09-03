@@ -391,7 +391,7 @@ class IntentDrivenDisclosureManager:
     def _discover_blocks_for_intent(
         self, session_id: str, intent_id: str, user_query: str, confidence: float
     ) -> Dict[str, Any]:
-        """Discover information blocks based on the classified intent."""
+        """Discover information blocks based on the classified intent with escalation support."""
         session = self.store.get_session(session_id)
         if not session:
             return {
@@ -403,29 +403,78 @@ class IntentDrivenDisclosureManager:
         discovered_blocks = []
         trigger_type = "none"
 
-        # Direct intent mapping - rely on LLM classification
+        # Enhanced intent mapping with group escalation support
         if intent_id in self.intent_block_mappings:
-            mapped_blocks = self.intent_block_mappings[intent_id]
-            for block_id in mapped_blocks:
-                if (
-                    block_id in session.blocks
-                    and not session.blocks[block_id].is_revealed
-                ):
-                    # Reveal the block
-                    reveal_result = self.store.reveal_block(
-                        session_id, block_id, user_query
-                    )
-                    if reveal_result.get("success"):
-                        discovered_blocks.append(block_id)
-                        trigger_type = "direct"
+            mapped_targets = self.intent_block_mappings[intent_id]
+
+            for target in mapped_targets:
+                # Check if target is a groupId or blockId
+                if self._is_group_id(target):
+                    # Group escalation: find next eligible block in group
+                    next_block = self._find_next_eligible_block_in_group(session, target)
+                    if next_block:
+                        reveal_result = self.store.reveal_block(
+                            session_id, next_block.block_id, user_query
+                        )
+                        if reveal_result.get("success"):
+                            discovered_blocks.append(next_block.block_id)
+                            trigger_type = "escalate"
+                else:
+                    # Legacy block ID support
+                    if (
+                        target in session.blocks
+                        and not session.blocks[target].is_revealed
+                    ):
+                        reveal_result = self.store.reveal_block(
+                            session_id, target, user_query
+                        )
+                        if reveal_result.get("success"):
+                            discovered_blocks.append(target)
+                            trigger_type = "direct"
 
         return {
             "discovered_blocks": discovered_blocks,
-            "new_discoveries": discovered_blocks,  # Add this key for consistency
+            "new_discoveries": discovered_blocks,
             "trigger_type": trigger_type,
             "intent_id": intent_id,
             "confidence": confidence,
         }
+
+    def _is_group_id(self, target: str) -> bool:
+        """Check if target is a group ID (starts with 'grp_')."""
+        return target.startswith("grp_")
+
+    def _find_next_eligible_block_in_group(self, session, group_id: str):
+        """Find the next unrevealed block in a group whose prerequisites are met."""
+        # Get all blocks in the group
+        group_blocks = []
+        for block in session.blocks.values():
+            block_group_id = getattr(block, 'group_id', None)
+            if block_group_id == group_id:
+                group_blocks.append(block)
+
+        # Sort by level (ascending), then by block_id for deterministic ordering
+        group_blocks.sort(key=lambda x: (getattr(x, 'level', 999), x.block_id))
+
+        # Find first unrevealed block whose prerequisites are satisfied
+        for block in group_blocks:
+            if not block.is_revealed and self._prerequisites_satisfied(session, block):
+                return block
+
+        return None
+
+    def _prerequisites_satisfied(self, session, block) -> bool:
+        """Check if all prerequisites for a block are satisfied."""
+        prerequisites = getattr(block, 'prerequisites', []) or []
+        if not prerequisites:
+            return True
+
+        # All prerequisite blocks must be revealed
+        for req_block_id in prerequisites:
+            if req_block_id not in session.revealed_blocks:
+                return False
+
+        return True
 
     def _generate_labs_fallback_response(self, intent_id: str) -> str:
         """Generate appropriate resident response when requested tests are not available."""

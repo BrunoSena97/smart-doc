@@ -67,6 +67,12 @@ class InformationBlock:
     revealed_at: Optional[datetime] = None
     revealed_by_query: Optional[str] = None
 
+    # Escalation system fields
+    group_id: Optional[str] = None
+    level: Optional[int] = None
+    prerequisites: Optional[List[str]] = None
+    reveal_policy: str = "escalate"  # "escalate" or "all"
+
 
 @dataclass
 class StudentInteraction:
