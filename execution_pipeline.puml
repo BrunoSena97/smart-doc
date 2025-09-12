@@ -1,0 +1,96 @@
+@startuml SmartDoc_Execution_Pipeline
+!theme plain
+
+title SmartDoc Execution Pipeline - User Query Processing
+
+actor "Medical Student" as Student
+participant "Frontend UI" as Frontend
+participant "Flask API" as API
+participant "Intent Classifier" as IntentClassifier
+participant "Discovery Processor" as DiscoveryProcessor
+participant "Bias Analyzer" as BiasAnalyzer
+participant "Simulation Engine" as Engine
+participant "LLM Provider" as LLM
+participant "Session Logger" as Logger
+participant "Database" as DB
+
+== Query Processing Flow ==
+
+Student -> Frontend: Enters clinical query\n"What are the vital signs?"
+
+Frontend -> API: POST /api/v1/chat\n{message, context, session_id}
+
+API -> Engine: process_doctor_query()\nsession_id, query, context
+
+note over Engine: Central orchestrator\ncoordinates all components
+
+== 1. Intent Classification ==
+
+Engine -> IntentClassifier: classify_intent(query, context)
+
+IntentClassifier -> LLM: Generate intent classification\nwith context filtering
+
+LLM -> IntentClassifier: Intent: "vital_signs_inquiry"\nConfidence: 0.92
+
+IntentClassifier -> Engine: {intent_id, confidence, reasoning}
+
+== 2. Discovery Processing ==
+
+Engine -> DiscoveryProcessor: discover_blocks_for_intent()\nintent_id, query, context
+
+note over DiscoveryProcessor: Deterministic classification\nwith LLM fallback
+
+DiscoveryProcessor -> DiscoveryProcessor: Check case metadata\nfor intent mapping
+
+alt Deterministic mapping available
+    DiscoveryProcessor -> Engine: {blocks, category, confidence: 0.95}
+else LLM fallback needed
+    DiscoveryProcessor -> LLM: Classify clinical content
+    LLM -> DiscoveryProcessor: Classification result
+    DiscoveryProcessor -> Engine: {blocks, category, confidence: 0.8}
+end
+
+== 3. Response Generation ==
+
+Engine -> Engine: generate_discovery_response()\nwith context-specific responder
+
+note over Engine: Uses context-specific\nresponder strategy
+
+Engine -> LLM: Generate contextual response\nwith discovered information
+
+LLM -> Engine: Patient response text
+
+== 4. Bias Detection ==
+
+Engine -> BiasAnalyzer: check_real_time_bias()\nsession_interactions, intent, query
+
+BiasAnalyzer -> BiasAnalyzer: Rule-based pattern analysis\n+ LLM reasoning evaluation
+
+alt Bias detected
+    BiasAnalyzer -> Engine: {detected: true, bias_type, message}
+    Engine -> Logger: Log bias warning
+else No bias
+    BiasAnalyzer -> Engine: {detected: false}
+end
+
+== 5. Session Management ==
+
+Engine -> Logger: Log discovery event\n{intent, blocks, timestamp}
+
+Engine -> DB: Persist session data\nmessages, discoveries, biases
+
+== 6. Response Assembly ==
+
+Engine -> API: {success: true, response, discoveries,\nbias_warnings, session_stats}
+
+API -> DB: Store conversation\nadd_message(), add_discoveries()
+
+API -> Frontend: JSON response\n{reply, discovery_events, bias_warnings}
+
+Frontend -> Student: Display patient response\n+ discovery highlights\n+ bias alerts (if any)
+
+== Progressive Disclosure Visualization ==
+
+note over Frontend: Updates progress indicators\nHighlights new information\nShows bias warnings
+
+@enduml

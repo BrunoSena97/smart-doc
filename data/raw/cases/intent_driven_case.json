@@ -19,204 +19,293 @@
       "blockType": "Demographics",
       "content": "Patient is an elderly Spanish-speaking woman, 85 years old. Son provides the history due to language barrier.",
       "isCritical": false,
-      "intentTriggers": ["profile_age", "profile_language", "profile_social_context_historian"]
+      "intentTriggers": [
+        "profile_age",
+        "profile_language",
+        "profile_social_context_historian"
+      ],
+      "groupId": "grp_demographics",
+      "level": 1
     },
     {
       "blockId": "demo_records",
       "blockType": "Demographics",
       "content": "Most of her medical records are from another health system, making initial medication reconciliation difficult.",
       "isCritical": false,
-      "intentTriggers": ["profile_medical_records"]
+      "intentTriggers": ["profile_medical_records"],
+      "groupId": "grp_demographics",
+      "level": 2
     },
     {
       "blockId": "hpi_dyspnea_details",
       "blockType": "History",
       "content": "Shortness of breath is worse with exertion. Associated with nonproductive cough.",
       "isCritical": false,
-      "intentTriggers": ["hpi_chief_complaint", "hpi_shortness_of_breath", "hpi_cough"]
+      "intentTriggers": [
+        "hpi_chief_complaint",
+        "hpi_shortness_of_breath",
+        "hpi_cough"
+      ],
+      "groupId": "grp_hpi_symptoms",
+      "level": 1
     },
     {
       "blockId": "hpi_weight_changes",
       "blockType": "History",
       "content": "The patient's son has noticed decreased oral intake and weight loss over the past few weeks.",
       "isCritical": true,
-      "intentTriggers": ["hpi_weight_changes", "hpi_associated_symptoms_general"]
+      "intentTriggers": [
+        "hpi_weight_changes",
+        "hpi_associated_symptoms_general"
+      ],
+      "groupId": "grp_hpi_symptoms",
+      "level": 2
     },
     {
       "blockId": "hpi_onset_duration",
       "blockType": "History",
       "content": "Symptoms began 2 months ago and have been gradually worsening. No acute change.",
       "isCritical": false,
-      "intentTriggers": ["hpi_onset_duration_primary"]
+      "intentTriggers": ["hpi_onset_duration_primary"],
+      "groupId": "grp_hpi_timeline",
+      "level": 1
     },
     {
       "blockId": "hpi_chest_pain",
       "blockType": "History",
       "content": "Patient denies chest pain.",
       "isCritical": false,
-      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chest_pain"]
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chest_pain"],
+      "groupId": "grp_hpi_negatives",
+      "level": 1,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "hpi_fever",
       "blockType": "History",
       "content": "Patient denies fevers.",
       "isCritical": false,
-      "intentTriggers": ["hpi_pertinent_negatives", "hpi_fever"]
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_fever"],
+      "groupId": "grp_hpi_negatives",
+      "level": 2,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "hpi_chills",
       "blockType": "History",
       "content": "Patient denies chills.",
       "isCritical": false,
-      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chills"]
+      "intentTriggers": ["hpi_pertinent_negatives", "hpi_chills"],
+      "groupId": "grp_hpi_negatives",
+      "level": 3,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "hpi_recent_care",
       "blockType": "History",
       "content": "Visited PCP 3 weeks ago for same complaints. Prescribed 3-day course of azithromycin with no improvement.",
       "isCritical": false,
-      "intentTriggers": ["hpi_recent_medical_care"]
+      "intentTriggers": ["hpi_recent_medical_care"],
+      "groupId": "grp_hpi_timeline",
+      "level": 2
     },
     {
       "blockId": "pmh_comorbidities",
       "blockType": "History",
       "content": "Past Medical History: Morbid obesity, diabetes, hypertension, and rheumatoid arthritis.",
       "isCritical": false,
-      "intentTriggers": ["pmh_general"]
+      "intentTriggers": ["pmh_general"],
+      "groupId": "grp_pmh",
+      "level": 1
     },
     {
       "blockId": "meds_initial_known",
       "blockType": "Medications",
       "content": "Current medications thought to be: lisinopril, atenolol, glipizide, and metformin. Son is unsure about other medications.",
       "isCritical": false,
-      "intentTriggers": ["meds_current_known"]
+      "intentTriggers": ["meds_current_known"],
+      "groupId": "grp_meds_known",
+      "level": 1
     },
     {
       "blockId": "meds_ra_uncertainty",
       "blockType": "Medications",
       "content": "Son is unsure about medications for rheumatoid arthritis. Records from other health system not immediately available.",
       "isCritical": false,
-      "intentTriggers": ["meds_ra_specific_initial_query", "meds_uncertainty"]
+      "intentTriggers": [
+        "meds_ra_specific_initial_query",
+        "meds_uncertainty",
+        "meds_other_meds_initial_query"
+      ],
+      "groupId": "grp_meds_ra",
+      "level": 1,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "exam_vital",
       "blockType": "PhysicalExam",
       "content": "Vital signs: Temperature 99.9°F (37.7°C), HR 105, BP 140/70, RR 24, O2 sat 89% on room air.",
       "isCritical": false,
-      "intentTriggers": ["exam_vital"]
+      "intentTriggers": ["exam_vital"],
+      "groupId": "grp_exam_vital",
+      "level": 1
     },
     {
       "blockId": "exam_general",
       "blockType": "PhysicalExam",
       "content": "General appearance: Coughing, appears ill.",
       "isCritical": false,
-      "intentTriggers": ["exam_general_appearance"]
+      "intentTriggers": ["exam_general_appearance"],
+      "groupId": "grp_exam_general",
+      "level": 1
     },
     {
       "blockId": "exam_respiratory",
       "blockType": "PhysicalExam",
       "content": "Pulmonary examination demonstrates crackles in all lung fields.",
       "isCritical": false,
-      "intentTriggers": ["exam_respiratory"]
+      "intentTriggers": ["exam_respiratory"],
+      "groupId": "grp_exam_respiratory",
+      "level": 1
     },
     {
       "blockId": "exam_cardiac_negative",
       "blockType": "PhysicalExam",
       "content": "Heart sounds are normal and there is no lower-extremity edema.",
       "isCritical": true,
-      "intentTriggers": ["exam_cardiovascular"]
+      "intentTriggers": ["exam_cardiovascular"],
+      "groupId": "grp_exam_cardiac",
+      "level": 1
     },
     {
       "blockId": "labs_bnp",
       "blockType": "Labs",
       "content": "Pro-brain-type natriuretic peptide (pro-BNP) level is greater than the upper limit of normal.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"]
+      "intentTriggers": ["labs_general"],
+      "groupId": "grp_labs_core",
+      "level": 1,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "labs_wbc",
       "blockType": "Labs",
       "content": "White blood cell count is elevated at 13.0 x 10^9/L.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"]
+      "intentTriggers": ["labs_general"],
+      "groupId": "grp_labs_core",
+      "level": 2,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "labs_hemoglobin",
       "blockType": "Labs",
       "content": "Hemoglobin is low at 10 g/dL.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"]
+      "intentTriggers": ["labs_general"],
+      "groupId": "grp_labs_core",
+      "level": 3,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "imaging_cxr_preliminary",
       "blockType": "Imaging",
       "content": "Preliminary chest radiograph interpretation by resident radiologist: 'consistent with pulmonary vascular congestion.'",
       "isCritical": false,
-      "intentTriggers": ["imaging_chest", "imaging_general"]
+      "intentTriggers": ["imaging_chest"],
+      "groupId": "grp_cxr",
+      "level": 1,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "critical_cxr_formal",
       "blockType": "Imaging",
       "content": "Final attending radiologist's interpretation notes 'ill-defined, scattered, faint opacities,' suggesting a possible interstitial pattern.",
       "isCritical": true,
-      "intentTriggers": ["imaging_chest", "imaging_general"]
+      "intentTriggers": ["imaging_chest"],
+      "groupId": "grp_cxr",
+      "level": 2,
+      "prerequisites": ["imaging_cxr_preliminary"],
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "critical_infliximab",
       "blockType": "Medications",
       "content": "Medication lists from previous hospitalizations reveal the patient has been receiving infliximab for rheumatoid arthritis for the past 3-4 months.",
       "isCritical": true,
-      "intentTriggers": ["meds_ra_specific_initial_query", "meds_other_meds_initial_query", "meds_full_reconciliation_query"]
+      "intentTriggers": ["meds_full_reconciliation_query"],
+      "groupId": "grp_meds_ra",
+      "level": 2,
+      "prerequisites": ["meds_ra_uncertainty"],
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "critical_echo",
       "blockType": "Imaging",
       "content": "Echocardiogram shows a normal ejection fraction with no evidence of elevated filling pressures.",
       "isCritical": true,
-      "intentTriggers": ["imaging_general"]
+      "intentTriggers": ["imaging_general"],
+      "groupId": "grp_echo",
+      "level": 1
     },
     {
       "blockId": "critical_ct_chest",
       "blockType": "Imaging",
       "content": "Computed tomography of the chest reveals a reticular pattern with innumerable, tiny, 1- to 2-mm pulmonary nodules.",
       "isCritical": true,
-      "intentTriggers": ["imaging_chest", "imaging_general"]
+      "intentTriggers": ["imaging_general"],
+      "groupId": "grp_advanced_imaging",
+      "level": 2,
+      "prerequisites": ["critical_cxr_formal"],
+      "revealPolicy": "escalate"
     }
   ],
   "intentBlockMappings": {
-    "profile_age": ["demo_age_context"],
-    "profile_language": ["demo_age_context"],
-    "profile_social_context_historian": ["demo_age_context"],
-    "profile_medical_records": ["demo_records"],
-    "hpi_chief_complaint": ["hpi_dyspnea_details"],
-    "hpi_shortness_of_breath": ["hpi_dyspnea_details"],
-    "hpi_cough": ["hpi_dyspnea_details"],
-    "hpi_weight_changes": ["hpi_weight_changes"],
-    "hpi_onset_duration_primary": ["hpi_onset_duration"],
-    "hpi_associated_symptoms_general": ["hpi_weight_changes"],
-    "hpi_pertinent_negatives": ["hpi_chest_pain", "hpi_fever", "hpi_chills"],
-    "hpi_chest_pain": ["hpi_chest_pain"],
-    "hpi_fever": ["hpi_fever"],
-    "hpi_chills": ["hpi_chills"],
-    "hpi_recent_medical_care": ["hpi_recent_care"],
-    "pmh_general": ["pmh_comorbidities"],
-    "meds_current_known": ["meds_initial_known"],
-    "meds_uncertainty": ["meds_ra_uncertainty"],
-    "meds_ra_specific_initial_query": ["meds_ra_uncertainty"],
-    "meds_full_reconciliation_query": ["critical_infliximab"],
-    "meds_other_meds_initial_query": ["meds_ra_uncertainty"],
-    "exam_vital": ["exam_vital"],
-    "exam_general_appearance": ["exam_general"],
-    "exam_respiratory": ["exam_respiratory"],
-    "exam_cardiovascular": ["exam_cardiac_negative"],
-    "labs_general": ["labs_bnp", "labs_wbc", "labs_hemoglobin"],
-    "imaging_chest": ["imaging_cxr_preliminary", "critical_cxr_formal", "critical_ct_chest"],
-    "imaging_general": ["imaging_cxr_preliminary", "critical_echo", "critical_ct_chest"]
+    "profile_age": ["grp_demographics"],
+    "profile_language": ["grp_demographics"],
+    "profile_social_context_historian": ["grp_demographics"],
+    "profile_medical_records": ["grp_demographics"],
+    "hpi_chief_complaint": ["grp_hpi_symptoms"],
+    "hpi_shortness_of_breath": ["grp_hpi_symptoms"],
+    "hpi_cough": ["grp_hpi_symptoms"],
+    "hpi_weight_changes": ["grp_hpi_symptoms"],
+    "hpi_onset_duration_primary": ["grp_hpi_timeline"],
+    "hpi_associated_symptoms_general": ["grp_hpi_symptoms"],
+    "hpi_pertinent_negatives": ["grp_hpi_negatives"],
+    "hpi_chest_pain": ["grp_hpi_negatives"],
+    "hpi_fever": ["grp_hpi_negatives"],
+    "hpi_chills": ["grp_hpi_negatives"],
+    "hpi_recent_medical_care": ["grp_hpi_timeline"],
+    "pmh_general": ["grp_pmh"],
+    "meds_current_known": ["grp_meds_known"],
+    "meds_uncertainty": ["grp_meds_ra"],
+    "meds_ra_specific_initial_query": ["grp_meds_ra"],
+    "meds_full_reconciliation_query": ["grp_meds_ra"],
+    "meds_other_meds_initial_query": ["grp_meds_ra"],
+    "exam_vital": ["grp_exam_vital"],
+    "exam_general_appearance": ["grp_exam_general"],
+    "exam_respiratory": ["grp_exam_respiratory"],
+    "exam_cardiovascular": ["grp_exam_cardiac"],
+    "labs_general": ["grp_labs_core"],
+    "imaging_chest": ["grp_cxr"],
+    "imaging_general": ["grp_echo", "grp_advanced_imaging"]
   },
   "groundTruth": {
     "finalDiagnosis": "Miliary tuberculosis",
-    "criticalFindingIds": ["hpi_weight_changes", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo", "critical_ct_chest"],
-    "keyDifferentials": ["Heart failure exacerbation", "Pneumonia", "Interstitial lung disease", "Lymphoma"]
+    "criticalFindingIds": [
+      "hpi_weight_changes",
+      "exam_cardiac_negative",
+      "critical_cxr_formal",
+      "critical_infliximab",
+      "critical_echo",
+      "critical_ct_chest"
+    ],
+    "keyDifferentials": [
+      "Heart failure exacerbation",
+      "Pneumonia",
+      "Interstitial lung disease",
+      "Lymphoma"
+    ]
   },
   "biasTriggers": {
     "anchoring": {
@@ -227,8 +316,18 @@
     },
     "confirmation": {
       "incorrectHypothesis": "Heart failure exacerbation",
-      "supportingInfoIds": ["exam_respiratory", "labs_bnp", "imaging_cxr_preliminary"],
-      "refutingInfoIds": ["hpi_weight_changes", "exam_cardiac_negative", "critical_cxr_formal", "critical_infliximab", "critical_echo"]
+      "supportingInfoIds": [
+        "exam_respiratory",
+        "labs_bnp",
+        "imaging_cxr_preliminary"
+      ],
+      "refutingInfoIds": [
+        "hpi_weight_changes",
+        "exam_cardiac_negative",
+        "critical_cxr_formal",
+        "critical_infliximab",
+        "critical_echo"
+      ]
     },
     "framing": {
       "framingEffect": "Patient framed as 'elderly woman with heart failure' influences initial diagnostic thinking",

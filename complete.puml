@@ -1,0 +1,195 @@
+@startuml
+!define RECTANGLE class
+!theme plain
+
+title SmartDoc Monorepo Architecture - High-Level System Design
+
+package "SmartDoc Monorepo" {
+
+    ' === Applications Layer ===
+    package "apps/" {
+        package "api/" {
+            package "src/smartdoc_api/" {
+                component [Flask API] as FlaskAPI
+                package "routes/" {
+                    component [Chat Routes] as ChatRoutes
+                    component [Simulation Routes] as SimulationRoutes
+                    component [Legacy Routes] as LegacyRoutes
+                }
+                package "services/" {
+                    component [Auth Service] as AuthService
+                    component [Repository] as Repository
+                }
+                package "db/" {
+                    component [Models] as DBModels
+                    component [Migrations] as Migrations
+                }
+            }
+        }
+
+        package "web/" {
+            package "public/" {
+                component [Static HTML] as StaticHTML
+                package "js/" {
+                    component [Main App] as MainApp
+                    component [API Client] as APIClient
+                    component [State Manager] as StateManager
+                    package "ui/" {
+                        component [Chat UI] as ChatUI
+                        component [Admin UI] as AdminUI
+                    }
+                }
+                package "styles/" {
+                    component [CSS Styles] as CSSStyles
+                }
+            }
+        }
+    }
+
+    ' === Core Domain Packages ===
+    package "packages/" {
+        package "core/" {
+            package "src/smartdoc_core/" {
+
+                package "intent/" {
+                    component [Intent Classifier] as IntentClassifier
+                }
+
+                package "discovery/" {
+                    component [Discovery Processor] as DiscoveryProcessor
+                }
+
+                package "clinical/" {
+                    component [Clinical Evaluator] as ClinicalEvaluator
+                }
+
+                package "simulation/" {
+                    component [Disclosure Manager] as DisclosureManager
+                    component [Bias Analyzer] as BiasAnalyzer
+                    component [Session Logger] as SessionLogger
+                    component [Disclosure Store] as DisclosureStore
+                }
+
+                package "llm/" {
+                    package "providers/" {
+                        component [LLM Provider Base] as LLMProviderBase
+                        component [Ollama Provider] as OllamaProvider
+                    }
+                }
+
+                package "utils/" {
+                    component [System Logger] as SystemLogger
+                    component [Configuration] as Configuration
+                }
+            }
+        }
+
+        package "shared/" {
+            package "src/smartdoc_shared/" {
+                package "schemas/" {
+                    component [Data Schemas] as DataSchemas
+                }
+                package "clients/" {
+                    component [External Clients] as ExternalClients
+                }
+            }
+        }
+    }
+
+    ' === Configuration & Data ===
+    package "configs/" {
+        component [YAML Configs] as YAMLConfigs
+    }
+
+    package "data/" {
+        component [Clinical Cases] as ClinicalCases
+        component [Raw Data] as RawData
+    }
+
+    ' === Deployment & Scripts ===
+    package "deployments/" {
+        component [Docker Configs] as DockerConfigs
+        component [Compose Files] as ComposeFiles
+    }
+
+    package "scripts/" {
+        component [Dev Scripts] as DevScripts
+    }
+}
+
+' === External Dependencies ===
+cloud "Ollama LLM Server" as OllamaServer
+database "SQLite Database" as SQLiteDB
+node "Static File Server" as StaticServer
+
+' === Relationships ===
+
+' API Layer Dependencies
+FlaskAPI --> IntentClassifier : uses
+FlaskAPI --> DiscoveryProcessor : uses
+FlaskAPI --> ClinicalEvaluator : uses
+FlaskAPI --> DisclosureManager : orchestrates
+
+' Route Dependencies
+ChatRoutes --> FlaskAPI
+SimulationRoutes --> FlaskAPI
+LegacyRoutes --> FlaskAPI
+
+' Core Module Dependencies
+DisclosureManager --> IntentClassifier : classifies intent
+DisclosureManager --> DiscoveryProcessor : processes discovery
+DisclosureManager --> BiasAnalyzer : detects bias
+DisclosureManager --> SessionLogger : logs sessions
+DisclosureManager --> DisclosureStore : manages state
+
+' LLM Provider Architecture
+IntentClassifier --> LLMProviderBase : uses
+DiscoveryProcessor --> LLMProviderBase : uses
+ClinicalEvaluator --> LLMProviderBase : uses
+BiasAnalyzer --> LLMProviderBase : uses
+OllamaProvider --|> LLMProviderBase : implements
+
+' Configuration Dependencies
+FlaskAPI --> YAMLConfigs : loads config
+Configuration --> YAMLConfigs : reads
+
+' Data Dependencies
+DisclosureStore --> ClinicalCases : loads cases
+DiscoveryProcessor --> ClinicalCases : references
+
+' External Dependencies
+OllamaProvider --> OllamaServer : HTTP requests
+DBModels --> SQLiteDB : persists data
+StaticHTML --> StaticServer : served by
+
+' Frontend Dependencies
+MainApp --> APIClient : makes requests
+APIClient --> FlaskAPI : HTTP API calls
+ChatUI --> MainApp : user interaction
+AdminUI --> MainApp : admin interface
+
+' Shared Dependencies
+FlaskAPI --> DataSchemas : validates data
+APIClient --> DataSchemas : type safety
+
+' Deployment Dependencies
+DockerConfigs --> FlaskAPI : containerizes
+ComposeFiles --> DockerConfigs : orchestrates
+
+note right of DisclosureManager
+  Central orchestrator that coordinates:
+  - Intent classification
+  - Discovery processing
+  - Bias detection
+  - Session management
+  - Progressive disclosure
+end note
+
+note bottom of LLMProviderBase
+  Shared abstraction enabling:
+  - Multiple LLM providers
+  - Dependency injection
+  - Easy testing/mocking
+  - Provider switching
+end note
+@enduml

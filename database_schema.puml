@@ -1,0 +1,169 @@
+@startuml SmartDoc_Database_Schema
+!theme plain
+
+title SmartDoc Database Schema - Entity Relationship Diagram
+
+entity "users" {
+  * id : INTEGER (PK)
+  --
+  display_name : VARCHAR(120)
+  code_hash : VARCHAR(255) (UNIQUE)
+  code_label : VARCHAR(120)
+  is_active : BOOLEAN
+  expires_at : DATETIME
+  usage_limit : INTEGER
+  usage_count : INTEGER
+  created_at : DATETIME
+  last_used_at : DATETIME
+  email : VARCHAR(255)
+  age : INTEGER
+  sex : VARCHAR(20)
+  medical_experience : VARCHAR(255)
+  role : VARCHAR(20) [admin|user]
+}
+
+entity "auth_sessions" {
+  * id : INTEGER (PK)
+  --
+  user_id : INTEGER (FK)
+  jti : VARCHAR(64) (UNIQUE)
+  issued_at : DATETIME
+  revoked : BOOLEAN
+}
+
+entity "conversations" {
+  * id : INTEGER (PK)
+  --
+  title : VARCHAR(255)
+  created_at : DATETIME
+  updated_at : DATETIME
+}
+
+entity "messages" {
+  * id : INTEGER (PK)
+  --
+  conversation_id : INTEGER (FK)
+  role : ENUM [user|assistant|system]
+  content : TEXT
+  context : VARCHAR(64)
+  meta : TEXT (JSON)
+  created_at : DATETIME
+}
+
+entity "simulation_sessions" {
+  * id : VARCHAR(64) (PK)
+  --
+  conversation_id : INTEGER (FK)
+  status : VARCHAR(16)
+  stats : TEXT (JSON)
+  created_at : DATETIME
+  ended_at : DATETIME
+}
+
+entity "discovery_events" {
+  * id : INTEGER (PK)
+  --
+  session_id : VARCHAR(64) (FK)
+  category : VARCHAR(64)
+  label : VARCHAR(255)
+  value : TEXT
+  confidence : FLOAT
+  block_id : VARCHAR(64)
+  created_at : DATETIME
+}
+
+entity "bias_warnings" {
+  * id : INTEGER (PK)
+  --
+  session_id : VARCHAR(64) (FK)
+  bias_type : VARCHAR(64)
+  description : TEXT
+  created_at : DATETIME
+}
+
+entity "diagnosis_submissions" {
+  * id : INTEGER (PK)
+  --
+  session_id : VARCHAR(64) (FK)
+  diagnosis_text : TEXT
+  score_overall : INTEGER
+  score_breakdown : TEXT (JSON)
+  feedback : TEXT
+  created_at : DATETIME
+}
+
+entity "reflection_responses" {
+  * id : INTEGER (PK)
+  --
+  diagnosis_id : INTEGER (FK)
+  question : TEXT
+  answer : TEXT
+  created_at : DATETIME
+}
+
+entity "llm_profiles" {
+  * id : INTEGER (PK)
+  --
+  name : VARCHAR(255) (UNIQUE)
+  provider : VARCHAR(64)
+  model : VARCHAR(255)
+  temperature : FLOAT
+  top_p : FLOAT
+  max_tokens : INTEGER
+  is_default : BOOLEAN
+  created_at : DATETIME
+}
+
+entity "agent_prompts" {
+  * id : INTEGER (PK)
+  --
+  agent_key : VARCHAR(64)
+  profile_id : INTEGER (FK)
+  prompt_text : TEXT
+  version : INTEGER
+  is_active : BOOLEAN
+  created_at : DATETIME
+}
+
+entity "audit_logs" {
+  * id : INTEGER (PK)
+  --
+  actor_user_id : INTEGER (FK)
+  action : VARCHAR(128)
+  payload : TEXT (JSON)
+  created_at : DATETIME
+}
+
+' Relationships
+users ||--o{ auth_sessions
+users ||--o{ audit_logs
+
+conversations ||--o{ messages
+conversations ||--o{ simulation_sessions
+
+simulation_sessions ||--o{ discovery_events
+simulation_sessions ||--o{ bias_warnings
+simulation_sessions ||--o{ diagnosis_submissions
+
+diagnosis_submissions ||--o{ reflection_responses
+
+llm_profiles ||--o{ agent_prompts
+
+note bottom of simulation_sessions
+  Central entity linking conversations
+  to educational analytics data
+end note
+
+note right of discovery_events
+  Tracks progressive disclosure
+  of clinical information with
+  confidence and block metadata
+end note
+
+note left of bias_warnings
+  Records cognitive bias detection
+  events for educational feedback
+  and research analysis
+end note
+
+@enduml

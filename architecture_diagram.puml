@@ -1,0 +1,41 @@
+@startuml
+!theme bluegray
+
+title SmartDoc Monorepo Structure
+
+package "SmartDoc Monorepo" as ROOT {
+
+  package "apps/" as APPS {
+    folder "api/" as API
+    note bottom of API : Flask REST API\nRoutes, Services, DB
+
+    folder "web/" as WEB
+    note bottom of WEB : Static Frontend\nHTML, CSS, JS
+  }
+
+  package "packages/" as PACKAGES {
+    folder "core/" as CORE
+    note bottom of CORE : AI Domain Logic\nIntent, Discovery, Simulation
+
+    folder "shared/" as SHARED
+    note bottom of SHARED : Cross-cutting\nSchemas, Clients
+  }
+
+  folder "configs/" as CONFIGS
+  note bottom of CONFIGS : YAML Configuration\ndev, prod, default
+
+  folder "data/" as DATA
+  note bottom of DATA : Clinical Cases\nRaw Data
+
+  folder "deployments/" as DEPLOY
+  note bottom of DEPLOY : Docker Configs\nCompose Files
+
+  folder "scripts/" as SCRIPTS
+  note bottom of SCRIPTS : Development\nUtilities
+}
+
+' Simple dependencies
+PACKAGES --> APPS : provides domain logic
+CONFIGS  --> APPS : configuration
+DATA     --> PACKAGES : clinical data
+@enduml
