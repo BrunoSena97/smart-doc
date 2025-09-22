@@ -3,15 +3,18 @@ services:
     image: ollama/ollama:0.11.7
     container_name: ollama
     environment:
-      OLLAMA_HOST: "0.0.0.0"
-      OLLAMA_KEEP_ALIVE: "24h"
+      OLLAMA_HOST: "0.0.0.0:11434"
+      OLLAMA_KEEP_ALIVE: "-1"           # Keep models in memory forever (-1 = infinite)
       OLLAMA_CONTEXT_LENGTH: "4096"
+      OLLAMA_ORIGINS: "*"
+      OLLAMA_MAX_LOADED_MODELS: "1"     # Optimize for single model
+      OLLAMA_LOAD_TIMEOUT: "10m"       # Allow longer load times
     volumes:
       - smartdoc_ollama:/root/.ollama
     ports:
       - "11434:11434"
     healthcheck:
-      test: ["CMD", "bash", "-lc", "curl -fsS http://127.0.0.1:11434/api/tags >/dev/null"]
+      test: ["CMD", "ollama", "list"]
       interval: 20s
       timeout: 5s
       retries: 10
@@ -28,12 +31,16 @@ services:
       OLLAMA_HOST: "http://ollama:11434"
     volumes:
       - smartdoc_ollama:/root/.ollama
-    # Pull all models you need here
-    command: >
-      bash -lc "
-      ollama pull gemma3:4b-it-q4_K_M &&
-      echo 'models ready' "
+    # Pull model and warm it up in memory
+    entrypoint: ["/bin/sh", "-c"]
+    command: [
+      "ollama pull gemma3:4b-it-q4_K_M &&
+       echo 'Model pulled, warming up...' &&
+       echo 'Hello' | ollama run gemma3:4b-it-q4_K_M --verbose &&
+       echo 'Model warmed up and ready!'"
+    ]
     restart: "no"
+
 
   smartdoc:
     build:

@@ -17,22 +17,30 @@ export function renderResults(data) {
         <div class="metric-grid">
           <div class="metric-item">
             <span class="metric-label">Information Discovery</span>
-            <span class="metric-value">${data?.performance_summary?.information_discovery || "N/A"}</span>
+            <span class="metric-value">${
+              data?.performance_summary?.information_discovery || "N/A"
+            }</span>
           </div>
           <div class="metric-item">
             <span class="metric-label">Bias Awareness</span>
-            <span class="metric-value">${data?.performance_summary?.bias_awareness || "N/A"}</span>
+            <span class="metric-value">${
+              data?.performance_summary?.bias_awareness || "N/A"
+            }</span>
           </div>
           <div class="metric-item">
             <span class="metric-label">Diagnostic Accuracy</span>
-            <span class="metric-value">${data?.performance_summary?.diagnostic_accuracy || "N/A"}</span>
+            <span class="metric-value">${
+              data?.performance_summary?.diagnostic_accuracy || "N/A"
+            }</span>
           </div>
         </div>
       </div>
 
       <div class="feedback-section">
         <h3><i class="fas fa-comment-medical"></i> Clinical Feedback</h3>
-        <div class="feedback-content">${data.feedback || "No feedback available."}</div>
+        <div class="feedback-content">${
+          data.feedback || "No feedback available."
+        }</div>
       </div>
     </div>
   `;
@@ -49,7 +57,9 @@ export function renderAdvancedResults(data) {
 
   const ev = data.llm_evaluation?.evaluation;
   if (!ev) {
-    console.warn("[RESULTS] No evaluation data found, falling back to basic results");
+    console.warn(
+      "[RESULTS] No evaluation data found, falling back to basic results"
+    );
     renderResults(data);
     return;
   }
@@ -78,14 +88,27 @@ export function renderAdvancedResults(data) {
         </div>
       </div>
 
-      ${ev.recommendations ? `
-        <div class="recommendations-section">
-          <h3><i class="fas fa-lightbulb"></i> Recommendations for Improvement</h3>
+            <div class="recommendations-section">
+        <h3><i class="fas fa-chart-bar"></i> Performance Analysis</h3>
+        <div class="recommendations-content">
+          ${generateImprovementAdvice(ev)
+            .map((advice) => `<div class="advice-item">${advice}</div>`)
+            .join("")}
+        </div>
+      </div>
+
+      ${
+        ev.recommendations
+          ? `
+        <div class="additional-recommendations">
+          <h4><i class="fas fa-plus-circle"></i> Additional LLM Recommendations</h4>
           <div class="recommendations-content">
             ${renderRecommendations(ev.recommendations)}
           </div>
         </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
   `;
 
@@ -101,16 +124,18 @@ function renderMetricItems(evaluation) {
     { label: "Metacognitive Reflection", key: "metacognitive_score" },
   ];
 
-  return metrics.map(metric => {
-    const value = evaluation[metric.key];
-    const displayValue = value !== undefined ? `${value}/100` : "N/A";
-    return `
+  return metrics
+    .map((metric) => {
+      const value = evaluation[metric.key];
+      const displayValue = value !== undefined ? `${value}/100` : "N/A";
+      return `
       <div class="metric-item">
         <span class="metric-label">${metric.label}</span>
         <span class="metric-value">${displayValue}</span>
       </div>
     `;
-  }).join('');
+    })
+    .join("");
 }
 
 function renderDetailedFeedback(evaluation) {
@@ -143,13 +168,63 @@ function renderDetailedFeedback(evaluation) {
 function renderRecommendations(recommendations) {
   if (Array.isArray(recommendations)) {
     return `<ul class="recommendations-list">
-      ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+      ${recommendations.map((rec) => `<li>${rec}</li>`).join("")}
     </ul>`;
-  } else if (typeof recommendations === 'string') {
+  } else if (typeof recommendations === "string") {
     return `<p>${recommendations}</p>`;
   } else {
     return "<p>No specific recommendations available.</p>";
   }
+}
+
+function generateImprovementAdvice(evaluation) {
+  const advice = [];
+
+  // Check information gathering score
+  const infoScore = evaluation.information_gathering?.score || 0;
+  if (infoScore < 30) {
+    advice.push(
+      "🔍 <strong>Information Discovery:</strong> Limited clinical information was gathered during this session."
+    );
+  } else if (infoScore < 60) {
+    advice.push(
+      "📋 <strong>Information Gathering:</strong> Moderate amount of clinical information was collected."
+    );
+  } else {
+    advice.push(
+      "🔍 <strong>Information Discovery:</strong> Good information gathering was demonstrated."
+    );
+  }
+
+  // Check diagnostic accuracy
+  const diagScore = evaluation.diagnostic_accuracy?.score || 0;
+  if (diagScore < 50) {
+    advice.push(
+      "🎯 <strong>Diagnostic Reasoning:</strong> The final diagnosis showed limited alignment with clinical evidence."
+    );
+  } else if (diagScore < 80) {
+    advice.push(
+      "🎯 <strong>Diagnostic Reasoning:</strong> The diagnostic reasoning showed moderate clinical accuracy."
+    );
+  } else {
+    advice.push(
+      "🎯 <strong>Diagnostic Reasoning:</strong> Strong diagnostic accuracy was demonstrated."
+    );
+  }
+
+  // Check cognitive bias awareness
+  const biasScore = evaluation.cognitive_bias_awareness?.score || 0;
+  if (biasScore < 70) {
+    advice.push(
+      "🧠 <strong>Cognitive Awareness:</strong> The reflection responses showed limited metacognitive depth."
+    );
+  } else {
+    advice.push(
+      "🧠 <strong>Cognitive Awareness:</strong> Good metacognitive reflection was demonstrated."
+    );
+  }
+
+  return advice;
 }
 
 export function initResults() {

@@ -4,6 +4,17 @@
 help: ## Show this help message
 	@echo "SmartDoc Development Commands"
 	@echo "=============================="
+	@echo ""
+	@echo "🚀 Quick Start:"
+	@echo "  make setup           - Set up all Poetry environments"
+	@echo "  make api-local       - Run API locally (for development)"
+	@echo "  make web             - Serve static frontend"
+	@echo ""
+	@echo "🐳 Docker Options:"
+	@echo "  make dev-docker      - SmartDoc in Docker + local Ollama"
+	@echo "  make deploy          - Full production deployment"
+	@echo ""
+	@echo "All commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 install-poetry: ## Install Poetry if not present
@@ -54,31 +65,50 @@ test-api: ## Quick test of API endpoints
 	@echo "\nChat API:" && curl -s -X POST http://localhost:8000/api/v1/chat -H "Content-Type: application/json" -d '{"message":"test"}'
 	@echo "\nLegacy chat:" && curl -s -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d '{"message":"test"}'
 
-# Docker deployment commands (requires external Ollama)
-deploy: ## Deploy production (requires external Ollama running)
-	@echo "🚀 Deploying SmartDoc with external Ollama..."
-	@echo "📋 Ensure Ollama is running: ollama serve"
+# Development with local Ollama
+dev-docker: ## Run SmartDoc in Docker with local Ollama (development)
+	@echo "� Starting SmartDoc development with local Ollama..."
+	@echo "📋 Make sure Ollama is running locally: ollama serve"
+	@echo "📋 And model is available: ollama pull gemma3:4b-it-q4_K_M"
+	cd deployments && docker compose -f docker-compose.dev.yml up --build
+
+dev-docker-down: ## Stop development Docker deployment
+	@echo "⏹️ Stopping development deployment..."
+	cd deployments && docker compose -f docker-compose.dev.yml down
+
+dev-docker-logs: ## Show development deployment logs
+	@echo "📋 Showing development logs..."
+	cd deployments && docker compose -f docker-compose.dev.yml logs -f
+
+# Production deployment (includes Ollama in Docker)
+deploy: ## Deploy production (Ollama in Docker)
+	@echo "� Deploying SmartDoc production..."
 	cd deployments && docker compose up --build -d
 
-deploy-dev: ## Deploy with logs (development mode)
-	@echo "🔧 Deploying SmartDoc in development mode..."
-	cd deployments && docker compose up --build
-
-deploy-down: ## Stop deployment
-	@echo "⏹️ Stopping deployment..."
-	cd deployments && docker compose down
-
-deploy-logs: ## Show deployment logs
-	@echo "📋 Showing deployment logs..."
+deploy-logs: ## Show production deployment logs
+	@echo "📋 Showing production logs..."
 	cd deployments && docker compose logs -f
+
+deploy-down: ## Stop production deployment
+	@echo "⏹️ Stopping production deployment..."
+	cd deployments && docker compose down
 
 deploy-health: ## Check deployment health
 	@echo "🏥 Checking deployment health..."
-	@curl -s http://localhost:8000/health | jq '.' || echo "Deployment not responding"
+	cd deployments && make health
 
-docker-build: ## Build Docker containers
-	@echo "🐳 Building Docker containers..."
-	cd deployments && docker compose build
+# Ollama helpers
+ollama-check: ## Check if local Ollama is running
+	@echo "🤖 Checking local Ollama..."
+	@curl -s http://localhost:11434/api/tags >/dev/null && echo "✅ Ollama is running" || echo "❌ Ollama not running - start with: ollama serve"
+
+ollama-models: ## List available models in local Ollama
+	@echo "📋 Available models:"
+	@curl -s http://localhost:11434/api/tags | jq -r '.models[].name' 2>/dev/null || echo "❌ Ollama not responding"
+
+ollama-pull: ## Pull the required model
+	@echo "� Pulling gemma3:4b-it-q4_K_M model..."
+	ollama pull gemma3:4b-it-q4_K_M
 
 format: ## Format and lint code
 	@echo "🧹 Formatting code..."

@@ -41,9 +41,7 @@ export function initChatHandlers() {
       const dx = document.getElementById("diagnosis-input")?.value.trim();
       const reflection = collectReflection();
       if (!validateReflection(reflection)) {
-        alert(
-          "Please complete all reflection questions with meaningful responses (at least 10 characters each)."
-        );
+        alert("Please complete all reflection questions before submitting.");
         return;
       }
 
@@ -270,7 +268,8 @@ function collectReflection() {
 }
 
 function validateReflection(obj) {
-  return Object.values(obj).every((v) => v && v.length >= 10);
+  // Minimal validation for research study - only check basic completion
+  return Object.values(obj).every((v) => v && v.trim().length > 0);
 }
 
 async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {

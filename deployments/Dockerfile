@@ -53,7 +53,7 @@ RUN echo '#!/bin/bash\n\
   echo "🌱 Seeding admin data..."\n\
   poetry run python seed_admin_data.py\n\
   echo "🚀 Starting Gunicorn..."\n\
-  exec poetry run gunicorn -w 2 -k gthread -b 0.0.0.0:8000 "smartdoc_api:create_app()" --access-logfile - --error-logfile -' > /start.sh && chmod +x /start.sh
+  exec poetry run gunicorn -w 1 -k gthread -b 0.0.0.0:8000 "smartdoc_api:create_app()" --access-logfile - --error-logfile -' > /start.sh && chmod +x /start.sh
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://127.0.0.1:8000/healthz || exit 1

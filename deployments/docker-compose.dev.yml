@@ -1,0 +1,33 @@
+services:
+  smartdoc:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    container_name: smartdoc-dev
+    environment:
+      FLASK_ENV: development
+      LOG_LEVEL: DEBUG
+      SMARTDOC_OLLAMA_BASE_URL: "http://host.docker.internal:11434"  # Use host Ollama
+      OLLAMA_MODEL: "gemma3:4b-it-q4_K_M"
+      SMARTDOC_DB_URL: "sqlite:////data/smartdoc.sqlite3"
+    ports:
+      - "8000:8000"
+    volumes:
+      - smartdoc_data_dev:/data
+      - ../apps/web/public:/app/web:ro
+      # Mount source code for development (optional hot reload)
+      - ../apps/api/src:/app/apps/api/src:ro
+      - ../packages/core/src:/app/packages/core/src:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/healthz >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    # Ensure we can reach host Ollama
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  smartdoc_data_dev:

@@ -1,0 +1,38 @@
+{
+  "diagnosis": "Acute myocardial infarction",
+  "dialogue_transcript": [
+    { "role": "user", "content": "55-year-old male with acute chest pain" },
+    {
+      "role": "assistant",
+      "content": "I need to evaluate for acute coronary syndrome. What are the pain characteristics?"
+    },
+    {
+      "role": "user",
+      "content": "Crushing substernal pain radiating to left arm, started 2 hours ago"
+    },
+    {
+      "role": "assistant",
+      "content": "Classic presentation for MI. I need ECG and cardiac enzymes immediately"
+    },
+    {
+      "role": "user",
+      "content": "ECG shows ST elevation in leads II, III, aVF. Troponin is elevated"
+    },
+    {
+      "role": "assistant",
+      "content": "This is inferior STEMI. Need immediate reperfusion therapy"
+    }
+  ],
+  "metacognitive_responses": {
+    "information_gathering": "I immediately focused on ACS evaluation given the classic presentation",
+    "diagnostic_reasoning": "The combination of typical chest pain, ECG changes, and elevated biomarkers confirmed STEMI",
+    "bias_awareness": "The presentation was classic, so I appropriately focused on rapid ACS evaluation"
+  },
+  "case_context": {
+    "case_type": "emergency_diagnosis",
+    "correct_diagnosis": "Inferior ST-elevation myocardial infarction",
+    "key_features": ["typical_chest_pain", "st_elevation", "elevated_troponin"],
+    "total_blocks": 8
+  },
+  "session_id": "test_comprehensive_evaluation"
+}

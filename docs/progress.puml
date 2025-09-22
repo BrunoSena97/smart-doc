@@ -1,0 +1,52 @@
+@startuml
+title Progressive Disclosure (Immediate / Escalate / Conditional)
+
+skinparam shadowing false
+skinparam defaultTextAlignment left
+skinparam ArrowColor Black
+skinparam sequenceArrowThickness 1
+
+actor Learner
+participant "SmartDoc\n(Orchestrator)" as SD
+participant "Intent\nClassifier" as IC
+participant "Disclosure\nManager" as DM
+participant "Case\nBlocks" as CB
+participant "Bias\nAnalyzer" as BA
+
+== Query ==
+Learner -> SD : "What meds is she taking\nfor her arthritis?"
+SD -> IC : classify(user_query, context)
+IC --> SD : intent = meds_ra_specific_query
+
+== Decide Reveal ==
+SD -> DM : check(intent)
+DM -> CB : eligible blocks?\n(group=grp_meds_ra)
+CB --> DM : L1: meds_ra_uncertainty\nL2: critical_infliximab (prereq=L1)
+
+alt revealPolicy == IMMEDIATE
+  DM --> SD : reveal L1 now
+else revealPolicy == ESCALATE
+  note over DM
+    Requires repeated or more\nspecific follow-ups
+  end note
+  DM --> SD : withhold L2 (needs escalation)
+end
+
+== Response + Bias Check ==
+SD -> BA : analyze recent focus
+BA --> SD : anchoring? premature closure?
+SD --> Learner : reply + (if any) bias prompt
+
+== Follow-up ==
+Learner -> SD : "Can we confirm meds\nfrom prior records?"
+SD -> IC : classify(...)
+IC --> SD : intent = meds_full_reconciliation_query
+SD -> DM : check(intent)
+DM -> CB : reevaluate eligibility
+CB --> DM : prereq satisfied → L2 eligible
+
+opt revealPolicy == CONDITIONAL (prereq met)
+  DM --> SD : reveal L2: critical_infliximab
+end
+SD --> Learner : disclose infliximab\n(+ reflection cue)
+@enduml

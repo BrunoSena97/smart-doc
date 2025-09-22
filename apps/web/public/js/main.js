@@ -3,7 +3,7 @@ import { initTabs } from "./ui/tabs.js";
 import { initChatHandlers } from "./ui/chat.js";
 import { initPatientInfo } from "./ui/patientInfo.js";
 import { initResults } from "./ui/results.js";
-import { healthCheck } from "./api.js";
+import { healthCheck, logout } from "./api.js";
 
 let questionCount = 0;
 
@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   initChatHandlers();
   initPatientInfo();
   initResults();
+
+  // Initialize end session handler
+  initEndSessionHandler();
 
   // Test API connection and set status
   await testApiConnection();
@@ -107,6 +110,36 @@ function setupLegacyCompatibility() {
       addSystemMessage(activeChatbox, message);
     }
   };
+}
+
+function initEndSessionHandler() {
+  const endSessionBtn = document.getElementById("end-session-btn");
+  if (endSessionBtn) {
+    endSessionBtn.addEventListener("click", async () => {
+      const confirmed = confirm(
+        "Are you sure you want to end this session? This will log you out and any unsaved progress will be lost."
+      );
+
+      if (confirmed) {
+        try {
+          endSessionBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Ending...';
+          endSessionBtn.disabled = true;
+
+          await logout();
+
+          // Redirect to login page
+          window.location.href = "/login.html";
+        } catch (error) {
+          console.error("Error ending session:", error);
+          alert("Error ending session. Please try again.");
+          endSessionBtn.innerHTML =
+            '<i class="fas fa-sign-out-alt"></i> End Session';
+          endSessionBtn.disabled = false;
+        }
+      }
+    });
+  }
 }
 
 function addSystemMessage(chatbox, message) {

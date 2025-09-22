@@ -1,0 +1,36 @@
+{
+  "evaluation_data": {
+    "overall_score": 85,
+    "diagnostic_accuracy": {
+      "score": 90,
+      "analysis": "Excellent diagnostic accuracy",
+      "correct_elements": ["pattern_recognition"],
+      "missed_elements": []
+    },
+    "information_gathering": {
+      "score": 80,
+      "analysis": "Good systematic approach",
+      "strengths": ["thorough_history"],
+      "areas_for_improvement": ["efficiency"]
+    },
+    "cognitive_bias_awareness": {
+      "score": 75,
+      "analysis": "Adequate bias awareness",
+      "detected_biases_impact": "Minimal impact",
+      "metacognitive_quality": "Good reflection"
+    },
+    "clinical_reasoning": {
+      "score": 85,
+      "analysis": "Strong reasoning",
+      "hypothesis_generation": "Multiple hypotheses",
+      "evidence_synthesis": "Good integration"
+    },
+    "constructive_feedback": {
+      "positive_reinforcement": "Great job",
+      "key_learning_points": ["Efficiency"],
+      "specific_recommendations": ["Time management"],
+      "bias_education": "Monitor biases"
+    },
+    "confidence_assessment": 80
+  }
+}
