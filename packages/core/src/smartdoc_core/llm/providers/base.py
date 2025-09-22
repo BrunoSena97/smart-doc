@@ -27,7 +27,7 @@ class LLMProvider(ABC):
         *,
         temperature: float = 0.1,
         top_p: float = 0.9,
-        timeout_s: int = 30,
+        timeout_s: int = 60,
     ) -> str:
         """
         Generate text from the LLM.

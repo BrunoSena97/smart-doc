@@ -146,7 +146,7 @@ class LLMIntentClassifier:
                 prompt,
                 temperature=0.1,
                 top_p=0.9,
-                timeout_s=30
+                timeout_s=60
             )
 
             # Parse and validate response

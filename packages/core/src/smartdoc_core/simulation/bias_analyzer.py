@@ -12,13 +12,31 @@ import json
 
 class BiasEvaluator:
     """
-    Implements rule-based bias detection algorithms as described in the research.
-    This is the core implementation of the "easy and effortless" strategy.
+    Enhanced rule-based bias detection with case-adaptive logic, persistence checks,
+    and minimum sample sizes for improved reliability and research validity.
     """
 
     def __init__(self, case_data: Dict[str, Any]):
         self.case_data = case_data
         self.bias_triggers = case_data.get("biasTriggers", {})
+
+        # Calculate case-adaptive thresholds
+        self.total_blocks = len(case_data.get("informationBlocks", []))
+        self.critical_findings = set(case_data.get("groundTruth", {}).get("criticalFindingIds", []))
+
+        # Adaptive thresholds based on case complexity
+        self.min_actions_threshold = max(3, round(0.2 * self.total_blocks))
+        self.min_critical_threshold = 0.5  # At least 50% of critical findings
+        self.min_sample_size = 3  # Minimum evidence sample for bias detection
+
+        # Intent taxonomy for robust pattern detection
+        self.cardio_intents = ["exam_cardiovascular", "lab_tests_cardiac", "vital_signs", "imaging_cardiac"]
+        self.broad_intents = ["pmh_general", "social_history", "family_history", "exam_general_appearance", "review_of_systems"]
+        self.assessment_intents = ["assessment", "treatment", "diagnosis", "differential"]
+        self.info_gathering_intents = ["hpi_", "pmh_", "exam_", "lab_", "history", "imaging_"]
+
+        print(f"BiasEvaluator initialized: {self.total_blocks} blocks, {len(self.critical_findings)} critical findings")
+        print(f"Adaptive thresholds: min_actions={self.min_actions_threshold}, min_critical={self.min_critical_threshold}")
 
     def evaluate_session(
         self,
@@ -247,12 +265,13 @@ class BiasEvaluator:
         self, session_log: List[Dict], hypotheses: List[Dict], final_diagnosis: str
     ) -> Dict[str, Any]:
         """
-        Algorithm 1: Anchoring Bias Detection
+        Enhanced Anchoring Bias Detection with Persistence Analysis
 
-        Implementation of the anchoring detection algorithm from Table 1:
-        1. Student adds an initial hypothesis (add_hypothesis)
-        2. Student subsequently views new findings (view_info) that contradict the initial hypothesis
-        3. Student submits final diagnosis identical to initial hypothesis
+        Detects anchoring by checking:
+        1. Initial hypothesis formation
+        2. Contradictory evidence revelation
+        3. Persistence after contradiction (key enhancement)
+        4. Final diagnosis alignment with anchor
         """
 
         if not hypotheses or not self.bias_triggers.get("anchoring"):
@@ -261,52 +280,93 @@ class BiasEvaluator:
                 "reason": "No hypotheses or anchoring triggers defined",
             }
 
-        # Get the initial hypothesis
+        # Get the initial hypothesis and timestamp
         initial_hypothesis = hypotheses[0]["diagnosis"].lower().strip()
+        initial_timestamp = hypotheses[0].get("timestamp")
 
         # Check if initial hypothesis matches the anchor from case metadata
-        anchor_info = (
-            self.bias_triggers["anchoring"].get("anchorDescription", "").lower()
-        )
-        if (
-            "heart failure" not in initial_hypothesis
-            or "heart failure" not in anchor_info
-        ):
+        anchor_info = self.bias_triggers["anchoring"].get("anchorDescription", "").lower()
+        anchor_keywords = ["heart failure", "cardiac", "chf"]  # More flexible matching
+
+        if not any(keyword in initial_hypothesis for keyword in anchor_keywords):
             return {
                 "detected": False,
-                "reason": "Initial hypothesis doesn't match expected anchor",
+                "reason": "Initial hypothesis doesn't match expected anchor patterns",
             }
 
-        # Check if contradictory information was revealed
-        contradictory_block_id = self.bias_triggers["anchoring"].get(
-            "contradictoryInfoId"
-        )
-        contradictory_revealed = any(
-            action.get("action_type") == "view_info"
-            and action.get("details", {}).get("blockId") == contradictory_block_id
-            for action in session_log
-        )
+        # Find when contradictory evidence was revealed
+        contradictory_block_id = self.bias_triggers["anchoring"].get("contradictoryInfoId")
+        contradictory_timestamp = None
 
-        if not contradictory_revealed:
+        for action in session_log:
+            if (
+                action.get("action_type") == "view_info"
+                and action.get("details", {}).get("blockId") == contradictory_block_id
+            ):
+                contradictory_timestamp = action.get("timestamp")
+                break
+
+        if not contradictory_timestamp:
             return {"detected": False, "reason": "Contradictory evidence not revealed"}
 
-        # Check if final diagnosis is still the same as initial hypothesis
-        final_matches_initial = "heart failure" in final_diagnosis.lower()
+        # ENHANCED: Check persistence after contradiction
+        persistence_score = self._check_anchoring_persistence(
+            session_log, contradictory_timestamp, anchor_keywords
+        )
 
-        if final_matches_initial:
+        # Check if final diagnosis still matches anchor
+        final_matches_initial = any(keyword in final_diagnosis.lower() for keyword in anchor_keywords)
+
+        if final_matches_initial and persistence_score > 0.5:
+            confidence = min(0.9, 0.6 + persistence_score * 0.3)  # Scale confidence with persistence
             return {
                 "detected": True,
-                "reason": "Student anchored on initial heart failure diagnosis despite contradictory evidence",
+                "reason": "Strong anchoring detected: initial hypothesis persisted despite contradictory evidence",
                 "initial_hypothesis": initial_hypothesis,
                 "contradictory_evidence": contradictory_block_id,
                 "final_diagnosis": final_diagnosis,
-                "confidence": 0.9,
+                "persistence_score": persistence_score,
+                "confidence": confidence,
+            }
+        elif final_matches_initial:
+            return {
+                "detected": True,
+                "reason": "Moderate anchoring detected: final diagnosis matches initial anchor",
+                "initial_hypothesis": initial_hypothesis,
+                "final_diagnosis": final_diagnosis,
+                "confidence": 0.6,
             }
 
         return {
             "detected": False,
-            "reason": "Final diagnosis differs from initial anchor",
+            "reason": "Final diagnosis differs from initial anchor or insufficient persistence",
         }
+
+    def _check_anchoring_persistence(self, session_log: List[Dict], contra_timestamp: str, anchor_keywords: List[str]) -> float:
+        """Check if student persisted with anchor-related activities after contradictory evidence."""
+        # Get actions after contradictory evidence
+        post_contra_actions = [
+            action for action in session_log
+            if action.get("timestamp", "") > contra_timestamp
+        ]
+
+        if len(post_contra_actions) < 2:
+            return 0.0  # Insufficient data
+
+        # Count anchor-focused vs. broader exploration
+        anchor_focus_count = 0
+        for action in post_contra_actions:
+            intent_id = action.get("intent_id", "")
+            query = action.get("user_query", "").lower()
+
+            # Check for continued cardio focus
+            if any(cardio_intent in intent_id for cardio_intent in self.cardio_intents):
+                anchor_focus_count += 1
+            elif any(keyword in query for keyword in anchor_keywords):
+                anchor_focus_count += 1
+
+        persistence_ratio = anchor_focus_count / len(post_contra_actions)
+        return persistence_ratio
 
     def _detect_confirmation_bias(self, revealed_blocks: set) -> Dict[str, Any]:
         """
@@ -481,9 +541,9 @@ class BiasEvaluator:
     def _generate_anchoring_feedback(self, result: Dict) -> str:
         return f"""
         🔗 **Anchoring Bias Detected**
-        
-        You initially focused on "{result['initial_hypothesis']}" and maintained this diagnosis even after revealing contradictory evidence ({result['contradictory_evidence']}). 
-        
+
+        You initially focused on "{result['initial_hypothesis']}" and maintained this diagnosis even after revealing contradictory evidence ({result['contradictory_evidence']}).
+
         **Improvement Strategy:**
         - When new information contradicts your initial hypothesis, actively reconsider your differential diagnosis
         - Ask yourself: "What else could explain these findings?"
@@ -493,9 +553,9 @@ class BiasEvaluator:
     def _generate_confirmation_feedback(self, result: Dict) -> str:
         return f"""
         ✅ **Confirmation Bias Detected**
-        
+
         You revealed {len(result['supporting_revealed'])} pieces of supporting evidence but only {len(result['refuting_revealed'])} pieces of contradictory evidence (support ratio: {result['support_ratio']:.1%}, refute ratio: {result['refute_ratio']:.1%}).
-        
+
         **Improvement Strategy:**
         - Actively seek information that could disprove your working diagnosis
         - Ask: "What findings would make me reconsider this diagnosis?"
@@ -508,9 +568,9 @@ class BiasEvaluator:
 
         return f"""
         🏁 **Premature Closure Detected**
-        
+
         You found only {critical_ratio:.1%} of critical findings and performed {actions_count} information-gathering actions before reaching your conclusion.
-        
+
         **Improvement Strategy:**
         - Gather more information before finalizing your diagnosis
         - Ensure you've performed a systematic review of history, physical exam, and appropriate tests
