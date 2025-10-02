@@ -95,13 +95,18 @@ Classify the doctor's input into ONE of these EXACT intent IDs that are appropri
 
 Doctor's input: "{doctor_input}"
 
-IMPORTANT: You MUST respond with one of the exact intent IDs listed above that are appropriate for the {context} phase. For example:
-- If in anamnesis and asking about chief complaint → use EXACTLY "hpi_chief_complaint"
-- If in anamnesis and asking about medications → use EXACTLY "meds_current_known"
-- If in exam and asking about heart exam → use EXACTLY "exam_cardiovascular"
-- If in exam and asking about lung exam → use EXACTLY "exam_respiratory"
-- If in labs and asking for blood work → use an appropriate "labs_" intent
-- If in labs and asking for imaging → use an appropriate "imaging_" intent
+CRITICAL MEDICATION CLASSIFICATION RULES (for {context} phase):
+- Basic medication questions (general, current meds) → "meds_current_known"
+- Specific RA/arthritis medication questions → "meds_ra_specific_initial_query"
+- Medication reconciliation/previous records/biologics → "meds_full_reconciliation_query"
+- Medical record access questions → "profile_medical_records"
+
+IMPORTANT: You MUST respond with one of the exact intent IDs listed above that are appropriate for the {context} phase. Examples:
+- "What medications is she taking?" → "meds_current_known"
+- "What does she take for arthritis?" → "meds_ra_specific_initial_query"
+- "Complete medication list from previous hospitalizations" → "meds_full_reconciliation_query"
+- "Any biologics or infliximab?" → "meds_full_reconciliation_query"
+- "Check her previous records" → "profile_medical_records"
 
 Respond with ONLY a JSON object in this exact format:
 {{

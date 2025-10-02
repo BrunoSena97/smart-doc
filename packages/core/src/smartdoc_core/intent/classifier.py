@@ -437,50 +437,64 @@ class LLMIntentClassifier:
             },
             # Medications
             "meds_current_known": {
-                "description": "Questions about current medications",
+                "description": "Questions about current medications (Level 1 - basic medication list)",
                 "examples": [
                     "What medications are you taking?",
+                    "What medications is she currently taking?",
                     "Current meds?",
                     "Any prescriptions?",
+                    "What drugs is she on?",
+                    "Tell me about her medications",
                 ],
                 "category": "medications",
             },
             "meds_uncertainty": {
-                "description": "Questions when medication information is unclear",
-                "examples": ["Not sure about medications?", "Medication uncertainty?"],
+                "description": "Questions when medication information is unclear or uncertain",
+                "examples": [
+                    "Not sure about medications?",
+                    "Medication uncertainty?",
+                    "Are there other medications we don't know about?",
+                    "Uncertain about her medication list?",
+                ],
                 "category": "medications",
             },
             "meds_ra_specific_initial_query": {
-                "description": "Specific questions about rheumatoid arthritis medications",
+                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA medication uncertainty)",
                 "examples": [
-                    "Rheumatoid arthritis medications?",
-                    "RA treatment?",
+                    "What medications does she take for rheumatoid arthritis?",
                     "What does she take for her arthritis?",
+                    "RA medications?",
+                    "Rheumatoid arthritis treatment?",
                     "What medications for RA?",
                     "Arthritis drugs?",
-                    "What does she take for rheumatoid arthritis?",
+                    "What does she take for her RA?",
+                    "Any arthritis medications?",
                 ],
                 "category": "medications",
             },
             "meds_full_reconciliation_query": {
-                "description": "Follow-up questions requesting complete medication reconciliation or specific drug details",
+                "description": "Complete medication reconciliation requests (Level 3 - reveals critical infliximab)",
                 "examples": [
-                    "Can you check her records for RA medications?",
-                    "What specific drugs for arthritis?",
-                    "Any biologics?",
-                    "Complete medication list?",
-                    "Check previous records",
-                    "What about infliximab?",
-                    "Any immunosuppressive medications?",
+                    "I need a complete medication reconciliation from previous hospitalizations",
+                    "Can you get her complete medication list from previous hospitalizations?",
+                    "Check her previous hospital records for medications",
+                    "What specific drugs for arthritis from old records?",
+                    "Any biologics or immunosuppressive medications?",
+                    "Complete medication list from all sources?",
+                    "Check previous medical records for RA medications",
+                    "What about infliximab or other biologics?",
+                    "Any TNF inhibitors?",
+                    "Medication reconciliation from other hospitals",
                 ],
                 "category": "medications",
             },
             "meds_other_meds_initial_query": {
-                "description": "Questions about other medications beyond known ones",
+                "description": "Questions about other medications beyond currently known ones",
                 "examples": [
                     "Any other medications?",
-                    "Other meds?",
+                    "Other meds we should know about?",
                     "Additional prescriptions?",
+                    "What other drugs is she taking?",
                 ],
                 "category": "medications",
             },
@@ -603,6 +617,16 @@ class LLMIntentClassifier:
             intent_id = "profile_age"
         elif any(
             word in input_lower
+            for word in ["complete medication", "medication reconciliation", "previous hospitalizations", "hospital records", "biologics", "infliximab", "tnf"]
+        ):
+            intent_id = "meds_full_reconciliation_query"
+        elif any(
+            word in input_lower
+            for word in ["arthritis", "rheumatoid", "ra medications", "arthritis medications"]
+        ):
+            intent_id = "meds_ra_specific_initial_query"
+        elif any(
+            word in input_lower
             for word in ["medications", "meds", "taking", "prescriptions"]
         ):
             intent_id = "meds_current_known"
@@ -686,6 +710,24 @@ class LLMIntentClassifier:
             ):
                 intent_id = (
                     "profile_age" if "profile_age" in valid_intents else "clarification"
+                )
+            elif any(
+                word in input_lower
+                for word in ["complete medication", "medication reconciliation", "previous hospitalizations", "hospital records", "biologics", "infliximab", "tnf"]
+            ):
+                intent_id = (
+                    "meds_full_reconciliation_query"
+                    if "meds_full_reconciliation_query" in valid_intents
+                    else "clarification"
+                )
+            elif any(
+                word in input_lower
+                for word in ["arthritis", "rheumatoid", "ra medications", "arthritis medications", " ra ", "ra?", "ra.", "for ra"]
+            ):
+                intent_id = (
+                    "meds_ra_specific_initial_query"
+                    if "meds_ra_specific_initial_query" in valid_intents
+                    else "clarification"
                 )
             elif any(
                 word in input_lower
