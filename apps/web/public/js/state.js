@@ -87,11 +87,66 @@ export function restoreSessionState(sessionData) {
     ? sessionData.bias_warnings.length
     : 0;
 
+  // Restore chat messages
+  if (sessionData.messages) {
+    restoreChatMessages(sessionData.messages);
+  }
+
   console.log("[STATE] Session restored:", {
     sessionId: state.sessionId,
     discoveries: state.discoveredCount,
     biasWarnings: state.biasWarningCount,
+    messages: sessionData.messages ? sessionData.messages.length : 0,
   });
+}
+
+function restoreChatMessages(messages) {
+  // Group messages by context
+  const messagesByContext = {
+    anamnesis: [],
+    exam: [],
+    labs: []
+  };
+
+  messages.forEach(msg => {
+    const context = msg.context || 'anamnesis';
+    if (messagesByContext[context]) {
+      messagesByContext[context].push(msg);
+    }
+  });
+
+  // Restore messages to appropriate chat boxes
+  Object.entries(messagesByContext).forEach(([context, contextMessages]) => {
+    if (contextMessages.length > 0) {
+      const chatboxId = `${context}-chatbox`;
+      contextMessages.forEach(msg => {
+        addMessageToDOM(chatboxId, msg.content, msg.role);
+      });
+    }
+  });
+}
+
+function addMessageToDOM(chatboxId, text, role) {
+  const box = document.getElementById(chatboxId);
+  if (!box) return;
+
+  const card = document.createElement("div");
+  card.className = `message ${role}-message`;
+
+  const avatar = document.createElement("div");
+  avatar.className = `avatar ${role}-avatar`;
+  avatar.innerHTML = role === "bot" 
+    ? '<i class="fas fa-user-md"></i>' 
+    : '<i class="fas fa-user-md"></i>';
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  bubble.innerHTML = `<span>${text}</span>`;
+
+  card.appendChild(avatar);
+  card.appendChild(bubble);
+  box.appendChild(card);
+  box.scrollTop = box.scrollHeight;
 }
 
 export function hasExistingSession() {

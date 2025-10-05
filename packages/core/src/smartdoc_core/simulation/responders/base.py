@@ -86,12 +86,23 @@ class Responder(ABC):
         # Clean up the response by removing quotes and extra whitespace
         text = text.strip()
 
-        # Remove surrounding quotes if present
-        if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
-            text = text[1:-1]
+        # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
+        quote_pairs = [
+            ('"', '"'),      # ASCII double quotes
+            ("'", "'"),      # ASCII single quotes
+            ('"', '"'),      # Unicode left/right double quotes
+            (''', '''),      # Unicode left/right single quotes
+        ]
 
-        # Remove any remaining leading/trailing quotes that might appear
-        text = text.strip().strip('"').strip("'")
+        # Keep removing quotes until no more surrounding pairs are found
+        changed = True
+        while changed:
+            changed = False
+            for start_quote, end_quote in quote_pairs:
+                if text.startswith(start_quote) and text.endswith(end_quote):
+                    text = text[len(start_quote):-len(end_quote)].strip()
+                    changed = True
+                    break
 
         return text
 

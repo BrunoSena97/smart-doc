@@ -320,3 +320,6 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
     btn.disabled = false;
   }
 }
+
+// Export addMsg for session restoration
+export { addMsg };

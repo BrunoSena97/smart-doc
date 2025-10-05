@@ -471,6 +471,33 @@ class IntentDrivenDisclosureManager:
 
         return None
 
+    def _clean_response_text(self, text: str) -> str:
+        """Remove quotes and clean up response text."""
+        if not text:
+            return text
+            
+        text = text.strip()
+        
+        # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
+        quote_pairs = [
+            ('"', '"'),      # ASCII double quotes
+            ("'", "'"),      # ASCII single quotes
+            ('"', '"'),      # Unicode left/right double quotes
+            (''', '''),      # Unicode left/right single quotes
+        ]
+        
+        # Keep removing quotes until no more surrounding pairs are found
+        changed = True
+        while changed:
+            changed = False
+            for start_quote, end_quote in quote_pairs:
+                if text.startswith(start_quote) and text.endswith(end_quote):
+                    text = text[len(start_quote):-len(end_quote)].strip()
+                    changed = True
+                    break
+        
+        return text
+
     def _prerequisites_satisfied(self, session, block) -> bool:
         """Check if all prerequisites for a block are satisfied."""
         prerequisites = getattr(block, 'prerequisites', []) or []
@@ -881,7 +908,7 @@ class IntentDrivenDisclosureManager:
                 text = self._generate_patient_fallback_response(intent_result, session)
 
         response = {
-            "text": text,
+            "text": self._clean_response_text(text),
             "discoveries": discoveries,
             "discovery_count": len(discoveries),
             "has_discoveries": bool(discoveries)
