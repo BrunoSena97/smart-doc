@@ -13,5 +13,6 @@ bp = Blueprint("api_v1", __name__)
 from .chat import *  # noqa
 from .simulation import *  # noqa
 from .diagnosis import *  # noqa
+from .assets import *  # noqa
 
 __all__ = ["bp"]

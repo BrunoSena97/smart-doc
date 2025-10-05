@@ -14,7 +14,7 @@ import {
   updateProgress,
   updateBiasCount,
 } from "./patientInfo.js";
-import { API_BASE_URL } from "../config.js";
+import { V1_BASE_URL } from "../config.js";
 
 export function initChatHandlers() {
   // Hook up chat forms for each context
@@ -150,6 +150,12 @@ async function handleChat(context) {
 }
 
 function addMsg(chatboxId, text, role) {
+  console.log("[CHAT] addMsg called with:", {
+    chatboxId,
+    text: text.substring(0, 50) + "...",
+    role,
+  });
+
   const box = document.getElementById(chatboxId);
   if (!box) {
     console.error("[CHAT] Chatbox not found:", chatboxId);
@@ -157,12 +163,47 @@ function addMsg(chatboxId, text, role) {
   }
 
   const card = document.createElement("div");
-  card.className = `message ${role}-message`;
+  card.className = `message ${role === "assistant" ? "bot" : role}-message`;
 
   const avatar = document.createElement("div");
-  avatar.className = `avatar ${role}-avatar`;
-  avatar.innerHTML =
-    role === "bot" ? botAvatarFor(chatboxId) : '<i class="fas fa-user-md"></i>';
+  avatar.className = `avatar ${role === "assistant" ? "bot" : role}-avatar`;
+
+  if (role === "bot" || role === "assistant") {
+    // Create avatar elements programmatically instead of using innerHTML
+    const img = document.createElement("img");
+    const fallback = document.createElement("i");
+
+    // Set image properties
+    img.className = "avatar-image";
+    img.alt = getBotAltText(chatboxId);
+
+    // Set fallback icon properties
+    fallback.className = getBotFallbackClass(chatboxId);
+    fallback.style.display = "none";
+
+    // Handle image load errors with retry logic
+    img.onerror = function () {
+      console.error("[CHAT] Failed to load avatar image:", this.src);
+      console.log("[CHAT] Attempting fallback to icon for chatbox:", chatboxId);
+      this.style.display = "none";
+      fallback.style.display = "flex";
+    };
+
+    // Handle successful image load
+    img.onload = function () {
+      console.log("[CHAT] Successfully loaded avatar image:", this.src);
+      this.style.display = "block";
+      fallback.style.display = "none";
+    };
+
+    // Set the image source AFTER setting up event handlers
+    img.src = getBotImageUrl(chatboxId);
+
+    avatar.appendChild(img);
+    avatar.appendChild(fallback);
+  } else {
+    avatar.innerHTML = '<i class="fas fa-user-md"></i>';
+  }
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
@@ -174,17 +215,37 @@ function addMsg(chatboxId, text, role) {
   box.scrollTop = box.scrollHeight;
 }
 
-function botAvatarFor(chatboxId) {
+function getBotImageUrl(chatboxId) {
+  console.log("[CHAT] Using V1_BASE_URL for assets:", V1_BASE_URL);
+  console.log("[CHAT] Getting image URL for chatboxId:", chatboxId);
+
+  let imageUrl;
   if (chatboxId.includes("anamnesis")) {
-    return `<img src="${API_BASE_URL}/assets/son_image.png" alt="Son" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user avatar-fallback" style="display:none;"></i>`;
+    imageUrl = `${V1_BASE_URL}/assets/son_image.png`;
+  } else if (chatboxId.includes("exam")) {
+    imageUrl = `${V1_BASE_URL}/assets/patient_image.png`;
+  } else if (chatboxId.includes("labs")) {
+    imageUrl = `${V1_BASE_URL}/assets/resident_image.png`;
+  } else {
+    imageUrl = `${V1_BASE_URL}/assets/resident_image.png`;
   }
-  if (chatboxId.includes("exam")) {
-    return `<img src="${API_BASE_URL}/assets/patient_image.png" alt="Patient" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-stethoscope avatar-fallback" style="display:none;"></i>`;
-  }
-  if (chatboxId.includes("labs")) {
-    return `<img src="${API_BASE_URL}/assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
-  }
-  return `<img src="${API_BASE_URL}/assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
+
+  console.log("[CHAT] Resolved image URL:", imageUrl);
+  return imageUrl;
+}
+
+function getBotAltText(chatboxId) {
+  if (chatboxId.includes("anamnesis")) return "Son";
+  if (chatboxId.includes("exam")) return "Patient";
+  if (chatboxId.includes("labs")) return "Resident";
+  return "Resident";
+}
+
+function getBotFallbackClass(chatboxId) {
+  if (chatboxId.includes("anamnesis")) return "fas fa-user avatar-fallback";
+  if (chatboxId.includes("exam")) return "fas fa-stethoscope avatar-fallback";
+  if (chatboxId.includes("labs")) return "fas fa-user-md avatar-fallback";
+  return "fas fa-user-md avatar-fallback";
 }
 
 function addBiasWarning(chatboxId, warning) {

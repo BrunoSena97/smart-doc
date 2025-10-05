@@ -81,11 +81,6 @@ def create_app() -> Flask:
     app.register_blueprint(admin_bp)  # Already has /api/v1/admin prefix
     app.register_blueprint(evaluation_bp)  # Already has /api/v1/evaluation prefix
 
-    # Legacy routes (for backward compatibility during migration)
-    from .routes.legacy import bp as legacy_bp
-
-    app.register_blueprint(legacy_bp)
-
     # Health check endpoints
     @app.get("/health")
     def health():
@@ -96,23 +91,35 @@ def create_app() -> Flask:
         """Kubernetes-style health check endpoint."""
         return {"ok": True}
 
-    # Static file serving for the web frontend
-    @app.route("/")
-    def index():
-        """Serve the main web application."""
-        from flask import send_from_directory
-        # Web files are mounted at /app/web in the container
-        return send_from_directory("/app/web", "index.html")
+    # Static file serving for the web frontend (for production/Docker)
+    # In development, the frontend is served separately
+    # Check for Docker environment or production mode
+    is_docker_or_prod = (
+        os.getenv("SMARTDOC_ENV") == "prod" or
+        os.getenv("FLASK_ENV") == "production" or
+        os.path.exists("/app/web")  # Docker mount indicator
+    )
 
-    @app.route("/<path:filename>")
-    def serve_static_files(filename):
-        """Serve static assets (CSS, JS, images)."""
-        from flask import send_from_directory
-        try:
-            return send_from_directory("/app/web", filename)
-        except Exception:
-            # If file not found, serve index.html for SPA routing
+    if is_docker_or_prod:
+        @app.route("/")
+        def index():
+            """Serve the main web application."""
+            from flask import send_from_directory
+            # Web files are mounted at /app/web in the container
             return send_from_directory("/app/web", "index.html")
+
+        @app.route("/<path:filename>")
+        def serve_static_files(filename):
+            """Serve static assets (CSS, JS, images)."""
+            from flask import send_from_directory
+            try:
+                return send_from_directory("/app/web", filename)
+            except Exception:
+                # If file not found, serve index.html for SPA routing
+                return send_from_directory("/app/web", "index.html")    # Legacy routes (for backward compatibility during migration)
+    # Register AFTER catch-all routes so legacy routes take precedence
+    from .routes.legacy import bp as legacy_bp
+    app.register_blueprint(legacy_bp)
 
     return app
 

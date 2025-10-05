@@ -266,7 +266,7 @@ class IntentDrivenDisclosureManager:
             "Medications": "current_medications",
             "PhysicalExam": "physical_examination",
             "Labs": "diagnostic_results",
-            "Imaging": "diagnostic_results"
+            "Imaging": "imaging"
         }.get(block_type, "clinical_assessment")
 
     def start_intent_driven_session(self, session_id: Optional[str] = None) -> str:
