@@ -15,6 +15,34 @@ from smartdoc_api.services.repo import (
     get_or_create_conversation_for_session,
     add_message, ensure_session, add_discoveries, add_biases, MessageRole
 )
+
+
+def clean_response_text(text: str) -> str:
+    """Remove quotes and clean up response text at API level."""
+    if not text:
+        return text
+        
+    text = text.strip()
+    
+    # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
+    quote_pairs = [
+        ('"', '"'),      # ASCII double quotes
+        ("'", "'"),      # ASCII single quotes
+        ('"', '"'),      # Unicode left/right double quotes
+        (''', '''),      # Unicode left/right single quotes
+    ]
+    
+    # Keep removing quotes until no more surrounding pairs are found
+    changed = True
+    while changed:
+        changed = False
+        for start_quote, end_quote in quote_pairs:
+            if text.startswith(start_quote) and text.endswith(end_quote):
+                text = text[len(start_quote):-len(end_quote)].strip()
+                changed = True
+                break
+    
+    return text
 from smartdoc_api.services.auth_service import require_auth
 
 # Import real SmartDoc components
@@ -133,7 +161,7 @@ def v1_chat():
 
             if discovery_result["success"]:
                 # Generate context-appropriate response
-                response_text = discovery_result["response"]["text"]
+                response_text = clean_response_text(discovery_result["response"]["text"])
 
                 response_data = {
                     "reply": response_text,  # v1 format

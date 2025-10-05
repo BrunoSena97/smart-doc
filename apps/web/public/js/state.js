@@ -1,3 +1,4 @@
+import { addMsg } from "./ui/chat.js";
 export const state = {
   sessionId: null,
 
@@ -105,11 +106,11 @@ function restoreChatMessages(messages) {
   const messagesByContext = {
     anamnesis: [],
     exam: [],
-    labs: []
+    labs: [],
   };
 
-  messages.forEach(msg => {
-    const context = msg.context || 'anamnesis';
+  messages.forEach((msg) => {
+    const context = msg.context || "anamnesis";
     if (messagesByContext[context]) {
       messagesByContext[context].push(msg);
     }
@@ -119,35 +120,14 @@ function restoreChatMessages(messages) {
   Object.entries(messagesByContext).forEach(([context, contextMessages]) => {
     if (contextMessages.length > 0) {
       const chatboxId = `${context}-chatbox`;
-      contextMessages.forEach(msg => {
-        addMessageToDOM(chatboxId, msg.content, msg.role);
+      contextMessages.forEach((msg) => {
+        addMsg(chatboxId, msg.content, msg.role);
       });
     }
   });
 }
 
-function addMessageToDOM(chatboxId, text, role) {
-  const box = document.getElementById(chatboxId);
-  if (!box) return;
-
-  const card = document.createElement("div");
-  card.className = `message ${role}-message`;
-
-  const avatar = document.createElement("div");
-  avatar.className = `avatar ${role}-avatar`;
-  avatar.innerHTML = role === "bot" 
-    ? '<i class="fas fa-user-md"></i>' 
-    : '<i class="fas fa-user-md"></i>';
-
-  const bubble = document.createElement("div");
-  bubble.className = "message-bubble";
-  bubble.innerHTML = `<span>${text}</span>`;
-
-  card.appendChild(avatar);
-  card.appendChild(bubble);
-  box.appendChild(card);
-  box.scrollTop = box.scrollHeight;
-}
+// Removed addMessageToDOM, use addMsg from chat.js
 
 export function hasExistingSession() {
   return state.sessionId !== null && state.discoveredCount > 0;

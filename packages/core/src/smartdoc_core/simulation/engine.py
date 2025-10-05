@@ -475,9 +475,9 @@ class IntentDrivenDisclosureManager:
         """Remove quotes and clean up response text."""
         if not text:
             return text
-            
+
         text = text.strip()
-        
+
         # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
         quote_pairs = [
             ('"', '"'),      # ASCII double quotes
@@ -485,7 +485,7 @@ class IntentDrivenDisclosureManager:
             ('"', '"'),      # Unicode left/right double quotes
             (''', '''),      # Unicode left/right single quotes
         ]
-        
+
         # Keep removing quotes until no more surrounding pairs are found
         changed = True
         while changed:
@@ -495,7 +495,7 @@ class IntentDrivenDisclosureManager:
                     text = text[len(start_quote):-len(end_quote)].strip()
                     changed = True
                     break
-        
+
         return text
 
     def _prerequisites_satisfied(self, session, block) -> bool:
