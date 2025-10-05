@@ -3,7 +3,8 @@
 
 import sys
 import os
-sys.path.insert(0, '/Users/bruno.sena/Projects/personal/masters/smart-doc/packages/core/src')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
 
 from smartdoc_core.intent.classifier import LLMIntentClassifier
 

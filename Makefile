@@ -10,6 +10,15 @@ help: ## Show this help message
 	@echo "  make api-local       - Run API locally (for development)"
 	@echo "  make web             - Serve static frontend"
 	@echo ""
+	@echo "🧪 Testing Commands:"
+	@echo "  make test            - Run all tests (core + API + integration)"
+	@echo "  make test-core       - Run core package tests only"
+	@echo "  make test-api-unit   - Run API package unit tests"
+	@echo "  make test-integration - Run integration tests"
+	@echo "  make test-frontend   - Run frontend demo scripts"
+	@echo "  make test-dev        - Run development tools"
+	@echo "  make test-file FILE=path - Run specific test file"
+	@echo ""
 	@echo "🐳 Docker Options:"
 	@echo "  make dev-docker      - SmartDoc in Docker + local Ollama"
 	@echo "  make deploy          - Full production deployment"
@@ -30,10 +39,60 @@ install: install-poetry ## Install packages in development mode using Poetry
 	cd packages/core && poetry install
 	cd apps/api && poetry install
 
-test: ## Run all tests
-	@echo "🧪 Running tests..."
-	cd packages/core && poetry run pytest
-	cd apps/api && poetry run pytest
+test: ## Run all tests (core, api, and integration tests)
+	@echo "🧪 Running all tests..."
+	@echo "📦 Testing core package..."
+	cd packages/core && poetry run pytest -v
+	@echo "🔌 Testing API package..."
+	cd apps/api && poetry run pytest -v
+	@echo "🔗 Running integration tests..."
+	$(MAKE) test-integration
+	@echo "✅ All tests completed!"
+
+test-core: ## Run core package tests only
+	@echo "📦 Running core package tests..."
+	cd packages/core && poetry run pytest -v
+
+test-api-unit: ## Run API package tests only
+	@echo "🔌 Running API package tests..."
+	cd apps/api && poetry run pytest -v
+
+test-integration: ## Run integration tests
+	@echo "🔗 Running integration tests..."
+	cd packages/core && poetry run python ../../tests/integration/test_medication_escalation_flow.py
+	cd packages/core && poetry run python ../../tests/integration/test_imaging_escalation_flow.py
+	cd packages/core && poetry run python ../../tests/integration/test_labs_specific_intents.py
+
+test-frontend: ## Run frontend demonstration scripts
+	@echo "🎭 Running frontend demonstration tests..."
+	cd packages/core && poetry run python ../../tests/frontend/test_correct_diagnosis_path.py
+	cd packages/core && poetry run python ../../tests/frontend/test_biased_diagnosis_path.py
+
+test-dev: ## Run development tools
+	@echo "🛠️ Running development tools..."
+	cd packages/core && poetry run python ../../dev-tools/check_intents.py
+	cd packages/core && poetry run python ../../dev-tools/debug_lab_intent.py
+
+# Test specific file - usage: make test-file FILE=path/to/test_file.py
+test-file: ## Run a specific test file (usage: make test-file FILE=tests/integration/test_medication_escalation_flow.py)
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ Please specify a file: make test-file FILE=path/to/test_file.py"; \
+		exit 1; \
+	fi
+	@echo "🎯 Running specific test file: $(FILE)"
+	@if echo "$(FILE)" | grep -q "tests/integration\|tests/frontend\|dev-tools"; then \
+		echo "🏃 Running in core environment..."; \
+		cd packages/core && poetry run python "../../$(FILE)"; \
+	elif echo "$(FILE)" | grep -q "packages/core"; then \
+		echo "📦 Running in core environment..."; \
+		cd packages/core && poetry run python "$(FILE)"; \
+	elif echo "$(FILE)" | grep -q "apps/api"; then \
+		echo "🔌 Running in API environment..."; \
+		cd apps/api && poetry run python "$(FILE)"; \
+	else \
+		echo "❌ Unknown test file location. Please check the path."; \
+		exit 1; \
+	fi
 
 api: ## Run the Flask API server
 	@echo "🚀 Starting SmartDoc API..."

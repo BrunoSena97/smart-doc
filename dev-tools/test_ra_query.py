@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Add packages to path
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
 
 from smartdoc_core.intent.classifier import LLMIntentClassifier
 from smartdoc_core.llm.providers.ollama import OllamaProvider

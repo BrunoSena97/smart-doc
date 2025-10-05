@@ -10,8 +10,8 @@ from typing import Dict, Any
 
 # Add packages to path
 import sys
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "src"))
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "shared" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "shared" / "src"))
 
 try:
     from smartdoc_core.intent.classifier import LLMIntentClassifier
@@ -28,7 +28,7 @@ class TestMedicationEscalationFlow:
     """Test the complete medication escalation flow."""
 
     def __init__(self):
-        self.case_file = Path(__file__).parent / "data" / "raw" / "cases" / "intent_driven_case.json"
+        self.case_file = Path(__file__).parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
 
         # Initialize with the case file path for the engine
         self.engine = IntentDrivenDisclosureManager(

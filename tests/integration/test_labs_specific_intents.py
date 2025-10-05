@@ -10,7 +10,7 @@ from typing import Dict, Any
 
 # Add packages to path
 import sys
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
 
 try:
     from smartdoc_core.intent.classifier import LLMIntentClassifier
@@ -25,7 +25,7 @@ class TestLabsSpecificIntents:
     """Test the corrected labs structure with specific intents."""
 
     def __init__(self):
-        self.case_file = Path(__file__).parent / "data" / "raw" / "cases" / "intent_driven_case.json"
+        self.case_file = Path(__file__).parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
 
         # Initialize with gemma model
         self.engine = IntentDrivenDisclosureManager(

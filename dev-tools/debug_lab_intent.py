@@ -7,7 +7,8 @@ import asyncio
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "src"))
+# Add the packages/core/src directory to the Python path
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
 
 from smartdoc_core.intent.classifier import LLMIntentClassifier
 from smartdoc_core.simulation.engine import IntentDrivenDisclosureManager
@@ -17,7 +18,7 @@ from smartdoc_core.llm.providers.ollama import OllamaProvider
 async def debug_lab_intent():
     """Debug why specific lab intents aren't working."""
 
-    case_file = Path(__file__).parent / "data" / "raw" / "cases" / "intent_driven_case.json"
+    case_file = Path(__file__).parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
 
     # Initialize engine
     engine = IntentDrivenDisclosureManager(case_file_path=str(case_file))

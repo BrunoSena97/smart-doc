@@ -12,7 +12,7 @@ from typing import Dict, Any, List
 
 # Add packages to path
 import sys
-sys.path.insert(0, str(Path(__file__).parent / "packages" / "core" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "core" / "src"))
 
 try:
     from smartdoc_core.simulation.engine import IntentDrivenDisclosureManager
@@ -26,7 +26,7 @@ class CorrectDiagnosisPath:
     """Simulates the ideal clinical path leading to correct diagnosis."""
 
     def __init__(self):
-        self.case_file = Path(__file__).parent / "data" / "raw" / "cases" / "intent_driven_case.json"
+        self.case_file = Path(__file__).parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
         self.engine = IntentDrivenDisclosureManager(case_file_path=str(self.case_file))
         self.session_id = "correct_diagnosis_test"
         self.discovered_critical_findings = []
