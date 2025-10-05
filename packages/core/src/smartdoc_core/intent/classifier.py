@@ -326,7 +326,9 @@ class LLMIntentClassifier:
                 "labs_bnp",
                 "labs_wbc",
                 "labs_hemoglobin",
-                "imaging_chest",
+                "imaging_chest_xray",
+                "imaging_echo",
+                "imaging_ct_chest",
                 "imaging_general",
                 # General communication
                 "general_greeting",
@@ -591,14 +593,72 @@ class LLMIntentClassifier:
                 "examples": ["Hemoglobin level?", "What's the Hgb?", "Hematocrit?"],
                 "category": "diagnostics",
             },
-            "imaging_chest": {
-                "description": "Questions about chest imaging",
-                "examples": ["Chest X-ray?", "Chest CT?", "Chest imaging?"],
+            "imaging_chest_xray": {
+                "description": "Questions about chest X-ray studies",
+                "examples": [
+                    "Chest X-ray?",
+                    "Order a chest X-ray",
+                    "CXR results?",
+                    "Can I see the chest X-ray?",
+                    "Show me the chest radiograph",
+                    "Any chest X-ray available?",
+                    "Request chest X-ray",
+                    "Is there a chest X-ray report?",
+                    "What does the chest X-ray show?",
+                    "Can I review the CXR?",
+                    "Chest radiograph findings?",
+                    "X-ray of the chest?"
+                ],
+                "category": "diagnostics",
+            },
+            "imaging_echo": {
+                "description": "Questions about echocardiogram studies",
+                "examples": [
+                    "Echocardiogram?",
+                    "Order an echo",
+                    "Echo results?",
+                    "Can I see the echocardiogram?",
+                    "What does the echo show?",
+                    "Heart ultrasound?",
+                    "Cardiac echo?",
+                    "Echo findings?",
+                    "Is there an echo report?",
+                    "Can I review the echocardiogram?",
+                    "Request an echocardiogram",
+                    "Echo study results?"
+                ],
+                "category": "diagnostics",
+            },
+            "imaging_ct_chest": {
+                "description": "Questions about chest CT scan studies",
+                "examples": [
+                    "Chest CT?",
+                    "CT chest?",
+                    "Order a chest CT",
+                    "Can I see the chest CT results?",
+                    "Show me the CT chest findings",
+                    "Is there a CT scan of the chest?",
+                    "Request chest CT scan",
+                    "What does the chest CT show?",
+                    "Can I review the chest CT?",
+                    "CT scan results?",
+                    "Computed tomography of chest?",
+                    "Advanced chest imaging?"
+                ],
                 "category": "diagnostics",
             },
             "imaging_general": {
-                "description": "Questions about imaging studies",
-                "examples": ["Any imaging?", "Radiology results?", "Scan results?"],
+                "description": "General questions about imaging studies",
+                "examples": [
+                    "Any imaging?",
+                    "Radiology results?",
+                    "Scan results?",
+                    "What imaging studies do we have?",
+                    "Any additional imaging?",
+                    "Other scans available?",
+                    "Additional radiology?",
+                    "More imaging studies?"
+                ],
                 "category": "diagnostics",
             },
             # General Communication
