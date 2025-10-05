@@ -1,4 +1,10 @@
 import { addMsg } from "./ui/chat.js";
+
+// Import mapCategory for discovery restoration
+let mapCategory = null;
+import("./ui/chat.js").then((module) => {
+  mapCategory = module.mapCategory || ((c) => c.toLowerCase());
+});
 export const state = {
   sessionId: null,
 
@@ -68,7 +74,10 @@ export function restoreSessionState(sessionData) {
 
   if (sessionData.discoveries) {
     sessionData.discoveries.forEach((discovery) => {
-      const category = discovery.category || "hpi";
+      // Map the discovery category to UI category
+      const rawCategory = discovery.category || "presenting_symptoms";
+      const category = mapCategoryLocal(rawCategory);
+
       if (!state.discoveredInfo[category]) {
         state.discoveredInfo[category] = {};
       }
@@ -91,6 +100,17 @@ export function restoreSessionState(sessionData) {
   // Restore chat messages
   if (sessionData.messages) {
     restoreChatMessages(sessionData.messages);
+  }
+
+  // Redraw discoveries in UI
+  if (sessionData.discoveries) {
+    import("./ui/patientInfo.js").then(({ redrawCategory }) => {
+      Object.keys(state.discoveredInfo).forEach((cat) => {
+        if (Object.keys(state.discoveredInfo[cat]).length > 0) {
+          redrawCategory(cat);
+        }
+      });
+    });
   }
 
   console.log("[STATE] Session restored:", {
@@ -116,18 +136,55 @@ function restoreChatMessages(messages) {
     }
   });
 
-  // Restore messages to appropriate chat boxes
-  Object.entries(messagesByContext).forEach(([context, contextMessages]) => {
-    if (contextMessages.length > 0) {
-      const chatboxId = `${context}-chatbox`;
-      contextMessages.forEach((msg) => {
-        addMsg(chatboxId, msg.content, msg.role);
-      });
-    }
-  });
+  // Delay message restoration to ensure DOM and images are ready
+  setTimeout(() => {
+    Object.entries(messagesByContext).forEach(([context, contextMessages]) => {
+      if (contextMessages.length > 0) {
+        const chatboxId = `${context}-chatbox`;
+        contextMessages.forEach((msg) => {
+          addMsg(chatboxId, msg.content, msg.role);
+        });
+      }
+    });
+  }, 100);
 }
 
-// Removed addMessageToDOM, use addMsg from chat.js
+// Local category mapping function for restoration
+function mapCategoryLocal(c) {
+  const m = {
+    "Clinical History": "hpi",
+    "Medical History": "hpi",
+    History: "hpi",
+    HPI: "hpi",
+    "Presenting Symptoms": "hpi",
+    medical_history: "hpi",
+    presenting_symptoms: "hpi",
+    clinical_assessment: "hpi",
+    hpi: "hpi",
+    history: "hpi",
+    general: "hpi",
+    "Current Medications": "medications",
+    Medications: "medications",
+    current_medications: "medications",
+    medications: "medications",
+    "Physical Examination": "exam",
+    "Physical Exam": "exam",
+    Examination: "exam",
+    physical_examination: "exam",
+    physical_exam: "exam",
+    examination: "exam",
+    exam: "exam",
+    Laboratory: "labs",
+    Labs: "labs",
+    "Diagnostic Results": "labs",
+    diagnostic_results: "labs",
+    laboratory: "labs",
+    labs: "labs",
+    Imaging: "imaging",
+    imaging: "imaging",
+  };
+  return m[c] || "hpi";
+}
 
 export function hasExistingSession() {
   return state.sessionId !== null && state.discoveredCount > 0;

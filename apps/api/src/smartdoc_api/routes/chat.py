@@ -21,9 +21,9 @@ def clean_response_text(text: str) -> str:
     """Remove quotes and clean up response text at API level."""
     if not text:
         return text
-        
+
     text = text.strip()
-    
+
     # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
     quote_pairs = [
         ('"', '"'),      # ASCII double quotes
@@ -31,7 +31,7 @@ def clean_response_text(text: str) -> str:
         ('"', '"'),      # Unicode left/right double quotes
         (''', '''),      # Unicode left/right single quotes
     ]
-    
+
     # Keep removing quotes until no more surrounding pairs are found
     changed = True
     while changed:
@@ -41,7 +41,7 @@ def clean_response_text(text: str) -> str:
                 text = text[len(start_quote):-len(end_quote)].strip()
                 changed = True
                 break
-    
+
     return text
 from smartdoc_api.services.auth_service import require_auth
 

@@ -472,21 +472,26 @@ class IntentDrivenDisclosureManager:
         return None
 
     def _clean_response_text(self, text: str) -> str:
-        """Remove quotes and clean up response text."""
+        """Remove quotes and clean up response text, including Unicode quotes."""
         if not text:
             return text
 
         text = text.strip()
 
-        # Remove surrounding quotes if present (handle ASCII, Unicode, and mixed quotes)
-        quote_pairs = [
-            ('"', '"'),      # ASCII double quotes
-            ("'", "'"),      # ASCII single quotes
-            ('"', '"'),      # Unicode left/right double quotes
-            (''', '''),      # Unicode left/right single quotes
+        # Remove Unicode quotes (\u201c and \u201d)
+        unicode_quotes = [
+            ('\u201c', '\u201d'),
+            ('“', '”'),
         ]
+        for start, end in unicode_quotes:
+            if text.startswith(start) and text.endswith(end):
+                text = text[len(start):-len(end)].strip()
 
-        # Keep removing quotes until no more surrounding pairs are found
+        # Remove ASCII quotes
+        quote_pairs = [
+            ('"', '"'),
+            ("'", "'"),
+        ]
         changed = True
         while changed:
             changed = False

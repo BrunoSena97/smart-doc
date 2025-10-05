@@ -14,6 +14,7 @@ import {
   updateProgress,
   updateBiasCount,
 } from "./patientInfo.js";
+import { API_BASE_URL } from "../config.js";
 
 export function initChatHandlers() {
   // Hook up chat forms for each context
@@ -175,15 +176,15 @@ function addMsg(chatboxId, text, role) {
 
 function botAvatarFor(chatboxId) {
   if (chatboxId.includes("anamnesis")) {
-    return `<img src="./assets/son_image.png" alt="Son" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user avatar-fallback" style="display:none;"></i>`;
+    return `<img src="${API_BASE_URL}/assets/son_image.png" alt="Son" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user avatar-fallback" style="display:none;"></i>`;
   }
   if (chatboxId.includes("exam")) {
-    return `<img src="./assets/patient_image.png" alt="Patient" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-stethoscope avatar-fallback" style="display:none;"></i>`;
+    return `<img src="${API_BASE_URL}/assets/patient_image.png" alt="Patient" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-stethoscope avatar-fallback" style="display:none;"></i>`;
   }
   if (chatboxId.includes("labs")) {
-    return `<img src="./assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
+    return `<img src="${API_BASE_URL}/assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
   }
-  return `<img src="./assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
+  return `<img src="${API_BASE_URL}/assets/resident_image.png" alt="Resident" class="avatar-image" onerror="this.style.display='none'"><i class="fas fa-user-md avatar-fallback" style="display:none;"></i>`;
 }
 
 function addBiasWarning(chatboxId, warning) {
@@ -321,5 +322,5 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
   }
 }
 
-// Export addMsg for session restoration
-export { addMsg };
+// Export addMsg and mapCategory for session restoration
+export { addMsg, mapCategory };
