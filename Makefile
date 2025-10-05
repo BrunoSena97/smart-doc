@@ -59,6 +59,7 @@ test-api-unit: ## Run API package tests only
 
 test-integration: ## Run integration tests
 	@echo "🔗 Running integration tests..."
+	cd packages/core && poetry run python ../../tests/integration/test_pertinent_negatives_accumulation.py
 	cd packages/core && poetry run python ../../tests/integration/test_medication_escalation_flow.py
 	cd packages/core && poetry run python ../../tests/integration/test_imaging_escalation_flow.py
 	cd packages/core && poetry run python ../../tests/integration/test_labs_specific_intents.py

@@ -353,6 +353,7 @@ async function handleSubmitDiagnosisWithReflection(diagnosis, reflection) {
       diagnosis,
       metacognitive_responses: reflection,
       session_data: {
+        session_id: state.sessionId,
         discovered_count: state.discoveredCount,
         total_available: state.totalAvailableInfo,
         bias_warnings: state.biasWarningCount,

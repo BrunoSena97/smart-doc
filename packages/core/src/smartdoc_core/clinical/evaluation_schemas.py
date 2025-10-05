@@ -7,6 +7,34 @@ from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field, validator
 
 
+class SimplifiedDimensionScore(BaseModel):
+    """Simplified schema for evaluation dimension scores."""
+    score: int = Field(..., ge=0, le=100, description="Score from 0-100")
+    analysis: str = Field(..., min_length=10, description="Brief analysis of performance")
+
+
+class ComprehensiveFeedback(BaseModel):
+    """Comprehensive feedback focused on practical improvement."""
+    strengths: str = Field(..., min_length=10, description="What the student did well")
+    areas_for_improvement: str = Field(..., min_length=10, description="Areas needing development")
+    key_recommendations: List[str] = Field(..., description="Actionable recommendations")
+
+    @validator('key_recommendations')
+    def validate_recommendations(cls, v):
+        if len(v) < 1:
+            raise ValueError("At least one recommendation is required")
+        return v
+
+
+class SimplifiedClinicalEvaluation(BaseModel):
+    """Simplified clinical evaluation focused on three core areas."""
+    information_gathering: SimplifiedDimensionScore
+    diagnostic_accuracy: SimplifiedDimensionScore
+    cognitive_bias_awareness: SimplifiedDimensionScore
+    comprehensive_feedback: ComprehensiveFeedback
+
+
+# Keep the original complex schema for backward compatibility
 class DimensionScore(BaseModel):
     """Base schema for evaluation dimension scores."""
     score: int = Field(..., ge=0, le=100, description="Score from 0-100")

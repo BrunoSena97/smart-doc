@@ -25,7 +25,7 @@ class TestImagingEscalationFlow:
     """Test the imaging escalation flow."""
 
     def __init__(self):
-        self.case_file = Path(__file__).parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
+        self.case_file = Path(__file__).parent.parent.parent / "data" / "raw" / "cases" / "intent_driven_case.json"
 
         # Initialize with gemma model
         self.engine = IntentDrivenDisclosureManager(

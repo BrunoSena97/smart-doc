@@ -35,7 +35,7 @@ class OllamaProvider(LLMProvider):
         *,
         temperature: float = 0.1,
         top_p: float = 0.9,
-        timeout_s: int = 30
+        timeout_s: int = 120
     ) -> str:
         """
         Generate text using Ollama API.

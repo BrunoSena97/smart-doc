@@ -245,7 +245,8 @@
       "isCritical": true,
       "intentTriggers": ["imaging_echo"],
       "groupId": "grp_echo",
-      "level": 1
+      "level": 1,
+      "revealPolicy": "escalate"
     },
     {
       "blockId": "critical_ct_chest",
@@ -254,8 +255,7 @@
       "isCritical": true,
       "intentTriggers": ["imaging_ct_chest"],
       "groupId": "grp_advanced_imaging",
-      "level": 2,
-      "prerequisites": ["critical_cxr_formal"],
+      "level": 1,
       "revealPolicy": "escalate"
     }
   ],
@@ -271,9 +271,9 @@
     "hpi_onset_duration_primary": ["grp_hpi_timeline"],
     "hpi_associated_symptoms_general": ["grp_hpi_symptoms"],
     "hpi_pertinent_negatives": ["grp_hpi_negatives"],
-    "hpi_chest_pain": ["grp_hpi_negatives"],
-    "hpi_fever": ["grp_hpi_negatives"],
-    "hpi_chills": ["grp_hpi_negatives"],
+    "hpi_chest_pain": ["hpi_chest_pain"],
+    "hpi_fever": ["hpi_fever"],
+    "hpi_chills": ["hpi_chills"],
     "hpi_recent_medical_care": ["grp_hpi_timeline"],
     "pmh_general": ["grp_pmh"],
     "meds_current_known": ["meds_initial_known"],
@@ -292,7 +292,7 @@
     "imaging_chest_xray": ["grp_cxr"],
     "imaging_echo": ["grp_echo"],
     "imaging_ct_chest": ["grp_advanced_imaging"],
-    "imaging_general": ["grp_cxr", "grp_echo", "grp_advanced_imaging"]
+    "imaging_general": ["grp_cxr"]
   },
   "groundTruth": {
     "finalDiagnosis": "Miliary tuberculosis",

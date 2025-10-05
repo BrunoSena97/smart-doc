@@ -520,7 +520,9 @@ class IntentDrivenDisclosureManager:
         """Generate appropriate resident response when requested tests are not available."""
         labs_fallbacks = {
             "labs_general": "I can order comprehensive laboratory studies for you. What specific tests would you like me to prioritize?",
-            "imaging_chest": "I can order a chest X-ray and have the results available shortly. Would you like me to proceed?",
+            "imaging_chest_xray": "I can order a chest X-ray and have the results available shortly. Would you like me to proceed?",
+            "imaging_echo": "I can order an echocardiogram to evaluate cardiac function. Would you like me to arrange that?",
+            "imaging_ct_chest": "I can order a chest CT scan for more detailed imaging. Should I proceed with that?",
             "imaging_general": "What imaging studies would you like me to order? I can arrange CT, MRI, or other modalities as needed.",
             "labs_cbc": "I can order a complete blood count with differential. The results should be available within the hour.",
             "labs_bmp": "I'll order a basic metabolic panel for you. Any other chemistry studies you'd like to add?",
@@ -561,7 +563,9 @@ class IntentDrivenDisclosureManager:
             "meds_full_reconciliation_query": "Let me check if they found her records from the other hospital... Yes! They found her previous records with her complete medication list.",
             "meds_other_meds_initial_query": "I'm not sure about other medications. She sees different doctors for her various conditions.",
             # Imaging and tests
-            "imaging_chest": "I think they did a chest X-ray when we got here. Did you see the results?",
+            "imaging_chest_xray": "I think they did a chest X-ray when we got here. Did you see the results?",
+            "imaging_echo": "I think they mentioned doing some heart tests. Have you seen those results?",
+            "imaging_ct_chest": "They talked about doing some detailed scans. I'm not sure if they've done them yet.",
             "imaging_general": "They've done some imaging tests. I think there was a chest X-ray, and maybe they mentioned other scans?",
             "labs_general": "They drew some blood when we arrived. I don't know the results yet.",
             # Profile and background
@@ -822,7 +826,9 @@ class IntentDrivenDisclosureManager:
                 "labs_bnp",
                 "labs_wbc",
                 "labs_hemoglobin",
-                "imaging_chest",
+                "imaging_chest_xray",
+                "imaging_echo",
+                "imaging_ct_chest",
                 "imaging_general",
             ],
         }
@@ -890,11 +896,67 @@ class IntentDrivenDisclosureManager:
                     "summary": discovery_info["summary"],
                 })
 
-        # Choose responder based on context
+        # Check if this is a pertinent negatives query and accumulate with previous ones
+        if intent_result["intent_id"] in ["hpi_pertinent_negatives", "hpi_chest_pain", "hpi_fever", "hpi_chills"] and context == "anamnesis":
+            # Get all previously revealed pertinent negative blocks for this session
+            accumulated_pertinent_negatives = []
+
+            for block_id, block in session.blocks.items():
+                if block_id in ["hpi_chest_pain", "hpi_fever", "hpi_chills"] and hasattr(block, 'is_revealed') and block.is_revealed:
+                    # Add previously revealed pertinent negatives to clinical data
+                    discovery_info = self.discovery_processor.process_discovery(
+                        block_id=block_id,
+                        block_type=block.block_type,
+                        clinical_content=block.content,
+                        intent_id=intent_result["intent_id"],
+                        doctor_question=intent_result.get("original_input", ""),
+                        patient_response="",
+                        case_labels_map=self.case_labels_map,
+                    )
+
+                    if not any(cd["content"] == block.content for cd in clinical_data):
+                        clinical_data.append({
+                            "type": block.block_type,
+                            "content": block.content,
+                            "label": discovery_info["label"],
+                            "summary": discovery_info["summary"],
+                        })
+
+                    accumulated_pertinent_negatives.append(block.content)
+
+            # If we have accumulated pertinent negatives, create a combined discovery entry for the UI
+            if accumulated_pertinent_negatives:
+                combined_content = " ".join(accumulated_pertinent_negatives)
+
+                # Replace or update the pertinent negatives discovery with accumulated content
+                pertinent_discovery = None
+                for i, discovery in enumerate(discoveries):
+                    if discovery["block_id"] in ["hpi_chest_pain", "hpi_fever", "hpi_chills"]:
+                        pertinent_discovery = discovery
+                        break
+
+                if pertinent_discovery:
+                    # Update the existing discovery with accumulated content
+                    pertinent_discovery["content"] = combined_content
+                    pertinent_discovery["summary"] = combined_content
+                    pertinent_discovery["label"] = "Pertinent Negatives (All)"
+                elif discoveries:  # If we have new discoveries but no pertinent negative in them
+                    # Add a combined pertinent negatives discovery
+                    discoveries.append({
+                        "block_id": "hpi_pertinent_negatives_combined",
+                        "block_type": "History",
+                        "content": combined_content,
+                        "is_critical": False,
+                        "discovery_notification": f"📋 **{context.title()} Information**: Pertinent Negatives (All)",
+                        "label": "Pertinent Negatives (All)",
+                        "category": "presenting_symptoms",
+                        "summary": combined_content,
+                        "confidence": 0.95,
+                    })        # Choose responder based on context
         responder = self.responders.get(context) or self.responders["anamnesis"]
 
         # Generate response text
-        if discoveries:
+        if discoveries or clinical_data:  # Also generate response if we have accumulated clinical data
             text = responder.respond(
                 intent_id=intent_result["intent_id"],
                 doctor_question=intent_result.get("original_input", ""),

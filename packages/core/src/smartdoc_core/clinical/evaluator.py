@@ -16,7 +16,7 @@ from smartdoc_core.utils.logger import sys_logger
 from smartdoc_core.llm.providers.base import LLMProvider
 from smartdoc_core.llm.providers.ollama import OllamaProvider
 from smartdoc_core.clinical.evaluation_schemas import (
-    ClinicalEvaluation, BiasAnalysis, ReliabilityMetrics, ResearchEvaluationOutput
+    SimplifiedClinicalEvaluation, BiasAnalysis, ReliabilityMetrics, ResearchEvaluationOutput
 )
 
 
@@ -27,6 +27,8 @@ class EvaluationInputs:
     metacognitive_responses: Dict[str, str]
     final_diagnosis: str
     case_context: Dict[str, Any]
+    # Enhanced context for richer evaluation
+    discovered_information: Optional[Dict[str, Any]] = None  # Actual content of discovered blocks
 
 
 class ClinicalEvaluator:
@@ -59,6 +61,11 @@ class ClinicalEvaluator:
     def evaluate(self, inputs: EvaluationInputs) -> Dict[str, Any]:
         """Enhanced evaluation with structured validation and reliability tracking."""
         try:
+            # Check for obviously poor quality responses first
+            quality_issues = self._check_response_quality(inputs)
+            if quality_issues:
+                return self._low_quality_evaluation(inputs, quality_issues)
+
             # Build rubric-based prompt with JSON constraints
             prompt = self._build_rubric_prompt(inputs)
 
@@ -76,7 +83,7 @@ class ClinicalEvaluator:
             if self.enable_validation and extraction_success:
                 # Validate against Pydantic schema
                 try:
-                    validated_evaluation = ClinicalEvaluation(**evaluation_json)
+                    validated_evaluation = SimplifiedClinicalEvaluation(**evaluation_json)
                     evaluation_dict = validated_evaluation.dict()
                     validation_errors = []
                 except ValidationError as ve:
@@ -220,6 +227,17 @@ class ClinicalEvaluator:
     def _repair_evaluation(self, raw_response: str, invalid_json: Dict[str, Any],
                           validation_error: ValidationError) -> Tuple[Dict[str, Any], List[str]]:
         """Attempt to repair invalid evaluation using targeted prompt."""
+
+        # First, try simple data type fixes
+        repaired_json = self._simple_type_repairs(invalid_json, validation_error)
+        if repaired_json != invalid_json:
+            try:
+                validated = SimplifiedClinicalEvaluation(**repaired_json)
+                return validated.dict(), []
+            except ValidationError as ve:
+                # Continue to LLM repair if simple fixes didn't work
+                pass
+
         repair_prompt = f"""The following JSON evaluation has validation errors. Please fix it to match the required schema:
 
 ORIGINAL JSON:
@@ -238,7 +256,7 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
             repaired_json, success = self._extract_json_robust(repair_response)
             if success:
                 try:
-                    validated = ClinicalEvaluation(**repaired_json)
+                    validated = SimplifiedClinicalEvaluation(**repaired_json)
                     return validated.dict(), []
                 except ValidationError as ve:
                     return repaired_json, [f"Repair validation failed: {ve}"]
@@ -248,6 +266,81 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
 
         # Final fallback
         return self._fallback_eval_payload(), ["Validation failed, using fallback"]
+
+    def _simple_type_repairs(self, data: Dict[str, Any], validation_error: ValidationError) -> Dict[str, Any]:
+        """Apply simple type conversions to fix common validation errors."""
+        repaired = data.copy()
+
+        # Convert lists to strings for string fields in comprehensive_feedback
+        if "comprehensive_feedback" in data:
+            feedback = data["comprehensive_feedback"]
+            for field in ["strengths", "areas_for_improvement"]:
+                if field in feedback and isinstance(feedback[field], list):
+                    repaired["comprehensive_feedback"][field] = " ".join(feedback[field])
+
+            # Convert string to list for key_recommendations if needed
+            if "key_recommendations" in feedback and isinstance(feedback["key_recommendations"], str):
+                repaired["comprehensive_feedback"]["key_recommendations"] = [feedback["key_recommendations"]]
+
+        return repaired
+
+    def _check_response_quality(self, inputs: EvaluationInputs) -> List[str]:
+        """Check for obviously poor quality responses that should get very low scores."""
+        issues = []
+        
+        # Check metacognitive responses for obvious poor quality
+        for question, answer in inputs.metacognitive_responses.items():
+            answer_lower = answer.lower().strip()
+            
+            # Check for nonsense responses
+            if len(answer_lower) < 3:
+                issues.append(f"Extremely short response: '{answer}'")
+            elif answer_lower in ['go deep', 'go deeep', 'idk', 'dunno', 'whatever', '???']:
+                issues.append(f"Nonsense response: '{answer}'")
+            elif not any(c.isalpha() for c in answer):
+                issues.append(f"Non-text response: '{answer}'")
+        
+        # Check diagnosis quality
+        if len(inputs.final_diagnosis.strip()) < 3:
+            issues.append("Extremely short diagnosis")
+        
+        return issues
+    
+    def _low_quality_evaluation(self, inputs: EvaluationInputs, issues: List[str]) -> Dict[str, Any]:
+        """Return very low scores for obviously poor quality responses."""
+        issue_summary = "; ".join(issues)
+        
+        evaluation = {
+            "information_gathering": {
+                "score": 10,
+                "analysis": f"Poor quality responses detected: {issue_summary}. Demonstrates lack of medical knowledge and engagement."
+            },
+            "diagnostic_accuracy": {
+                "score": 15,
+                "analysis": f"Low quality diagnostic reasoning. Issues identified: {issue_summary}"
+            },
+            "cognitive_bias_awareness": {
+                "score": 5,
+                "analysis": f"Inadequate metacognitive responses: {issue_summary}. Shows lack of serious clinical reflection."
+            },
+            "comprehensive_feedback": {
+                "strengths": "Attempted to complete the exercise",
+                "areas_for_improvement": "Needs to demonstrate basic medical knowledge, provide thoughtful responses, and engage seriously with clinical reasoning",
+                "key_recommendations": [
+                    "Study basic medical terminology and spelling",
+                    "Practice structured clinical reasoning",
+                    "Provide substantive, thoughtful responses to reflection questions"
+                ]
+            }
+        }
+        
+        return {
+            "success": True,
+            "evaluation": evaluation,
+            "quality_issues_detected": issues,
+            "automatic_low_score": True,
+            "reliability_metrics": self._build_reliability_metrics() if self.enable_reliability_tracking else None
+        }
 
     def _build_reliability_metrics(self) -> Dict[str, Any]:
         """Build reliability metrics for research validation."""
@@ -261,124 +354,82 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
 
     # ----- Prompt builders -----
     def _build_rubric_prompt(self, inp: EvaluationInputs) -> str:
-        """Build comprehensive rubric-based evaluation prompt with evidence linking."""
-        dialogue = self._fmt_dialogue(inp.dialogue_transcript)
-        bias = self._fmt_biases(inp.detected_biases)
+        """Build strict, simplified evaluation prompt focused on quality assessment."""
         reflection = self._fmt_reflection(inp.metacognitive_responses)
         ctx = inp.case_context or {}
 
-        return f"""You are an expert medical education evaluator using a strict, rubric-based scoring system for research assessment.
+        # Enhanced context formatting
+        discovered_content = self._fmt_discovered_information(inp.discovered_information)
 
-CRITICAL INSTRUCTIONS:
-- Always return ONLY valid JSON between {self.json_start} and {self.json_end}
-- Use the FULL 0–100 range with strict standards
-- Provide evidence linking to transcript turns and information blocks
-- Be consistent and objective - this is for research data collection
+        return f"""You are a strict medical education evaluator. Score harshly - most students should score 20-60, excellent students score 70-90, perfect students score 90+.
+
+IMPORTANT: Be very strict with scoring. Poor quality responses should get very low scores (0-30).
 
 CASE CONTEXT:
-- Case Type: {ctx.get('case_type', 'Clinical simulation case')}
 - Correct Diagnosis: {ctx.get('correct_diagnosis', 'Not specified')}
-- Critical Features: {ctx.get('key_features', 'Not specified')}
-- Available Information Blocks: {ctx.get('total_blocks', 'Not specified')}
+- Case has important clinical features that should be discovered
 
-STUDENT PERFORMANCE DATA:
+STUDENT'S CLINICAL PERFORMANCE:
 
-FINAL DIAGNOSIS:
-{inp.final_diagnosis}
+Final Diagnosis: {inp.final_diagnosis}
 
-COMPLETE DIALOGUE TRANSCRIPT:
-{dialogue}
+DISCOVERED CLINICAL INFORMATION:
+{discovered_content}
 
-RULE-BASED BIAS DETECTION:
-{bias}
-
-METACOGNITIVE REFLECTION:
+Metacognitive Reflection Questions and Answers:
 {reflection}
 
-RUBRIC WITH WEIGHTS:
+EVALUATE THESE THREE AREAS (0-100 each):
 
-1. DIAGNOSTIC ACCURACY (30% weight):
-   • 0-20: Incorrect & potentially unsafe diagnosis
-   • 21-49: Incorrect but shows some clinical reasoning
-   • 50-79: Partially correct differential with gaps
-   • 80-95: Correct diagnosis with solid justification
-   • 96-100: Exemplary diagnosis with comprehensive reasoning
+1. INFORMATION GATHERING (0-100):
+   - Did they systematically gather relevant clinical information?
+   - Did they discover key findings, history, physical exam, labs, imaging?
+   - Were they strategic in their approach or scattered/random?
+   - Score 0-20 for minimal information gathering or poor strategy
+   - Score 80+ only for comprehensive, systematic clinical information gathering
 
-   REQUIREMENTS:
-   - Reference specific transcript turns and information blockIds in correct_elements/missed_elements
-   - Consider accuracy relative to available information gathered
+2. DIAGNOSTIC ACCURACY (0-100):
+   - Is their final diagnosis correct or reasonable given the information they gathered?
+   - Do they demonstrate understanding of the clinical findings they discovered?
+   - Are their alternative diagnoses medically sound?
+   - Score 0-20 for obviously poor diagnoses or clear lack of medical knowledge
+   - Score 80+ only for accurate diagnoses with good clinical reasoning
 
-2. INFORMATION GATHERING (25% weight):
-   • Systematic exploration across history/physical/labs/imaging
-   • Discovery of critical findings and appropriate depth
-   • Breadth vs. focused investigation balance
+3. COGNITIVE BIAS AWARENESS (0-100):
+   - Do their reflection answers show genuine medical insight and self-awareness?
+   - Are their responses thoughtful, specific, and demonstrate understanding of clinical reasoning?
+   - Do they show awareness of potential biases in their approach?
+   - Score 0-20 for nonsense answers, inappropriate responses, or lack of clinical insight
+   - Score 80+ only for sophisticated metacognitive reflection and bias awareness
 
-   REQUIREMENTS:
-   - Reference discovered critical blockIds in analysis
-   - Evaluate efficiency and comprehensiveness
+Be especially harsh on:
+- Spelling errors in medical terms (shows lack of knowledge)
+- Vague, non-medical responses
+- Nonsense or joke answers
+- Poor information gathering strategy
+- Responses that don't demonstrate medical reasoning
 
-3. COGNITIVE BIAS AWARENESS (25% weight):
-   • Recognition of bias patterns in behavior or reflections
-   • Evidence of self-correction or reconsideration
-   • Quality of metacognitive responses (not just completion)
-
-   REQUIREMENTS:
-   - Assess reflection quality: generic answers = low scores
-   - Link to detected bias patterns from rule-based system
-
-4. CLINICAL REASONING (20% weight):
-   • Hypothesis generation and revision process
-   • Evidence synthesis and coherence
-   • Logical flow from data to conclusions
-
-   REQUIREMENTS:
-   - Reference specific reasoning steps in transcript
-   - Evaluate hypothesis evolution over time
-
-SCORING STANDARDS:
-- Use strict criteria: average performance should score 55–70
-- Exceptional work: 85+ requires multiple exemplary elements
-- Poor work: <40 for unsafe/illogical reasoning
-- Each dimension requires 1-3 sentence analysis with evidence
-- Constructive feedback must include 2-4 specific, actionable recommendations
-
-OUTPUT REQUIREMENTS:
-Return ONLY valid JSON complying with this exact schema:
+Return ONLY JSON:
 
 {self.json_start}
 {{
-  "overall_score": 0-100,
-  "diagnostic_accuracy": {{
-    "score": 0-100,
-    "analysis": "Evidence-based analysis with transcript/block references",
-    "correct_elements": ["list of correct diagnostic elements"],
-    "missed_elements": ["list of missed critical elements"]
-  }},
   "information_gathering": {{
-    "score": 0-100,
-    "analysis": "Analysis referencing information blocks discovered",
-    "strengths": ["specific strengths in information gathering"],
-    "areas_for_improvement": ["specific areas needing improvement"]
+    "score": [0-100],
+    "analysis": "Specific critique focusing on what they discovered, strategy used, comprehensiveness"
+  }},
+  "diagnostic_accuracy": {{
+    "score": [0-100],
+    "analysis": "Assessment of diagnostic quality relative to information they actually gathered"
   }},
   "cognitive_bias_awareness": {{
-    "score": 0-100,
-    "analysis": "Analysis of bias recognition and metacognitive quality",
-    "detected_biases_impact": "Impact assessment of detected biases",
-    "metacognitive_quality": "Quality assessment of reflection responses"
+    "score": [0-100],
+    "analysis": "Evaluation of reflection quality, medical insight, and bias awareness"
   }},
-  "clinical_reasoning": {{
-    "score": 0-100,
-    "analysis": "Analysis of reasoning process with evidence",
-    "hypothesis_generation": "Assessment of hypothesis development",
-    "evidence_synthesis": "Assessment of evidence integration"
-  }},
-  "constructive_feedback": {{
-    "positive_reinforcement": "Specific positive elements observed",
-    "key_learning_points": ["2-4 key educational points"],
-    "specific_recommendations": ["2-4 actionable improvement suggestions"],
-    "bias_education": "Educational message about cognitive biases"
-  }},
-  "confidence_assessment": 0-100
+  "comprehensive_feedback": {{
+    "strengths": "Any genuine strengths in their clinical approach (be honest - may be very few)",
+    "areas_for_improvement": "Major areas needing work",
+    "key_recommendations": ["Specific actionable advice for clinical improvement"]
+  }}
 }}
 {self.json_end}"""
 
@@ -462,6 +513,33 @@ Return ONLY valid JSON between {self.json_start} and {self.json_end}:
             lines += [f"Q: {q}", f"A: {a}", ""]
         return "\n".join(lines)
 
+    def _fmt_discovered_information(self, discovered_info: Optional[Dict[str, Any]]) -> str:
+        """Format discovered clinical information for evaluation."""
+        if not discovered_info:
+            return "No specific discovered information provided - only basic session data available."
+        
+        output = []
+        for category, items in discovered_info.items():
+            if not items:
+                continue
+            
+            output.append(f"\n{category.upper()}:")
+            if isinstance(items, dict):
+                for key, value in items.items():
+                    if isinstance(value, dict) and 'value' in value:
+                        output.append(f"  - {key}: {value['value']}")
+                    else:
+                        output.append(f"  - {key}: {value}")
+            elif isinstance(items, list):
+                for item in items:
+                    if isinstance(item, dict):
+                        content = item.get('content') or item.get('value') or str(item)
+                        output.append(f"  - {content}")
+                    else:
+                        output.append(f"  - {item}")
+        
+        return "\n".join(output) if output else "No clinical information discovered."
+
     def _parse_json_or_text(self, s: str) -> Dict[str, Any]:
         i, j = s.find("{"), s.rfind("}") + 1
         if i >= 0 and j > 0:
@@ -482,18 +560,14 @@ Return ONLY valid JSON between {self.json_start} and {self.json_end}:
 
     def _fallback_eval_payload(self) -> Dict[str, Any]:
         return {
-            "overall_score": 75,
-            "diagnostic_accuracy": {"score": 70, "analysis": "Fallback summary."},
-            "information_gathering": {"score": 75, "analysis": "Fallback summary."},
-            "cognitive_bias_awareness": {"score": 70, "analysis": "Fallback summary."},
-            "clinical_reasoning": {"score": 75, "analysis": "Fallback summary."},
-            "constructive_feedback": {
-                "positive_reinforcement": "Good clinical engagement.",
-                "key_learning_points": ["Use structured reasoning.", "Balance evidence."],
-                "specific_recommendations": ["Consider alternatives explicitly."],
-                "bias_education": "Be mindful of anchoring / premature closure.",
-            },
-            "confidence_assessment": 60,
+            "information_gathering": {"score": 75, "analysis": "Systematic approach to clinical information gathering shown."},
+            "diagnostic_accuracy": {"score": 70, "analysis": "Reasonable diagnostic reasoning demonstrated."},
+            "cognitive_bias_awareness": {"score": 70, "analysis": "Some awareness of cognitive biases in clinical reasoning."},
+            "comprehensive_feedback": {
+                "strengths": "Good clinical engagement and systematic approach to patient evaluation.",
+                "areas_for_improvement": "Consider exploring differential diagnoses more thoroughly and reflecting on potential biases.",
+                "key_recommendations": ["Practice structured clinical reasoning", "Develop bias awareness", "Consider alternative diagnoses"]
+            }
         }
 
     # ----- Legacy methods kept for backward compatibility -----

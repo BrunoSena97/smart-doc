@@ -883,8 +883,8 @@ class LLMIntentClassifier:
                 word in input_lower for word in ["chest x-ray", "cxr", "chest xray"]
             ):
                 intent_id = (
-                    "imaging_chest"
-                    if "imaging_chest" in valid_intents
+                    "imaging_chest_xray"
+                    if "imaging_chest_xray" in valid_intents
                     else "clarification"
                 )
             elif any(

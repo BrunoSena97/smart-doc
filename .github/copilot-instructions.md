@@ -6,14 +6,25 @@ applyTo: "**"
 
 ## Project Overview
 
-SmartDoc is an advanced AI-powered clinical simulation platform built as a professional monorepo featuring:
+SmartDoc is an AI-powered clinical simulation platform built as a professional monorepo featuring:
 
-- **Flask API** (apps/api) – REST endpoints with v1/v2 versioning, legacy compatibility, and comprehensive clinical evaluation
-- **Vanilla Web UI** (apps/web/public) – Static HTML/CSS/JS (ES modules, no build step) for medical education interfaces
-- **Core Domain Engine** (packages/core) – Advanced LLM-powered progressive disclosure, intent classification, cognitive bias detection
+- **Flask API** (apps/api) – REST endpoints with v1/v2 versioning and legacy compatibility
+- **Vanilla Web UI** (apps/web/public) – Static HTML/CSS/JS (ES modules, no build step) for medical education
+- **Core AI Engine** (packages/core) – LLM-powered progressive disclosure, intent classification, and clinical evaluation
 - **Shared Libraries** (packages/shared) – Cross-cutting schemas, clients, and utilities
 - **Comprehensive Testing** (tests/) – Integration tests, frontend demos, and development tools
 - **Professional Documentation** (docs/) – Organized by architecture, development, deployment, and project status
+
+## Key Simplifications Made
+
+**EVALUATION SYSTEM** - We removed the complex research coordinator and simplified to:
+
+- **Single LLM Evaluator** - `ClinicalEvaluator` with quality checks and strict scoring
+- **Main Endpoint** - `/api/v1/diagnosis/reflection` for diagnosis submission with metacognitive reflection
+- **Quality Detection** - Automatic detection of poor responses (nonsense answers, spelling errors) with appropriate low scores
+- **Simplified Schema** - Three core areas: information_gathering, diagnostic_accuracy, cognitive_bias_awareness
+
+The evaluation now correctly handles poor quality responses by giving very low scores (5-20/100) instead of being overly generous.
 
 ## Tech Stack & Architecture (MUST follow)
 
@@ -178,12 +189,13 @@ make check                    # All quality checks + tests
 - **Premature closure** – stopping investigation too early before adequate information gathering
 - **Real-time detection** with session analysis and metacognitive feedback
 
-### **Clinical Evaluation**
+### **Clinical Evaluation (Simplified)**
 
-- **Structured JSON output** with diagnostic accuracy, information gathering, bias analysis
-- **Metacognitive assessment** measuring self-awareness and reasoning quality
-- **Completeness scoring** based on critical finding discovery rates
-- **Educational feedback** with specific recommendations and bias education
+- **Single Evaluator** – `ClinicalEvaluator` class handles all evaluation logic
+- **Quality Detection** – Automatic detection of poor responses with appropriate low scoring
+- **Three Core Areas** – Information gathering, diagnostic accuracy, cognitive bias awareness
+- **Strict Scoring** – Most students score 20-60, excellent students 70-90, perfect 90+
+- **Main API Endpoint** – `/api/v1/diagnosis/reflection` for diagnosis + reflection evaluation
 
 ## Coding Standards & Best Practices
 
@@ -329,96 +341,3 @@ make check                    # All quality checks + tests
 ---
 
 **SmartDoc represents the cutting edge of AI-powered medical education. Maintain the high standards of code quality, educational effectiveness, and professional architecture that make this system exceptional.**
-
-# SmartDoc – Copilot Instructions
-
-## Project overview
-
-SmartDoc is a monorepo with:
-
-- **Flask API** (apps/api) – REST endpoints, legacy compatibility during migration.
-- **Vanilla Web UI** (apps/web/public) – static HTML/CSS/JS (ES modules, no build step).
-- **Domain libs** (packages/core, packages/shared) – imported as editable Poetry path deps.
-
-## Tech decisions (MUST follow)
-
-- Python 3.10+ managed with **Poetry** (`pyproject.toml` + `poetry.lock`) per package.
-- Flask app uses **app factory** (`create_app`) and **blueprints**:
-  - New API mounted at `/api/v1` from `apps/api/src/smartdoc_api/routes/`.
-  - **Legacy endpoints** mounted at root (no prefix) from `routes/legacy.py`.
-- Frontend is **pure static** served via `python -m http.server` (no webpack/Vite).
-  - All scripts are **ES modules** under `apps/web/public/js/**`.
-  - All assets referenced via **relative paths** `./assets/...`.
-
-## Monorepo layout
-
-- `apps/api/src/smartdoc_api/`
-  - `__init__.py` (create_app + CORS + blueprints)
-  - `main.py` (dev entrypoint), `dev_server.py` (mock/dev)
-  - `routes/` (only route modules; logic goes in services/core)
-- `apps/web/public/`
-  - `index.html`, `styles/main.css`
-  - `js/config.js`, `js/api.js`, `js/state.js`, `js/main.js`, `js/ui/*`
-- `packages/core/` domain logic (clinical, discovery, simulation, utils)
-- `packages/shared/` cross-cutting clients/schemas
-- `configs/{default,dev,prod}.yaml` app config (loaded by API)
-
-## Dependencies & commands
-
-- Install:
-  - `cd packages/core && poetry install`
-  - `cd apps/api && poetry install`
-- Run API: `cd apps/api && poetry run flask --app smartdoc_api.main run --debug --host 0.0.0.0 --port 8000`
-- Run Web: `cd apps/web/public && python -m http.server 3000`
-- Makefile shortcuts exist (see root `Makefile`): `make api`, `make web`, `make test`.
-
-## Coding standards
-
-- Keep **routes thin**; business logic belongs in `packages/core` or `apps/api/.../services`.
-- Prefer **dataclasses / Pydantic** for request/response shapes (in `packages/shared/schemas`).
-- Use **path-agnostic** file access (e.g., `Path(__file__).resolve().parents[...]`) rather than hardcoded `../../..`.
-- Frontend JS: one responsibility per module, no inline `<script>` in `index.html`.
-- No global jQuery. Use DOM + Fetch API.
-- Use **absolute API URLs** from `js/config.js`.
-
-## Naming conventions
-
-- Python packages: `snake_case`; modules: `snake_case.py`; classes: `CamelCase`.
-- Flask blueprints: one per domain area; register with versioned prefix `/api/v1`.
-- Frontend: folders lowercase; files `kebab-case.js` except `main.js`.
-- Tests mirror source tree (`tests/`), `test_*.py`.
-
-## When adding a NEW API endpoint (Copilot MUST do this)
-
-1. Create a new file in `apps/api/src/smartdoc_api/routes/` or extend an existing route module.
-2. Register it on the **v1 blueprint** (`from . import bp`).
-3. Validate & parse input (Pydantic model in `packages/shared/schemas` when appropriate).
-4. Call a function in **services** (create `apps/api/src/smartdoc_api/services/<area>_service.py` if missing) that orchestrates `packages/core`.
-5. Return JSON; never return HTML from `/api/v1/*`.
-6. Add a minimal test in `apps/api/tests/`.
-7. Update `apps/web/public/js/api.js` (if the frontend consumes it) and keep fetch helpers here.
-8. Do **not** break legacy routes.
-
-## When adding NEW frontend features
-
-1. Put DOM/event logic in `apps/web/public/js/ui/<feature>.js`.
-2. Keep state in `js/state.js`.
-3. Call backend via `js/api.js` only (no fetch in UI modules).
-4. Wire everything from `js/main.js`.
-5. Keep assets in `apps/web/public/assets/`.
-
-## Don’ts
-
-- Don’t introduce a bundler or React.
-- Don’t modify legacy endpoints without checking `/get_bot_response` and `/chat` still work.
-- Don’t import `packages/core` directly from the web (it’s server-side only).
-- Don’t create tests files out of respective test folders.
-- Don't create docs outside of the /docs folder.
-
-## Definition of Done (PR checklist)
-
-- [ ] Endpoint registered on `/api/v1/...` and covered by a test.
-- [ ] No broken legacy endpoints.
-- [ ] Frontend uses `js/api.js` for network calls.
-- [ ] Passes `make check` (format, lint, type, tests).
-- [ ] Docs updated if behavior or config changed in the proper /docs folder.

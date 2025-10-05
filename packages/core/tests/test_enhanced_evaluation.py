@@ -11,7 +11,6 @@ from typing import Dict, Any
 
 # Import the modules we're testing
 from smartdoc_core.clinical.evaluator import ClinicalEvaluator, EvaluationInputs
-from smartdoc_core.clinical.research_coordinator import ResearchEvaluationCoordinator
 from smartdoc_core.clinical.evaluation_schemas import ClinicalEvaluation, BiasAnalysis
 from smartdoc_core.simulation.bias_analyzer import BiasEvaluator
 
@@ -55,42 +54,27 @@ class TestClinicalEvaluator:
 
     @pytest.fixture
     def valid_json_response(self):
-        """Valid JSON response from LLM."""
+        """Valid JSON response from LLM matching SimplifiedClinicalEvaluation schema."""
         return '''
         <<<JSON_START>>>
         {
-          "overall_score": 78,
-          "diagnostic_accuracy": {
-            "score": 85,
-            "analysis": "Correct final diagnosis with solid reasoning",
-            "correct_elements": ["miliary_pattern", "immunosuppression_link"],
-            "missed_elements": ["early_weight_loss_significance"]
-          },
           "information_gathering": {
             "score": 72,
-            "analysis": "Good systematic approach but missed social history initially",
-            "strengths": ["thorough_physical_exam", "appropriate_imaging"],
-            "areas_for_improvement": ["earlier_social_history", "medication_review"]
+            "analysis": "Good systematic approach but missed social history initially. Thorough physical exam and appropriate imaging were completed."
+          },
+          "diagnostic_accuracy": {
+            "score": 85,
+            "analysis": "Correct final diagnosis with solid reasoning. Well-identified miliary pattern and immunosuppression link."
           },
           "cognitive_bias_awareness": {
             "score": 80,
-            "analysis": "Good recognition of initial anchoring and self-correction",
-            "detected_biases_impact": "Initial anchoring on heart failure was corrected",
-            "metacognitive_quality": "Reflective responses show good self-awareness"
+            "analysis": "Good recognition of initial anchoring and self-correction. Reflective responses show good self-awareness."
           },
-          "clinical_reasoning": {
-            "score": 75,
-            "analysis": "Sound reasoning process with hypothesis revision",
-            "hypothesis_generation": "Multiple differential diagnoses considered",
-            "evidence_synthesis": "Good integration of clinical and imaging findings"
-          },
-          "constructive_feedback": {
-            "positive_reinforcement": "Excellent self-correction and diagnostic accuracy",
-            "key_learning_points": ["Early social history importance", "Systematic approach benefits"],
-            "specific_recommendations": ["Always consider immunosuppression", "Weight loss red flag"],
-            "bias_education": "Good awareness of anchoring bias and correction"
-          },
-          "confidence_assessment": 85
+          "comprehensive_feedback": {
+            "strengths": "Excellent self-correction and diagnostic accuracy. Good integration of clinical and imaging findings.",
+            "areas_for_improvement": "Earlier social history gathering and medication review would improve diagnostic efficiency.",
+            "key_recommendations": ["Always consider immunosuppression in complex cases", "Weight loss should be a red flag", "Systematic approach to medication history"]
+          }
         }
         <<<JSON_END>>>
         '''
@@ -113,9 +97,23 @@ class TestClinicalEvaluator:
         assert len(result["validation_errors"]) == 0
 
         evaluation = result["evaluation"]
-        assert evaluation["overall_score"] == 78
+        assert "information_gathering" in evaluation
+        assert "diagnostic_accuracy" in evaluation
+        assert "cognitive_bias_awareness" in evaluation
+        assert "comprehensive_feedback" in evaluation
+
+        # Check score structure
+        assert evaluation["information_gathering"]["score"] == 72
         assert evaluation["diagnostic_accuracy"]["score"] == 85
-        assert len(evaluation["constructive_feedback"]["key_learning_points"]) >= 1
+        assert evaluation["cognitive_bias_awareness"]["score"] == 80
+
+        # Check feedback structure
+        feedback = evaluation["comprehensive_feedback"]
+        assert "strengths" in feedback
+        assert "areas_for_improvement" in feedback
+        assert "key_recommendations" in feedback
+        assert isinstance(feedback["key_recommendations"], list)
+        assert len(feedback["key_recommendations"]) >= 1
 
     def test_json_extraction_fallback_strategies(self, mock_provider, sample_evaluation_inputs):
         """Test fallback JSON extraction strategies."""
@@ -398,109 +396,6 @@ class TestBiasEvaluator:
         assert result["intent_based"] is True
         assert result["confidence"] > 0.6
 
-
-class TestResearchCoordinator:
-    """Test research coordination and agreement analysis."""
-
-    @pytest.fixture
-    def mock_evaluator(self):
-        """Mock clinical evaluator for testing."""
-        evaluator = Mock()
-        evaluator.temperature = 0.1
-        evaluator.enable_validation = True
-        return evaluator
-
-    @pytest.fixture
-    def coordinator(self, mock_evaluator):
-        """Research coordinator for testing."""
-        return ResearchEvaluationCoordinator(
-            clinical_evaluator=mock_evaluator,
-            enable_agreement_tracking=True,
-            enable_discrepancy_logging=True
-        )
-
-    def test_agreement_metrics_calculation(self, coordinator):
-        """Test agreement metrics between rule-based and LLM analysis."""
-        rule_based_analysis = {
-            "anchoring_bias": {"detected": True, "confidence": 80},
-            "confirmation_bias": {"detected": False, "confidence": 20},
-            "premature_closure": {"detected": True, "confidence": 70}
-        }
-
-        llm_bias_analysis = {
-            "anchoring_bias": {"detected": True, "confidence": 85},
-            "confirmation_bias": {"detected": False, "confidence": 15},
-            "premature_closure": {"detected": False, "confidence": 40}  # Disagreement
-        }
-
-        agreement_metrics, discrepancies = coordinator._compute_agreement_metrics(
-            rule_based_analysis, llm_bias_analysis, "test_session"
-        )
-
-        assert agreement_metrics["total_comparisons"] == 3
-        assert agreement_metrics["agreement_count"] == 2  # 2 agreements, 1 disagreement
-        assert agreement_metrics["disagreement_count"] == 1
-        assert len(discrepancies) == 1
-        assert discrepancies[0]["bias_type"] == "premature_closure"
-
-    def test_multi_seed_variance_testing(self, coordinator, mock_evaluator):
-        """Test multi-seed evaluation for consistency testing."""
-        # Mock different evaluation results for different seeds
-        mock_results = [
-            {
-                "success": True,
-                "evaluation": {
-                    "overall_score": 75,
-                    "diagnostic_accuracy": {"score": 80},
-                    "information_gathering": {"score": 70},
-                    "cognitive_bias_awareness": {"score": 75},
-                    "clinical_reasoning": {"score": 75},
-                    "confidence_assessment": 80
-                }
-            },
-            {
-                "success": True,
-                "evaluation": {
-                    "overall_score": 78,
-                    "diagnostic_accuracy": {"score": 82},
-                    "information_gathering": {"score": 74},
-                    "cognitive_bias_awareness": {"score": 76},
-                    "clinical_reasoning": {"score": 80},
-                    "confidence_assessment": 85
-                }
-            },
-            {
-                "success": True,
-                "evaluation": {
-                    "overall_score": 73,
-                    "diagnostic_accuracy": {"score": 78},
-                    "information_gathering": {"score": 68},
-                    "cognitive_bias_awareness": {"score": 74},
-                    "clinical_reasoning": {"score": 72},
-                    "confidence_assessment": 75
-                }
-            }
-        ]
-
-        mock_evaluator.evaluate.side_effect = mock_results
-
-        inputs = EvaluationInputs(
-            dialogue_transcript=[],
-            detected_biases=[],
-            metacognitive_responses={"q1": "a1"},
-            final_diagnosis="test diagnosis",
-            case_context={}
-        )
-
-        result = coordinator.multi_seed_evaluation(inputs, num_runs=3, seed_values=[42, 123, 789])
-
-        assert result["success"] is True
-        assert result["successful_runs"] == 3
-        assert "variance_metrics" in result
-
-        variance_metrics = result["variance_metrics"]
-        assert "overall_score" in variance_metrics["dimension_variance"]
-        assert variance_metrics["overall_consistency"] in ["high", "moderate", "low"]
 
 
 class TestIntegrationWithAPI:

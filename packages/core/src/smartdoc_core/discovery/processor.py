@@ -65,7 +65,7 @@ class DiscoveryClassifier:
         if self.mode in ("hybrid", "llm") and self.provider:
             try:
                 prompt = self._build_min_prompt(block_type, intent_id, doctor_question, patient_response, clinical_content)
-                text = self.provider.generate(prompt, temperature=0.1, top_p=0.9, timeout_s=20).strip()
+                text = self.provider.generate(prompt, temperature=0.1, top_p=0.9, timeout_s=90).strip()
                 parsed = self._parse_json(text, clinical_content, block_type, intent_id)
                 parsed["reasoning"] = "LLM classification (fallback)"
                 return parsed

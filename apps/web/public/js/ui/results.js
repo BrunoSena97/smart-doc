@@ -7,34 +7,6 @@ export function renderResults(data) {
 
   el.innerHTML = `
     <div class="results-summary">
-      <div class="score-card">
-        <h3><i class="fas fa-star"></i> Overall Score</h3>
-        <div class="score-value">${data.score || "N/A"}</div>
-      </div>
-
-      <div class="performance-metrics">
-        <h3><i class="fas fa-chart-bar"></i> Performance Breakdown</h3>
-        <div class="metric-grid">
-          <div class="metric-item">
-            <span class="metric-label">Information Discovery</span>
-            <span class="metric-value">${
-              data?.performance_summary?.information_discovery || "N/A"
-            }</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Bias Awareness</span>
-            <span class="metric-value">${
-              data?.performance_summary?.bias_awareness || "N/A"
-            }</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Diagnostic Accuracy</span>
-            <span class="metric-value">${
-              data?.performance_summary?.diagnostic_accuracy || "N/A"
-            }</span>
-          </div>
-        </div>
-      </div>
 
       <div class="feedback-section">
         <h3><i class="fas fa-comment-medical"></i> Clinical Feedback</h3>
@@ -64,13 +36,19 @@ export function renderAdvancedResults(data) {
     return;
   }
 
+  // Calculate overall score from the three main components
+  const infoScore = ev.information_gathering?.score || 0;
+  const diagScore = ev.diagnostic_accuracy?.score || 0;
+  const biasScore = ev.cognitive_bias_awareness?.score || 0;
+  const overallScore = Math.round((infoScore + diagScore + biasScore) / 3);
+
   el.innerHTML = `
     <div class="results-summary advanced-results">
       <div class="score-card">
         <h3><i class="fas fa-star"></i> Overall Clinical Performance</h3>
-        <div class="score-value">${ev.overall_score || 0}/100</div>
-        <div class="confidence-indicator">
-          <small>Confidence: ${ev.confidence_assessment || "N/A"}%</small>
+        <div class="score-value">${overallScore}/100</div>
+        <div class="score-breakdown">
+          <small>Based on three core competencies</small>
         </div>
       </div>
 
@@ -96,19 +74,6 @@ export function renderAdvancedResults(data) {
             .join("")}
         </div>
       </div>
-
-      ${
-        ev.recommendations
-          ? `
-        <div class="additional-recommendations">
-          <h4><i class="fas fa-plus-circle"></i> Additional LLM Recommendations</h4>
-          <div class="recommendations-content">
-            ${renderRecommendations(ev.recommendations)}
-          </div>
-        </div>
-      `
-          : ""
-      }
     </div>
   `;
 
@@ -117,50 +82,93 @@ export function renderAdvancedResults(data) {
 
 function renderMetricItems(evaluation) {
   const metrics = [
-    { label: "Information Discovery", key: "information_discovery_score" },
-    { label: "Diagnostic Accuracy", key: "diagnostic_accuracy" },
-    { label: "Clinical Reasoning", key: "clinical_reasoning_score" },
-    { label: "Bias Awareness", key: "bias_awareness_score" },
-    { label: "Metacognitive Reflection", key: "metacognitive_score" },
+    { label: "Information Gathering", path: "information_gathering.score" },
+    { label: "Diagnostic Accuracy", path: "diagnostic_accuracy.score" },
+    {
+      label: "Cognitive Bias Awareness",
+      path: "cognitive_bias_awareness.score",
+    },
   ];
 
   return metrics
     .map((metric) => {
-      const value = evaluation[metric.key];
+      const value = getNestedValue(evaluation, metric.path);
       const displayValue = value !== undefined ? `${value}/100` : "N/A";
+      const colorClass = getScoreColorClass(value);
       return `
       <div class="metric-item">
         <span class="metric-label">${metric.label}</span>
-        <span class="metric-value">${displayValue}</span>
+        <span class="metric-value ${colorClass}">${displayValue}</span>
       </div>
     `;
     })
     .join("");
 }
 
+// Helper function to get nested object values
+function getNestedValue(obj, path) {
+  return path.split(".").reduce((current, key) => current?.[key], obj);
+}
+
+// Helper function to get color class based on score
+function getScoreColorClass(score) {
+  if (score === undefined || score === null) return "";
+  if (score >= 80) return "score-excellent";
+  if (score >= 60) return "score-good";
+  if (score >= 40) return "score-fair";
+  return "score-poor";
+}
+
 function renderDetailedFeedback(evaluation) {
   let feedback = "";
+  const comprehensiveFeedback = evaluation.comprehensive_feedback || {};
 
-  if (evaluation.strengths) {
+  if (comprehensiveFeedback.strengths) {
     feedback += `<div class="feedback-section-item">
       <h4><i class="fas fa-thumbs-up"></i> Strengths</h4>
-      <p>${evaluation.strengths}</p>
+      <p>${comprehensiveFeedback.strengths}</p>
     </div>`;
   }
 
-  if (evaluation.areas_for_improvement) {
+  if (comprehensiveFeedback.areas_for_improvement) {
     feedback += `<div class="feedback-section-item">
       <h4><i class="fas fa-arrow-up"></i> Areas for Improvement</h4>
-      <p>${evaluation.areas_for_improvement}</p>
+      <p>${comprehensiveFeedback.areas_for_improvement}</p>
     </div>`;
   }
 
-  if (evaluation.clinical_reasoning_feedback) {
+  if (
+    comprehensiveFeedback.key_recommendations &&
+    comprehensiveFeedback.key_recommendations.length > 0
+  ) {
     feedback += `<div class="feedback-section-item">
-      <h4><i class="fas fa-brain"></i> Clinical Reasoning</h4>
-      <p>${evaluation.clinical_reasoning_feedback}</p>
+      <h4><i class="fas fa-lightbulb"></i> Key Recommendations</h4>
+      <ul class="recommendations-list">
+        ${comprehensiveFeedback.key_recommendations
+          .map((rec) => `<li>${rec}</li>`)
+          .join("")}
+      </ul>
     </div>`;
   }
+
+  // Add individual analysis if available
+  const areas = [
+    "information_gathering",
+    "diagnostic_accuracy",
+    "cognitive_bias_awareness",
+  ];
+  areas.forEach((area) => {
+    const analysis = evaluation[area]?.analysis;
+    if (analysis) {
+      const title = area
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+      feedback += `<div class="feedback-section-item">
+        <h4><i class="fas fa-info-circle"></i> ${title}</h4>
+        <p class="analysis-text">${analysis}</p>
+      </div>`;
+    }
+  });
 
   return feedback || "<p>No detailed feedback available.</p>";
 }
@@ -184,15 +192,15 @@ function generateImprovementAdvice(evaluation) {
   const infoScore = evaluation.information_gathering?.score || 0;
   if (infoScore < 30) {
     advice.push(
-      "🔍 <strong>Information Discovery:</strong> Limited clinical information was gathered during this session."
+      "🔍 <strong>Information Gathering:</strong> Limited clinical information was gathered. Focus on systematic history taking and physical examination."
     );
   } else if (infoScore < 60) {
     advice.push(
-      "📋 <strong>Information Gathering:</strong> Moderate amount of clinical information was collected."
+      "📋 <strong>Information Gathering:</strong> Moderate clinical information was collected. Consider exploring additional relevant areas."
     );
   } else {
     advice.push(
-      "🔍 <strong>Information Discovery:</strong> Good information gathering was demonstrated."
+      "🔍 <strong>Information Gathering:</strong> Good systematic approach to clinical information discovery."
     );
   }
 
@@ -200,27 +208,31 @@ function generateImprovementAdvice(evaluation) {
   const diagScore = evaluation.diagnostic_accuracy?.score || 0;
   if (diagScore < 50) {
     advice.push(
-      "🎯 <strong>Diagnostic Reasoning:</strong> The final diagnosis showed limited alignment with clinical evidence."
+      "🎯 <strong>Diagnostic Accuracy:</strong> Consider strengthening diagnostic reasoning and differential diagnosis skills."
     );
   } else if (diagScore < 80) {
     advice.push(
-      "🎯 <strong>Diagnostic Reasoning:</strong> The diagnostic reasoning showed moderate clinical accuracy."
+      "🎯 <strong>Diagnostic Accuracy:</strong> Reasonable diagnostic approach with room for improvement in precision."
     );
   } else {
     advice.push(
-      "🎯 <strong>Diagnostic Reasoning:</strong> Strong diagnostic accuracy was demonstrated."
+      "🎯 <strong>Diagnostic Accuracy:</strong> Strong diagnostic reasoning and clinical accuracy demonstrated."
     );
   }
 
   // Check cognitive bias awareness
   const biasScore = evaluation.cognitive_bias_awareness?.score || 0;
-  if (biasScore < 70) {
+  if (biasScore < 50) {
     advice.push(
-      "🧠 <strong>Cognitive Awareness:</strong> The reflection responses showed limited metacognitive depth."
+      "🧠 <strong>Cognitive Bias Awareness:</strong> Metacognitive reflection needs significant improvement. Focus on thoughtful self-analysis."
+    );
+  } else if (biasScore < 70) {
+    advice.push(
+      "🧠 <strong>Cognitive Bias Awareness:</strong> Developing awareness of cognitive biases. Continue practicing reflective thinking."
     );
   } else {
     advice.push(
-      "🧠 <strong>Cognitive Awareness:</strong> Good metacognitive reflection was demonstrated."
+      "🧠 <strong>Cognitive Bias Awareness:</strong> Good metacognitive reflection and bias awareness demonstrated."
     );
   }
 

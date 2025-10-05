@@ -155,14 +155,14 @@ export async function submitDiagnosisWithReflection(payload) {
 
 // V1 diagnosis with reflection using new evaluation system
 async function v1SubmitDiagnosisWithReflection(payload) {
-  const url = `${V1_BASE_URL}/evaluation/submit`;
+  const url = `${V1_BASE_URL}/diagnosis/reflection`;
   return request(url, {
     method: "POST",
     body: JSON.stringify({
       diagnosis: payload.diagnosis,
       metacognitive_responses: payload.metacognitive_responses,
       session_id: payload.session_data?.session_id,
-      case_context: {},
+      session_data: payload.session_data,
     }),
   });
 }
