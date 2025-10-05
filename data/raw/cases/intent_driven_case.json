@@ -195,30 +195,27 @@
       "blockType": "Labs",
       "content": "Pro-brain-type natriuretic peptide (pro-BNP) level is greater than the upper limit of normal.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"],
-      "groupId": "grp_labs_core",
-      "level": 1,
-      "revealPolicy": "escalate"
+      "intentTriggers": ["labs_bnp", "labs_general"],
+      "groupId": "grp_labs_bnp",
+      "level": 1
     },
     {
       "blockId": "labs_wbc",
       "blockType": "Labs",
       "content": "White blood cell count is elevated at 13.0 x 10^9/L.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"],
-      "groupId": "grp_labs_core",
-      "level": 2,
-      "revealPolicy": "escalate"
+      "intentTriggers": ["labs_wbc", "labs_general"],
+      "groupId": "grp_labs_wbc",
+      "level": 1
     },
     {
       "blockId": "labs_hemoglobin",
       "blockType": "Labs",
       "content": "Hemoglobin is low at 10 g/dL.",
       "isCritical": false,
-      "intentTriggers": ["labs_general"],
-      "groupId": "grp_labs_core",
-      "level": 3,
-      "revealPolicy": "escalate"
+      "intentTriggers": ["labs_hemoglobin", "labs_general"],
+      "groupId": "grp_labs_hemoglobin",
+      "level": 1
     },
     {
       "blockId": "imaging_cxr_preliminary",
@@ -288,7 +285,10 @@
     "exam_general_appearance": ["grp_exam_general"],
     "exam_respiratory": ["grp_exam_respiratory"],
     "exam_cardiovascular": ["grp_exam_cardiac"],
-    "labs_general": ["grp_labs_core"],
+    "labs_general": ["grp_labs_bnp", "grp_labs_wbc", "grp_labs_hemoglobin"],
+    "labs_bnp": ["grp_labs_bnp"],
+    "labs_wbc": ["grp_labs_wbc"],
+    "labs_hemoglobin": ["grp_labs_hemoglobin"],
     "imaging_chest": ["grp_cxr"],
     "imaging_general": ["grp_echo", "grp_advanced_imaging"]
   },
