@@ -82,7 +82,18 @@ class Responder(ABC):
 
         # Use provider with appropriate generation parameters
         text = self.provider.generate(prompt)
-        return text.strip().strip('"')
+
+        # Clean up the response by removing quotes and extra whitespace
+        text = text.strip()
+
+        # Remove surrounding quotes if present
+        if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
+            text = text[1:-1]
+
+        # Remove any remaining leading/trailing quotes that might appear
+        text = text.strip().strip('"').strip("'")
+
+        return text
 
     def _fallback(self) -> str:
         """Default fallback response when no provider is available."""

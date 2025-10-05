@@ -209,6 +209,14 @@ class IntentDrivenDisclosureManager:
                 "pulmonary": "Lung Examination"
             },
             "Labs": {
+                "bnp": "Cardiac Lab Results",
+                "wbc": "Blood Results",
+                "white": "Blood Results",
+                "hemoglobin": "Blood Results",
+                "blood": "Blood Results",
+                "cbc": "Blood Results",
+                "hematocrit": "Blood Results",
+                "platelet": "Blood Results",
                 "default": "Lab Results"
             },
             "Imaging": {
@@ -779,6 +787,9 @@ class IntentDrivenDisclosureManager:
             "labs": [
                 # Laboratory and imaging related intents
                 "labs_general",
+                "labs_bnp",
+                "labs_wbc",
+                "labs_hemoglobin",
                 "imaging_chest",
                 "imaging_general",
             ],

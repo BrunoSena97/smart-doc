@@ -2,11 +2,11 @@ export const state = {
   sessionId: null,
 
   discoveredInfo: {
-    hpi: {},           // label -> { label, value, timestamp }
+    hpi: {}, // label -> { label, value, timestamp }
     medications: {},
     exam: {},
     labs: {},
-    imaging: {}
+    imaging: {},
   },
 
   totalAvailableInfo: 0,
@@ -15,7 +15,8 @@ export const state = {
 };
 
 export function newSession() {
-  state.sessionId = "SESS_" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  state.sessionId =
+    "SESS_" + Math.random().toString(36).substr(2, 9).toUpperCase();
   console.log("[STATE] New session created:", state.sessionId);
   return state.sessionId;
 }
@@ -23,7 +24,11 @@ export function newSession() {
 export function addDiscovery(category, label, value) {
   if (!state.discoveredInfo[category]) state.discoveredInfo[category] = {};
   const isNew = !state.discoveredInfo[category][label];
-  state.discoveredInfo[category][label] = { label, value, timestamp: Date.now() };
+  state.discoveredInfo[category][label] = {
+    label,
+    value,
+    timestamp: Date.now(),
+  };
   if (isNew) {
     state.discoveredCount++;
     console.log("[STATE] New discovery added:", { category, label, value });
@@ -41,5 +46,54 @@ export function incBiasWarnings(n = 1) {
 }
 
 export function getState() {
-  return { ...state };
+  return state;
+}
+
+// Session restoration functions
+export function restoreSessionState(sessionData) {
+  // Restore session ID
+  state.sessionId = sessionData.session_id;
+
+  // Restore discoveries
+  state.discoveredInfo = {
+    hpi: {},
+    medications: {},
+    exam: {},
+    labs: {},
+    imaging: {},
+  };
+
+  state.discoveredCount = 0;
+
+  if (sessionData.discoveries) {
+    sessionData.discoveries.forEach((discovery) => {
+      const category = discovery.category || "hpi";
+      if (!state.discoveredInfo[category]) {
+        state.discoveredInfo[category] = {};
+      }
+
+      state.discoveredInfo[category][discovery.label] = {
+        label: discovery.label,
+        value: discovery.value,
+        timestamp: new Date(discovery.timestamp).getTime(),
+      };
+
+      state.discoveredCount++;
+    });
+  }
+
+  // Restore bias warnings count
+  state.biasWarningCount = sessionData.bias_warnings
+    ? sessionData.bias_warnings.length
+    : 0;
+
+  console.log("[STATE] Session restored:", {
+    sessionId: state.sessionId,
+    discoveries: state.discoveredCount,
+    biasWarnings: state.biasWarningCount,
+  });
+}
+
+export function hasExistingSession() {
+  return state.sessionId !== null && state.discoveredCount > 0;
 }

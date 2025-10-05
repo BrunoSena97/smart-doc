@@ -192,3 +192,73 @@ def simulation_status(session_id):
             "bias_warnings_count": len(session["bias_warnings"]),
         }
     )
+
+@bp.get("/simulation/<session_id>/history")
+def get_session_history(session_id):
+    """Get complete session history for resuming sessions."""
+    from ..services.repo import session_scope
+    from ..db.models import SimulationSession, Message, DiscoveryEvent, BiasWarning
+    from sqlalchemy import select
+    
+    with session_scope() as s:
+        # Get session info
+        session = s.get(SimulationSession, session_id)
+        if not session:
+            return jsonify({"error": "Session not found"}), 404
+        
+        # Get conversation messages
+        messages = []
+        if session.conversation_id:
+            message_records = s.execute(
+                select(Message).where(Message.conversation_id == session.conversation_id)
+                .order_by(Message.created_at)
+            ).scalars().all()
+            
+            for msg in message_records:
+                messages.append({
+                    "role": msg.role.value,
+                    "content": msg.content,
+                    "context": msg.context,
+                    "timestamp": msg.created_at.isoformat()
+                })
+        
+        # Get discoveries
+        discoveries = []
+        discovery_records = s.execute(
+            select(DiscoveryEvent).where(DiscoveryEvent.session_id == session_id)
+            .order_by(DiscoveryEvent.created_at)
+        ).scalars().all()
+        
+        for discovery in discovery_records:
+            discoveries.append({
+                "category": discovery.category,
+                "label": discovery.label,
+                "value": discovery.value,
+                "confidence": discovery.confidence,
+                "block_id": discovery.block_id,
+                "timestamp": discovery.created_at.isoformat()
+            })
+        
+        # Get bias warnings
+        bias_warnings = []
+        bias_records = s.execute(
+            select(BiasWarning).where(BiasWarning.session_id == session_id)
+            .order_by(BiasWarning.created_at)
+        ).scalars().all()
+        
+        for bias in bias_records:
+            bias_warnings.append({
+                "bias_type": bias.bias_type,
+                "description": bias.description,
+                "timestamp": bias.created_at.isoformat()
+            })
+        
+        return jsonify({
+            "session_id": session_id,
+            "status": session.status,
+            "created_at": session.created_at.isoformat(),
+            "messages": messages,
+            "discoveries": discoveries,
+            "bias_warnings": bias_warnings,
+            "stats": session.stats
+        })

@@ -18,9 +18,23 @@ def verify_code(code: str, code_hash: str) -> bool:
 
 def issue_token(user_id: int) -> dict:
     now = datetime.now(timezone.utc)
-    exp = now + timedelta(minutes=JWT_TTL_MIN)
-    jti = uuid.uuid4().hex
-    payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "jti": jti}
+
+    # Check if user is admin for non-expiring token
+    with get_session() as s:
+        user = s.get(User, user_id)
+        is_admin = user and user.role == "admin"
+
+    if is_admin:
+        # Admin tokens never expire (set expiration far in the future)
+        exp = now + timedelta(days=365 * 10)  # 10 years
+        jti = uuid.uuid4().hex
+        payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "jti": jti, "admin": True}
+    else:
+        # Regular user tokens expire after 14 days
+        exp = now + timedelta(minutes=JWT_TTL_MIN)
+        jti = uuid.uuid4().hex
+        payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp()), "jti": jti}
+
     token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm=JWT_ALG)
 
     # persist session for optional revoke
@@ -28,7 +42,7 @@ def issue_token(user_id: int) -> dict:
         s.add(AuthSession(user_id=user_id, jti=jti))
         s.commit()
 
-    return {"token": token, "expires_at": exp.isoformat()}
+    return {"token": token, "expires_at": exp.isoformat() if not is_admin else "never"}
 
 def decode_token(token: str) -> dict:
     return jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=[JWT_ALG])

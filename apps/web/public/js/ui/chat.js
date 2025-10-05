@@ -95,6 +95,11 @@ async function handleChat(context) {
 
     const data = await sendChat(text, context);
 
+    // Save session ID to localStorage for persistence
+    if (state.sessionId) {
+      localStorage.setItem("smartdoc_session_id", state.sessionId);
+    }
+
     // Add bot response
     addMsg(chatboxId, data.response, "bot");
 

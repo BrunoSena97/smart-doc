@@ -203,3 +203,9 @@ export async function getProfile() {
   const url = `${V1_BASE_URL}/auth/me`;
   return request(url, { method: "GET" });
 }
+
+// Session management
+export async function getSessionHistory(sessionId) {
+  const url = `${V1_BASE_URL}/simulation/${sessionId}/history`;
+  return request(url, { method: "GET" });
+}

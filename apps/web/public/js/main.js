@@ -1,17 +1,32 @@
-import { newSession } from "./state.js";
+import {
+  newSession,
+  restoreSessionState,
+  hasExistingSession,
+} from "./state.js";
 import { initTabs } from "./ui/tabs.js";
 import { initChatHandlers } from "./ui/chat.js";
 import { initPatientInfo } from "./ui/patientInfo.js";
 import { initResults } from "./ui/results.js";
-import { healthCheck, logout } from "./api.js";
+import { healthCheck, logout, getSessionHistory } from "./api.js";
 
 let questionCount = 0;
 
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[MAIN] SmartDoc Frontend initializing...");
 
-  // Initialize session
-  newSession();
+  // Check for existing session in URL or localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId =
+    urlParams.get("session") || localStorage.getItem("smartdoc_session_id");
+
+  if (sessionId) {
+    console.log("[MAIN] Attempting to restore session:", sessionId);
+    await attemptSessionRestore(sessionId);
+  } else {
+    // Initialize new session
+    const newSessionId = newSession();
+    localStorage.setItem("smartdoc_session_id", newSessionId);
+  }
 
   // Initialize UI components
   initTabs();
@@ -30,6 +45,87 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log("[MAIN] ✅ SmartDoc Frontend initialized successfully!");
 });
+
+async function attemptSessionRestore(sessionId) {
+  try {
+    console.log("[MAIN] Fetching session history for:", sessionId);
+    const sessionData = await getSessionHistory(sessionId);
+
+    if (
+      sessionData &&
+      sessionData.discoveries &&
+      sessionData.discoveries.length > 0
+    ) {
+      console.log(
+        "[MAIN] Restoring session with",
+        sessionData.discoveries.length,
+        "discoveries"
+      );
+      restoreSessionState(sessionData);
+
+      // Show restoration notification
+      showSessionRestoredNotification(sessionData);
+
+      // Update UI to reflect restored state
+      updateUIAfterSessionRestore(sessionData);
+    } else {
+      console.log(
+        "[MAIN] No significant session data found, starting new session"
+      );
+      const newSessionId = newSession();
+      localStorage.setItem("smartdoc_session_id", newSessionId);
+    }
+  } catch (error) {
+    console.warn("[MAIN] Failed to restore session:", error);
+    console.log("[MAIN] Starting new session instead");
+    const newSessionId = newSession();
+    localStorage.setItem("smartdoc_session_id", newSessionId);
+  }
+}
+
+function showSessionRestoredNotification(sessionData) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px;
+    z-index: 1000;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  `;
+  notification.textContent = `Session restored: ${sessionData.discoveries.length} discoveries, ${sessionData.bias_warnings.length} bias warnings`;
+
+  document.body.appendChild(notification);
+
+  // Remove notification after 5 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 5000);
+}
+
+function updateUIAfterSessionRestore(sessionData) {
+  // Update session display
+  const sessionDisplay = document.getElementById("current-session");
+  if (sessionDisplay) {
+    sessionDisplay.textContent = sessionData.session_id.substring(0, 8);
+  }
+
+  // Update discovery indicators (will be implemented by results.js)
+  const event = new CustomEvent("sessionRestored", {
+    detail: {
+      sessionData,
+      discoveryCount: sessionData.discoveries.length,
+      biasWarningCount: sessionData.bias_warnings.length,
+    },
+  });
+  document.dispatchEvent(event);
+}
 
 async function testApiConnection() {
   const sessionStatusElement =
@@ -125,6 +221,9 @@ function initEndSessionHandler() {
           endSessionBtn.innerHTML =
             '<i class="fas fa-spinner fa-spin"></i> Ending...';
           endSessionBtn.disabled = true;
+
+          // Clear session data
+          localStorage.removeItem("smartdoc_session_id");
 
           await logout();
 

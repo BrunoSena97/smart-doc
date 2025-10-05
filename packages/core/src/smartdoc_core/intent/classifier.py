@@ -323,6 +323,9 @@ class LLMIntentClassifier:
             "labs": {
                 # Laboratory and imaging intents - ONLY those in case file
                 "labs_general",
+                "labs_bnp",
+                "labs_wbc",
+                "labs_hemoglobin",
                 "imaging_chest",
                 "imaging_general",
                 # General communication
@@ -571,6 +574,21 @@ class LLMIntentClassifier:
             "labs_general": {
                 "description": "Questions about laboratory tests or results",
                 "examples": ["Lab results?", "Blood tests?", "Laboratory findings?"],
+                "category": "diagnostics",
+            },
+            "labs_bnp": {
+                "description": "Questions about BNP or pro-BNP levels",
+                "examples": ["BNP level?", "What's the pro-BNP?", "Brain natriuretic peptide?"],
+                "category": "diagnostics",
+            },
+            "labs_wbc": {
+                "description": "Questions about white blood cell count",
+                "examples": ["White blood cell count?", "WBC?", "What's the white count?"],
+                "category": "diagnostics",
+            },
+            "labs_hemoglobin": {
+                "description": "Questions about hemoglobin levels",
+                "examples": ["Hemoglobin level?", "What's the Hgb?", "Hematocrit?"],
                 "category": "diagnostics",
             },
             "imaging_chest": {

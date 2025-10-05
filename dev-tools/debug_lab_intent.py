@@ -34,8 +34,8 @@ async def debug_lab_intent():
     session_id = "debug_session"
     engine.start_intent_driven_session(session_id)
 
-    # Test a specific BNP query
-    query = "What's the BNP level?"
+    # Test a specific WBC query (should reveal blood work)
+    query = "What is her white blood cell count?"
     print(f"Testing query: '{query}'")
 
     # 1. Test classification

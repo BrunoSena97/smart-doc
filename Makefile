@@ -135,6 +135,10 @@ dev-docker-down: ## Stop development Docker deployment
 	@echo "⏹️ Stopping development deployment..."
 	cd deployments && docker compose -f docker-compose.dev.yml down
 
+dev-docker-down-clean: ## Stop development Docker deployment and remove volumes
+	@echo "⏹️ Stopping development deployment..."
+	cd deployments && docker compose -f docker-compose.dev.yml down --volumes
+
 dev-docker-logs: ## Show development deployment logs
 	@echo "📋 Showing development logs..."
 	cd deployments && docker compose -f docker-compose.dev.yml logs -f

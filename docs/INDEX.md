@@ -21,6 +21,8 @@ Welcome to the SmartDoc documentation. This directory contains comprehensive doc
 ### **`development/`** - Development Documentation
 
 - **`DEVELOPMENT.md`** - Comprehensive development guide and setup instructions
+- **`session-management.md`** - Complete session management and authentication documentation
+- **`session-management-quick-reference.md`** - Quick reference for session management
 
 ### **`deployment/`** - Deployment Documentation
 
@@ -35,6 +37,8 @@ Welcome to the SmartDoc documentation. This directory contains comprehensive doc
 ### **Development**
 
 - [Development Setup](development/DEVELOPMENT.md) - Complete development environment setup
+- [Session Management](development/session-management.md) - Admin authentication and session persistence
+- [Quick Reference](development/session-management-quick-reference.md) - Session management commands and troubleshooting
 - [Project Overview](README.MD#project-overview) - System overview and features
 
 ### **Architecture & Deployment**
