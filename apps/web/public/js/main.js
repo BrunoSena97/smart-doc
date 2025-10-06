@@ -11,8 +11,30 @@ import { healthCheck, logout, getSessionHistory } from "./api.js";
 
 let questionCount = 0;
 
+// Configuration loading
+async function loadSystemConfiguration() {
+  try {
+    const configResponse = await fetch("/api/v1/config");
+    if (configResponse.ok) {
+      const config = await configResponse.json();
+      if (config.hide_bias_warnings) {
+        // Hide bias-related elements
+        document.querySelectorAll(".bias-related").forEach((el) => {
+          el.style.display = "none";
+        });
+        console.log("[CONFIG] Bias warnings hidden for research study");
+      }
+    }
+  } catch (error) {
+    console.warn("[CONFIG] Failed to load configuration:", error);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("[MAIN] SmartDoc Frontend initializing...");
+
+  // Load system configuration first
+  await loadSystemConfiguration();
 
   // Check for existing session in URL or localStorage
   const urlParams = new URLSearchParams(window.location.search);

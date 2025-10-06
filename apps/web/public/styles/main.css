@@ -386,6 +386,12 @@ body {
   animation: warningPulse 0.5s ease;
 }
 
+/* Hide bias-related elements when configured for research studies */
+.bias-related[style*="display: none"],
+.bias-warning[style*="display: none"] {
+  display: none !important;
+}
+
 @keyframes warningPulse {
   0% {
     background-color: #fee2e2;

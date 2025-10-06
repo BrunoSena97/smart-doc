@@ -124,16 +124,27 @@ async function handleChat(context) {
       updateProgress();
     }
 
-    // Handle bias warnings
+    // Handle bias warnings (check if they should be hidden)
     if (Array.isArray(data.bias_warnings) && data.bias_warnings.length) {
-      for (const w of data.bias_warnings) {
-        addBiasWarning(chatboxId, w);
-      }
-      incBiasWarnings(data.bias_warnings.length);
-      updateBiasCount();
-    }
+      // Check if bias warnings are hidden
+      const biasElements = document.querySelectorAll(".bias-related");
+      const biasHidden =
+        biasElements.length > 0 && biasElements[0].style.display === "none";
 
-    // Log if using real SmartDoc engine
+      if (!biasHidden) {
+        for (const w of data.bias_warnings) {
+          addBiasWarning(chatboxId, w);
+        }
+        incBiasWarnings(data.bias_warnings.length);
+      } else {
+        // Still track bias warnings internally for evaluation, but don't show them
+        incBiasWarnings(data.bias_warnings.length);
+        console.log(
+          "[RESEARCH] Bias warning detected but hidden:",
+          data.bias_warnings
+        );
+      }
+    } // Log if using real SmartDoc engine
     if (data.smartdoc_engine) {
       console.log("[CHAT] ✅ Response from real SmartDoc engine");
     } else {
@@ -249,6 +260,17 @@ function getBotFallbackClass(chatboxId) {
 }
 
 function addBiasWarning(chatboxId, warning) {
+  // Check if bias warnings are hidden via configuration
+  const biasElements = document.querySelectorAll(".bias-related");
+  const biasHidden =
+    biasElements.length > 0 && biasElements[0].style.display === "none";
+
+  if (biasHidden) {
+    // Don't show bias warning but log it for research purposes
+    console.log("[RESEARCH] Bias warning hidden:", warning);
+    return;
+  }
+
   const box = document.getElementById(chatboxId);
   if (!box) return;
 

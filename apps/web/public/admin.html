@@ -296,6 +296,20 @@
 
       <!-- Admin Content (hidden until logged in) -->
       <div id="admin-content" class="hidden">
+        <!-- System Configuration -->
+        <section class="admin-section">
+          <h2>📋 System Configuration</h2>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="hide-bias-warnings" />
+              Hide Bias Warnings (for research studies)
+            </label>
+            <small style="color: #666; margin-left: 20px;">When enabled, bias warnings and discovery counters will be hidden from students</small>
+          </div>
+          <button class="btn" onclick="saveConfiguration()">💾 Save Configuration</button>
+          <button class="btn btn-secondary" onclick="loadConfiguration()" style="margin-left: 10px;">🔄 Reload</button>
+        </section>
+
         <!-- Users Management -->
         <section class="admin-section">
           <h2>👥 Users Management</h2>
