@@ -92,7 +92,7 @@ def create_app() -> Flask:
     app.register_blueprint(auth_bp, url_prefix="/api/v1")
     app.register_blueprint(admin_bp)  # Already has /api/v1/admin prefix
     app.register_blueprint(evaluation_bp)  # Already has /api/v1/evaluation prefix
-    app.register_blueprint(config_bp)  # Handles both /admin/config and /api/v1/config
+    app.register_blueprint(config_bp, url_prefix="/api/v1")  # Will handle /api/v1/admin/config and /api/v1/config
 
     # Health check endpoints
     @app.get("/health")

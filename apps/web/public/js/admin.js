@@ -534,37 +534,6 @@ function displayAuditLogs(logs) {
 }
 
 // =============================================================================
-// System Configuration
-// =============================================================================
-
-async function loadConfiguration() {
-  try {
-    const config = await apiCall("/admin/config");
-    document.getElementById("hide-bias-warnings").checked =
-      config.hide_bias_warnings || false;
-    showSuccess("Configuration loaded");
-  } catch (error) {
-    showError("Failed to load configuration: " + error.message);
-  }
-}
-
-async function saveConfiguration() {
-  const config = {
-    hide_bias_warnings: document.getElementById("hide-bias-warnings").checked,
-  };
-
-  try {
-    await apiCall("/admin/config", {
-      method: "POST",
-      body: JSON.stringify(config),
-    });
-    showSuccess("Configuration saved successfully");
-  } catch (error) {
-    showError("Failed to save configuration: " + error.message);
-  }
-}
-
-// =============================================================================
 // Data Loading
 // =============================================================================
 

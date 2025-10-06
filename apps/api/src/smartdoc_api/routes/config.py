@@ -78,7 +78,7 @@ def update_config():
     except Exception as e:
         return jsonify({"error": f"Failed to update configuration: {str(e)}"}), 500
 
-@bp.route('/api/v1/config', methods=['GET'])
+@bp.route('/config', methods=['GET'])
 def get_public_config():
     """Get public configuration (for frontend to check settings)."""
     try:
