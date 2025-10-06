@@ -155,6 +155,10 @@ deploy-logs: ## Show production deployment logs
 
 deploy-down: ## Stop production deployment
 	@echo "⏹️ Stopping production deployment..."
+	cd deployments && docker compose down
+
+deploy-down-clean: ## Stop production deployment
+	@echo "⏹️ Stopping production deployment..."
 	cd deployments && docker compose down --volumes
 
 deploy-health: ## Check deployment health
