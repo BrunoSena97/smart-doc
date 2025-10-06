@@ -49,9 +49,17 @@ def create_app() -> Flask:
     CORS(
         app,
         resources={
-            r"/api/*": {"origins": ["http://localhost:3000"]},
+            r"/api/*": {"origins": [
+                "http://localhost:3000",
+                "https://mestrados.logimade.com",
+                "http://localhost:8000"
+            ]},
             r"/*": {
-                "origins": ["http://localhost:3000"]
+                "origins": [
+                    "http://localhost:3000",
+                    "https://mestrados.logimade.com",
+                    "http://localhost:8000"
+                ]
             },  # For legacy routes during migration
         },
     )
