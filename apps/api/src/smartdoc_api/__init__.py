@@ -45,10 +45,25 @@ def create_app() -> Flask:
 
     app = Flask(__name__, instance_path=instance_path)
 
-        # Enable CORS for frontend communication (simplified for nginx proxy)
+        # Enable CORS for frontend communication
     CORS(
         app,
-        resources={r"/*": {"origins": "*"}},
+        resources={
+            r"/api/*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "https://mestrados.logimade.com",
+                    "http://mestrados.logimade.com"
+                ]
+            },
+            r"/*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "https://mestrados.logimade.com",
+                    "http://mestrados.logimade.com"
+                ]
+            }
+        },
         supports_credentials=True
     )
 
