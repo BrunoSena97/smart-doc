@@ -107,16 +107,20 @@ async function downloadDatabase() {
     btn.disabled = true;
     btn.textContent = "⏳ Downloading...";
 
-    const token = getAuthToken();
-    const response = await fetch(`${API_BASE_URL}/admin/download-db`, {
+    const response = await fetch(`${API_BASE}/admin/download-db`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        ...getAuthHeaders(),
       },
     });
 
     if (!response.ok) {
-      throw new Error(`Download failed: ${response.statusText}`);
+      const errorData = await response
+        .json()
+        .catch(() => ({ error: response.statusText }));
+      throw new Error(
+        errorData.error || `Download failed: ${response.statusText}`
+      );
     }
 
     // Get the filename from Content-Disposition header or use default

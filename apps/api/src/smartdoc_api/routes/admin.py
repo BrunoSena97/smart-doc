@@ -538,31 +538,31 @@ def download_database():
             Path("/data/smartdoc.sqlite3"),  # Docker production path
             Path("/workspace/instance/smartdoc_dev.sqlite3"),  # Docker dev path
         ]
-        
+
         db_path = None
         for path in possible_paths:
             if path.exists():
                 db_path = path
                 break
-        
+
         if db_path is None:
             sys_logger.log_system("error", "Database file not found in any expected location")
             return jsonify({"error": "Database file not found"}), 404
-        
+
         # Generate filename with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         download_name = f"smartdoc_backup_{timestamp}.sqlite3"
-        
+
         sys_logger.log_system("info", f"Admin downloading database from {db_path}")
         log_admin_action("download_database", {"db_path": str(db_path)})
-        
+
         return send_file(
             db_path,
             as_attachment=True,
             download_name=download_name,
             mimetype="application/x-sqlite3"
         )
-        
+
     except Exception as e:
         sys_logger.log_system("error", f"Database download failed: {e}")
         return jsonify({"error": str(e)}), 500

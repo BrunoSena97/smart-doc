@@ -12,7 +12,29 @@ SmartDoc uses SQLite for data persistence, stored in a Docker volume. This guide
 
 ---
 
-## Method 1: Local Backup (Direct Docker Access)
+## ⭐ Method 1: Admin Panel Download (Easiest - Recommended)
+
+**Use when**: You need to download the database from a deployed instance via the web interface.
+
+**Best for**: Remote deployments with restricted SSH access.
+
+### Steps:
+
+1. Navigate to the admin panel: `https://your-domain.com/admin.html`
+2. Login with your admin credentials
+3. Click the **"📥 Download Database Backup"** button in the "Database Backup" section
+4. The database will download automatically with a timestamp in the filename: `smartdoc_backup_YYYYMMDD_HHMMSS.sqlite3`
+
+### Benefits:
+- ✅ Works through firewalls and restricted SSH
+- ✅ No command-line knowledge needed
+- ✅ Automatic timestamped filenames
+- ✅ Secure (requires admin authentication)
+- ✅ Works from any browser
+
+---
+
+## Method 2: Local Backup (Direct Docker Access)
 
 **Use when**: You have direct Docker access on the deployment machine.
 
