@@ -557,54 +557,32 @@ Your response (do NOT invent results):"""
             return "That test isn't available. What other studies would you like me to order?"
 
     def _generate_patient_fallback_response(self, intent_result: Dict, session) -> str:
-        """Generate a fallback response when no new information is discovered."""
+        """
+        Generate a fallback response when no new information is discovered.
+
+        Uses LLM to respond naturally based on the actual question, not just the classified intent.
+        This prevents mismatched responses when intent classification is incorrect.
+
+        IMPORTANT: Grounds the response in ONLY the information that has been revealed so far
+        to prevent hallucination of false clinical information.
+        """
         intent_id = intent_result["intent_id"]
         confidence = intent_result.get("confidence", 0)
-
-        # Always provide contextually appropriate responses based on the specific question type
-        # Even if we don't have new information blocks to reveal
-        intent_specific_responses = {
-            # Chief complaint and history
-            "hpi_chief_complaint": "The main reason we're here is her breathing problems and how she's been feeling weak lately.",
-            "hpi_onset_duration_primary": "It all started about two months ago and has been getting slowly worse since then.",
-            "hpi_shortness_of_breath": "Her breathing has been getting worse over the past couple of months. It's especially bad when she tries to walk around.",
-            "hpi_appetite": "She hasn't been eating as well lately. I've noticed she doesn't finish her meals like she used to.",
-            "hpi_eating": "Her appetite has definitely decreased. She's been eating smaller portions and doesn't seem interested in food.",
-            "hpi_weight_loss": "I've noticed her clothes are getting loose on her. She's definitely lost some weight recently.",
-            "hpi_cough": "She has this dry cough that won't go away. It's worse at night and keeps her up.",
-            "hpi_fever": "No, she hasn't had any fever. Her temperature has been normal.",
-            "hpi_chest_pain": "No, she says she doesn't have any chest pain.",
-            # Physical exam
-            "exam_cardiovascular": "Would you like to examine her heart? She's sitting here if you need to listen.",
-            "exam_respiratory": "You can examine her lungs if you need to. Her breathing has been the main problem.",
-            "exam_vital_signs": "The nurses already took her vital signs when we arrived.",
-            "exam_general_appearance": "As you can see, she looks tired and is breathing a bit fast.",
-            # Medications - Simplified to 3 intents
-            "meds_current_known": "I think I told you all the medications I know about. There might be others her regular doctor prescribed.",
-            "meds_ra_specific_initial_query": "I'm sorry, I don't know much about her arthritis treatments. Her rheumatologist handles that.",
-            "meds_full_reconciliation_query": "Let me check if they found her records from the other hospital... Yes! They found her previous records with her complete medication list.",
-            # Imaging and tests
-            "imaging_chest_xray": "I think they did a chest X-ray when we got here. Did you see the results?",
-            "imaging_echo": "I think they mentioned doing some heart tests. Have you seen those results?",
-            "imaging_ct_chest": "They talked about doing some detailed scans. I'm not sure if they've done them yet.",
-            "imaging_general": "They've done some imaging tests. I think there was a chest X-ray, and maybe they mentioned other scans?",
-            "labs_general": "They drew some blood when we arrived. I don't know the results yet.",
-            # Profile and background
-            "profile_age": "She's elderly, in her 70s. I help her because she only speaks Spanish.",
-            "profile_language": "My mother only speaks Spanish, so I'm translating for her.",
-            "pmh_general": "She has diabetes, high blood pressure, and arthritis. She's also quite overweight.",
-            # General responses - clarification handled separately with context-aware response
-        }
-
-        # First check if we have a specific contextual response for this intent
-        if intent_id in intent_specific_responses:
-            return intent_specific_responses[intent_id]
+        original_query = intent_result.get("original_input", "")
 
         # Handle clarification with context-aware helpful guidance
-        if intent_id == "clarification":
+        if intent_id == "clarification" or confidence < 0.4:
             return self._generate_clarification_response(intent_result, session)
 
-        # Check if information was already revealed for this intent and give acknowledging responses
+        # Collect ALL revealed information to ground the LLM response
+        all_revealed_content = []
+        for block_id in session.revealed_blocks:
+            if block_id in session.blocks:
+                block = session.blocks[block_id]
+                all_revealed_content.append(f"- {block.content}")
+
+        # Check if information was already revealed for this specific intent
+        already_revealed_info = None
         if intent_id in self.intent_block_mappings:
             mapped_blocks = self.intent_block_mappings[intent_id]
             already_revealed = [
@@ -614,24 +592,83 @@ Your response (do NOT invent results):"""
             ]
 
             if already_revealed:
-                # Provide brief acknowledgment but still try to be helpful
-                if intent_id == "hpi_weight_loss":
-                    return "I already mentioned her weight loss, but yes, she's definitely been losing weight over the past few weeks."
-                elif intent_id == "hpi_shortness_of_breath":
-                    return "I talked about her breathing before - it's been getting worse over the past couple of months, especially with walking."
-                elif intent_id.startswith("imaging_"):
-                    return "I believe they've done some imaging studies. Have you had a chance to review the results?"
-                elif intent_id.startswith("meds_"):
-                    return "I mentioned her medications earlier. Is there something specific about her medications you'd like to know?"
-                else:
-                    return "I think we discussed that already, but let me know if you need me to clarify anything specific."
+                # Collect the content that was already revealed for this intent
+                revealed_content = []
+                for block_id in already_revealed:
+                    if block_id in session.blocks:
+                        revealed_content.append(session.blocks[block_id].content)
 
-        # If confidence is low, acknowledge uncertainty
-        if confidence < 0.5:
-            return "I'm not sure I understood your question completely. Could you be more specific about what you'd like to know?"
+                if revealed_content:
+                    already_revealed_info = " ".join(revealed_content)
 
-        # Default response
-        return "I'm not sure I have more information about that right now. Is there something else you'd like to know?"
+        # Use LLM to generate context-aware response based on actual question
+        responder = self.responders.get("anamnesis")
+        if not responder:
+            return "I'm not sure I have more information about that right now."
+
+        # Build GROUNDED prompt with all revealed information
+        grounding_context = ""
+        if all_revealed_content:
+            grounding_context = f"""
+IMPORTANT - ONLY USE THIS INFORMATION (what you've already told the doctor):
+{chr(10).join(all_revealed_content)}
+
+You MUST base your answer ONLY on the information above. Do NOT invent or add any other symptoms, complaints, or details.
+"""
+        else:
+            grounding_context = "\nYou haven't provided any specific information yet to the doctor.\n"
+
+        # Build context-aware prompt
+        if already_revealed_info:
+            specific_note = f"\n\nYou have ALREADY told the doctor about this topic: {already_revealed_info}\n\nAcknowledge this briefly but naturally."
+        else:
+            specific_note = "\n\nYou don't have specific detailed information to provide about this particular question. Be honest about not having those details."
+
+        prompt = f"""You are the English-speaking son of an elderly Spanish-speaking woman in the emergency department.
+You are translating for your mother who only speaks Spanish. You are concerned but trying to be helpful.
+{grounding_context}
+The doctor just asked: "{original_query}"
+{specific_note}
+
+Respond naturally as the patient's son. Stay strictly within what you know from the information provided above.
+If you already mentioned something, acknowledge it briefly. If you don't have specific details, be honest.
+
+CRITICAL RULES - YOU MUST FOLLOW THESE (VIOLATION IS UNACCEPTABLE):
+1. ONLY answer the SPECIFIC question the doctor asked - don't volunteer unrelated information
+2. If the question asks about something NOT EXPLICITLY in the information above, you MUST say you don't know
+3. Do NOT invent ANY clinical information: NO surgeries, NO procedures, NO medical events, NO diagnoses
+4. Do NOT invent any numbers (weights, measurements, dates, counts, ages, years ago, etc.)
+5. Do NOT add symptoms or complaints not explicitly listed in the information above
+6. Do NOT make up specific details about ANYTHING medical
+7. You can only repeat information that is EXPLICITLY stated in the information above
+
+ABSOLUTE PROHIBITIONS (NEVER DO THIS):
+❌ "She had gallbladder surgery" ← NEVER invent surgical history
+❌ "She's usually around 160 pounds" ← NEVER invent weights/numbers
+❌ "She's been having dizziness" ← NEVER add symptoms not in the information
+❌ "She had a scope done" ← NEVER invent medical procedures
+❌ "Fifteen years ago" ← NEVER invent timeframes
+❌ "She had X taken care of" ← NEVER invent vague medical events
+
+WHAT TO SAY INSTEAD:
+✅ "I don't think she's had any surgeries, but I'm not completely sure"
+✅ "I'm not aware of any surgical history"
+✅ "I don't have information about that specifically"
+✅ "I'm not sure about those details"
+
+Examples:
+- Q: "Any surgical procedures?" → A: "I'm not aware of any surgical history" (if NOT in information above)
+- Q: "How much weight lost?" → A: "I've noticed she's lost weight, but I don't know exactly how much" (if weight loss mentioned but no number)
+- Q: "What medications?" → Answer ONLY if medications are listed in information above
+
+Your response:"""
+
+        try:
+            response = self.provider.generate(prompt, temperature=0.3)
+            return self._clean_response_text(response)
+        except Exception as e:
+            sys_logger.log_system("warning", f"LLM fallback generation failed: {e}")
+            return "I'm not sure I have more specific information about that right now. Is there something else you'd like to know?"
 
     def _generate_fallback_response(self, intent_result: Dict, session) -> str:
         """Generate a fallback response when no new information is discovered."""

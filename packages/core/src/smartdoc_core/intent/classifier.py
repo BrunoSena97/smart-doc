@@ -383,6 +383,12 @@ class LLMIntentClassifier:
                     "Past medical history?",
                     "Any previous conditions?",
                     "Medical history?",
+                    "Any surgeries?",
+                    "Any surgical history?",
+                    "Any past procedures?",
+                    "Any operations?",
+                    "Any past operations?",
+                    "Any past surgeries?",
                 ],
                 "category": "past_medical_history",
             },
@@ -439,7 +445,7 @@ class LLMIntentClassifier:
                 "category": "history_present_illness",
             },
             "meds_current_known": {
-                "description": "Questions about current medications (Level 1 - basic medication list)",
+                "description": "Questions about current medications AND ONLY MEDICATIONS (Level 1 - basic medication list)",
                 "examples": [
                     "What medications are you taking?",
                     "What medications is she currently taking?",
@@ -454,7 +460,7 @@ class LLMIntentClassifier:
                 "category": "medications",
             },
             "meds_ra_specific_initial_query": {
-                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA meds)",
+                "description": "Specific questions about rheumatoid arthritis medications AND ONLY MEDICATIONS (Level 2 - RA meds)",
                 "examples": [
                     "What medications does she take for rheumatoid arthritis?",
                     "What does she take for her arthritis?",
@@ -470,7 +476,7 @@ class LLMIntentClassifier:
                 "category": "medications",
             },
             "meds_full_reconciliation_query": {
-                "description": "Complete medication reconciliation from records (Level 3 - CRITICAL infliximab)",
+                "description": "Complete medication reconciliation from records AND ONLY MEDICATIONS (Level 3 - CRITICAL infliximab)",
                 "examples": [
                     "I need a complete medication reconciliation from previous hospitalizations",
                     "Can you get her complete medication list from previous hospitalizations?",
@@ -546,11 +552,18 @@ class LLMIntentClassifier:
                 "category": "history_present_illness",
             },
             "hpi_weight_changes": {
-                "description": "Questions about weight loss or weight changes",
+                "description": "Questions about weight loss, weight changes, or specific weight measurements",
                 "examples": [
                     "Weight loss?",
                     "Any weight changes?",
                     "Has patient lost weight?",
+                    "How much weight did she lose?",
+                    "What's her usual weight?",
+                    "How many pounds lost?",
+                    "What was her weight before?",
+                    "Current weight?",
+                    "Baseline weight?",
+                    "Weight loss amount?",
                 ],
                 "category": "history_present_illness",
             },
@@ -715,7 +728,7 @@ class LLMIntentClassifier:
             intent_id = "hpi_associated_symptoms_general"
         elif any(
             word in input_lower
-            for word in ["medical history", "past", "previous", "pmh"]
+            for word in ["medical history", "past", "previous", "pmh", "surgical", "surgery", "surgeries", "procedure", "procedures", "operation", "operations"]
         ):
             intent_id = "pmh_general"
         elif any(
@@ -809,7 +822,7 @@ class LLMIntentClassifier:
                 )
             elif any(
                 word in input_lower
-                for word in ["medical history", "past", "previous", "pmh"]
+                for word in ["medical history", "past", "previous", "pmh", "surgical", "surgery", "surgeries", "procedure", "procedures", "operation", "operations"]
             ):
                 intent_id = (
                     "pmh_general" if "pmh_general" in valid_intents else "clarification"
