@@ -133,11 +133,7 @@
       "blockType": "Medications",
       "content": "Son is unsure about medications for rheumatoid arthritis. Records from other health system not immediately available.",
       "isCritical": false,
-      "intentTriggers": [
-        "meds_ra_specific_initial_query",
-        "meds_uncertainty",
-        "meds_other_meds_initial_query"
-      ],
+      "intentTriggers": ["meds_ra_specific_initial_query"],
       "groupId": "grp_meds_ra",
       "level": 2,
       "prerequisites": ["meds_initial_known"],
@@ -277,10 +273,8 @@
     "hpi_recent_medical_care": ["grp_hpi_timeline"],
     "pmh_general": ["grp_pmh"],
     "meds_current_known": ["meds_initial_known"],
-    "meds_uncertainty": ["meds_ra_uncertainty"],
     "meds_ra_specific_initial_query": ["meds_ra_uncertainty"],
     "meds_full_reconciliation_query": ["critical_infliximab"],
-    "meds_other_meds_initial_query": ["meds_ra_uncertainty"],
     "exam_vital": ["grp_exam_vital"],
     "exam_general_appearance": ["grp_exam_general"],
     "exam_respiratory": ["grp_exam_respiratory"],
@@ -291,8 +285,7 @@
     "labs_hemoglobin": ["grp_labs_wbc", "grp_labs_hemoglobin"],
     "imaging_chest_xray": ["grp_cxr"],
     "imaging_echo": ["grp_echo"],
-    "imaging_ct_chest": ["grp_advanced_imaging"],
-    "imaging_general": ["grp_cxr"]
+    "imaging_ct_chest": ["grp_advanced_imaging"]
   },
   "groundTruth": {
     "finalDiagnosis": "Miliary tuberculosis",

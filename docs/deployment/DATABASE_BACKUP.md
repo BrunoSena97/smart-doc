@@ -26,6 +26,7 @@ SmartDoc uses SQLite for data persistence, stored in a Docker volume. This guide
 4. The database will download automatically with a timestamp in the filename: `smartdoc_backup_YYYYMMDD_HHMMSS.sqlite3`
 
 ### Benefits:
+
 - ✅ Works through firewalls and restricted SSH
 - ✅ No command-line knowledge needed
 - ✅ Automatic timestamped filenames
@@ -65,7 +66,7 @@ sqlite3 backups/latest.sqlite3 "PRAGMA integrity_check;"
 
 ---
 
-## Method 2: Remote Backup via SSH
+## Method 3: Remote Backup via SSH
 
 **Use when**: You only have SSH access to the deployment machine.
 

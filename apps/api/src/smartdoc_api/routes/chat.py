@@ -142,9 +142,6 @@ def v1_chat():
 
     # 1) Make sure a conversation exists and is linked to this session
     conv_id = get_or_create_conversation_for_session(session_id, title=f"Session {session_id}")
-
-    # 2) Log the user's message
-    add_message(conv_id, MessageRole.user, message, context=context)
     ensure_session(session_id, conv_id)
 
     # Try to use real SmartDoc engine
@@ -160,6 +157,22 @@ def v1_chat():
             )
 
             if discovery_result["success"]:
+                # Extract intent classification metadata for storage
+                intent_classification = discovery_result.get("intent_classification", {})
+                message_meta = {
+                    "intent_id": intent_classification.get("intent_id"),
+                    "intent_confidence": intent_classification.get("confidence"),
+                    "intent_explanation": intent_classification.get("explanation"),
+                }
+
+                # Log the user's message with intent metadata
+                add_message(conv_id, MessageRole.user, message, context=context, meta=message_meta)
+
+                sys_logger.log_system(
+                    "debug",
+                    f"[V1] Stored message with intent: {message_meta.get('intent_id')} (confidence: {message_meta.get('intent_confidence')})"
+                )
+
                 # Generate context-appropriate response
                 response_text = clean_response_text(discovery_result["response"]["text"])
 
@@ -242,6 +255,9 @@ def v1_chat():
     sys_logger.log_system(
         "warning", "[V1] Using mock response - SmartDoc engine not available"
     )
+
+    # Log the user's message without intent metadata (fallback mode)
+    add_message(conv_id, MessageRole.user, message, context=context)
 
     # Mock response based on context
     context_responses = {

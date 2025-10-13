@@ -290,30 +290,20 @@ class SmartDocTestDataExtract:
                 "category": "past_medical_history"
             },
 
-            # MEDICATIONS (3 levels of escalation)
+            # MEDICATIONS (3 levels of escalation - SIMPLIFIED)
             "meds_current_known": {
                 "description": "Questions about current medications (Level 1 - basic medication list)",
-                "examples": ["What medications are you taking?", "Current meds?", "Any prescriptions?"],
-                "category": "medications"
-            },
-            "meds_uncertainty": {
-                "description": "Questions when medication information is unclear or uncertain",
-                "examples": ["Not sure about medications?", "Medication uncertainty?", "Uncertain about her medication list?"],
+                "examples": ["What medications are you taking?", "Current meds?", "Any prescriptions?", "Any other medications?"],
                 "category": "medications"
             },
             "meds_ra_specific_initial_query": {
-                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA medication uncertainty)",
-                "examples": ["What medications does she take for rheumatoid arthritis?", "RA medications?", "Arthritis drugs?"],
+                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA meds)",
+                "examples": ["What medications does she take for rheumatoid arthritis?", "RA medications?", "Arthritis drugs?", "Not sure about RA medications?"],
                 "category": "medications"
             },
             "meds_full_reconciliation_query": {
                 "description": "Complete medication reconciliation requests (Level 3 - reveals critical infliximab)",
                 "examples": ["Complete medication reconciliation from previous hospitalizations", "Any biologics or immunosuppressive medications?", "What about infliximab or other biologics?"],
-                "category": "medications"
-            },
-            "meds_other_meds_initial_query": {
-                "description": "Questions about other medications beyond currently known ones",
-                "examples": ["Any other medications?", "Other meds we should know about?", "Additional prescriptions?"],
                 "category": "medications"
             },
 
@@ -600,7 +590,7 @@ class SmartDocTestDataExtract:
                 "profile": ["profile_age", "profile_language", "profile_social_context_historian", "profile_medical_records"],
                 "history_present_illness": ["hpi_chief_complaint", "hpi_onset_duration_primary", "hpi_associated_symptoms_general", "hpi_fever", "hpi_cough", "hpi_shortness_of_breath", "hpi_chest_pain", "hpi_chills", "hpi_weight_changes"],
                 "past_medical_history": ["pmh_general"],
-                "medications": ["meds_current_known", "meds_uncertainty", "meds_ra_specific_initial_query", "meds_full_reconciliation_query", "meds_other_meds_initial_query"],
+                "medications": ["meds_current_known", "meds_ra_specific_initial_query", "meds_full_reconciliation_query"],
                 "physical_exam": ["exam_general_appearance", "exam_vital", "exam_cardiovascular", "exam_respiratory"],
                 "diagnostics": ["labs_general", "labs_bnp", "labs_wbc", "labs_hemoglobin", "imaging_chest_xray", "imaging_echo", "imaging_ct_chest", "imaging_general"],
                 "general": ["general_greeting", "clarification"]

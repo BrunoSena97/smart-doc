@@ -62,16 +62,14 @@ def test_enhanced_intent_classification():
         accuracy = (correct_classifications / total_tests) * 100
         print(f'📊 Classification Accuracy: {correct_classifications}/{total_tests} ({accuracy:.1f}%)')
 
-        # Test medication intent categories
-        print(f'\n💊 Medication Intent Categories:')
+        # Test medication intent categories (simplified to 3)
+        print(f'\n💊 Medication Intent Categories (Simplified):')
         print('=' * 40)
 
         medication_intents = [
             'meds_current_known',
             'meds_ra_specific_initial_query',
-            'meds_full_reconciliation_query',
-            'meds_uncertainty',
-            'meds_other_meds_initial_query'
+            'meds_full_reconciliation_query'
         ]
 
         for intent_id in medication_intents:

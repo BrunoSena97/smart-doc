@@ -87,6 +87,73 @@ The intent_id MUST be one of the exact IDs listed above. Do not use any other in
             context, f"{context.upper()} phase."
         )
 
+        # Build phase-specific classification guidance
+        phase_guidance = ""
+        if context == "anamnesis":
+            phase_guidance = """
+CRITICAL MEDICATION CLASSIFICATION RULES:
+- Basic medication questions (general, current meds, other meds) → "meds_current_known"
+- Specific RA/arthritis medication questions (including uncertainty) → "meds_ra_specific_initial_query"
+- Medication reconciliation/previous records/biologics/infliximab → "meds_full_reconciliation_query"
+- Medical record access questions → "profile_medical_records"
+
+MEDICATION EXAMPLES:
+- "What medications is she taking?" → "meds_current_known"
+- "Any other medications?" → "meds_current_known"
+- "What does she take for arthritis?" → "meds_ra_specific_initial_query"
+- "Not sure about RA medications?" → "meds_ra_specific_initial_query"
+- "Complete medication list from previous hospitalizations" → "meds_full_reconciliation_query"
+- "Any biologics or infliximab?" → "meds_full_reconciliation_query"
+- "Check her previous records" → "profile_medical_records"
+
+FALLBACK RULE:
+- If the query does NOT fit any specific clinical intent above for this clinical scenario → "clarification"
+- Use "clarification" when the doctor asks about information that is not available in this specific case
+- Use "clarification" for nonsense input or unclear queries
+"""
+        elif context == "exam":
+            phase_guidance = """
+PHYSICAL EXAMINATION CLASSIFICATION RULES:
+- Vital signs (BP, HR, temp, RR, O2) → "exam_vital"
+- General appearance → "exam_general_appearance"
+- Heart/cardiac exam → "exam_cardiovascular"
+- Lung/respiratory exam → "exam_respiratory"
+
+EXAM EXAMPLES:
+- "What are her vital signs?" → "exam_vital"
+- "Check her blood pressure" → "exam_vital"
+- "Listen to her heart" → "exam_cardiovascular"
+- "Examine her lungs" → "exam_respiratory"
+- "How does she look?" → "exam_general_appearance"
+
+FALLBACK RULE:
+- If the query does NOT fit any physical examination intent for this clinical scenario → "clarification"
+- Use "clarification" when the doctor asks about exam findings not available in this case
+- Use "clarification" for nonsense input or unclear queries
+"""
+        elif context == "labs":
+            phase_guidance = """
+LABORATORY & IMAGING CLASSIFICATION RULES:
+- General lab questions → "labs_general"
+- Specific lab values (BNP, WBC, Hgb) → use specific intent
+- Specific imaging (CXR, echo, CT) → use specific intent
+- General imaging questions → "imaging_general"
+
+LABS/IMAGING EXAMPLES:
+- "Any lab results?" → "labs_general"
+- "What's the BNP?" → "labs_bnp"
+- "White blood cell count?" → "labs_wbc"
+- "Chest X-ray?" → "imaging_chest_xray"
+- "Echocardiogram?" → "imaging_echo"
+- "CT chest?" → "imaging_ct_chest"
+- "Any imaging studies?" → "imaging_general"
+
+FALLBACK RULE:
+- If the query does NOT fit any laboratory/imaging intent for this clinical scenario → "clarification"
+- Use "clarification" when the doctor asks about tests/imaging not available in this case
+- Use "clarification" for nonsense input or unclear queries
+"""
+
         return f"""You are a clinical AI assistant in the {phase_description}
 
 Classify the doctor's input into ONE of these EXACT intent IDs that are appropriate for the {context} context:
@@ -94,24 +161,11 @@ Classify the doctor's input into ONE of these EXACT intent IDs that are appropri
 {chr(10).join(intent_lines)}
 
 Doctor's input: "{doctor_input}"
-
-CRITICAL MEDICATION CLASSIFICATION RULES (for {context} phase):
-- Basic medication questions (general, current meds) → "meds_current_known"
-- Specific RA/arthritis medication questions → "meds_ra_specific_initial_query"
-- Medication reconciliation/previous records/biologics → "meds_full_reconciliation_query"
-- Medical record access questions → "profile_medical_records"
-
-IMPORTANT: You MUST respond with one of the exact intent IDs listed above that are appropriate for the {context} phase. Examples:
-- "What medications is she taking?" → "meds_current_known"
-- "What does she take for arthritis?" → "meds_ra_specific_initial_query"
-- "Complete medication list from previous hospitalizations" → "meds_full_reconciliation_query"
-- "Any biologics or infliximab?" → "meds_full_reconciliation_query"
-- "Check her previous records" → "profile_medical_records"
-
+{phase_guidance}
 Respond with ONLY a JSON object in this exact format:
 {{
     "intent_id": "exact_intent_id_from_list_above",
-    "confidence": 0.95,
+    "confidence": your_confidence_score_between_0_and_1,
     "explanation": "Brief explanation of why this specific intent was chosen for the {context} context"
 }}
 

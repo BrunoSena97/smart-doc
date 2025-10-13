@@ -108,7 +108,7 @@ class IntentDrivenDisclosureManager:
         self.responders = responders or {
             "anamnesis": AnamnesisSonResponder(self.provider),
             "labs": LabsResidentResponder(self.provider),
-            "exam": ExamObjectiveResponder(),  # No provider needed for objective findings
+            "exam": ExamObjectiveResponder(),  # No LLM needed for objective findings
         }
 
         # Enhanced intent-to-block mappings
@@ -516,23 +516,45 @@ class IntentDrivenDisclosureManager:
 
         return True
 
-    def _generate_labs_fallback_response(self, intent_id: str) -> str:
-        """Generate appropriate resident response when requested tests are not available."""
-        labs_fallbacks = {
-            "labs_general": "I can order comprehensive laboratory studies for you. What specific tests would you like me to prioritize?",
-            "imaging_chest_xray": "I can order a chest X-ray and have the results available shortly. Would you like me to proceed?",
-            "imaging_echo": "I can order an echocardiogram to evaluate cardiac function. Would you like me to arrange that?",
-            "imaging_ct_chest": "I can order a chest CT scan for more detailed imaging. Should I proceed with that?",
-            "imaging_general": "What imaging studies would you like me to order? I can arrange CT, MRI, or other modalities as needed.",
-            "labs_cbc": "I can order a complete blood count with differential. The results should be available within the hour.",
-            "labs_bmp": "I'll order a basic metabolic panel for you. Any other chemistry studies you'd like to add?",
-            "labs_cardiac": "I can order cardiac enzymes and BNP. Given the presentation, would you like me to add troponins?",
-        }
+    def _generate_labs_fallback_response(self, intent_result: Dict, session) -> str:
+        """
+        Generate LLM-powered resident response when requested tests are not available.
 
-        return labs_fallbacks.get(
-            intent_id,
-            "I can order that test for you. What specific information are you looking for?",
-        )
+        Uses LLM to intelligently handle:
+        - Nonsense/unclear test requests
+        - Tests not available or can't be performed
+        - Clarification requests
+        """
+        intent_id = intent_result.get("intent_id", "")
+        original_query = intent_result.get("original_input", "")
+        confidence = intent_result.get("confidence", 0)
+
+        # Build special prompt for unavailable tests
+        prompt = f"""You are a medical resident working in the emergency department.
+You are professional, knowledgeable, and helpful.
+
+The attending physician asked: "{original_query}"
+
+IMPORTANT: This test/imaging HAS NOT been performed and won't be performed. The results are NOT available.
+
+You must respond professionally indicating that:
+- If it's nonsense or unclear: "I'm not sure I understand that question. Could you clarify?"
+- If it's a real test not available: "That test hasn't been performed" or "We don't have those results" or offer to order it
+- Be direct and professional
+
+Your response (do NOT invent results):"""
+
+        try:
+            response = self.provider.generate(prompt, temperature=0.3)
+            return self._clean_response_text(response)
+        except Exception as e:
+            sys_logger.log_system("warning", f"LLM labs fallback generation failed: {e}")
+
+        # Fallback to generic response if LLM fails
+        if intent_id == "clarification" or confidence < 0.3:
+            return "I'm not sure I understand that question. Could you clarify what you're asking?"
+        else:
+            return "That test isn't available. What other studies would you like me to order?"
 
     def _generate_patient_fallback_response(self, intent_result: Dict, session) -> str:
         """Generate a fallback response when no new information is discovered."""
@@ -557,11 +579,10 @@ class IntentDrivenDisclosureManager:
             "exam_respiratory": "You can examine her lungs if you need to. Her breathing has been the main problem.",
             "exam_vital_signs": "The nurses already took her vital signs when we arrived.",
             "exam_general_appearance": "As you can see, she looks tired and is breathing a bit fast.",
-            # Medications
+            # Medications - Simplified to 3 intents
             "meds_current_known": "I think I told you all the medications I know about. There might be others her regular doctor prescribed.",
             "meds_ra_specific_initial_query": "I'm sorry, I don't know much about her arthritis treatments. Her rheumatologist handles that.",
             "meds_full_reconciliation_query": "Let me check if they found her records from the other hospital... Yes! They found her previous records with her complete medication list.",
-            "meds_other_meds_initial_query": "I'm not sure about other medications. She sees different doctors for her various conditions.",
             # Imaging and tests
             "imaging_chest_xray": "I think they did a chest X-ray when we got here. Did you see the results?",
             "imaging_echo": "I think they mentioned doing some heart tests. Have you seen those results?",
@@ -572,13 +593,16 @@ class IntentDrivenDisclosureManager:
             "profile_age": "She's elderly, in her 70s. I help her because she only speaks Spanish.",
             "profile_language": "My mother only speaks Spanish, so I'm translating for her.",
             "pmh_general": "She has diabetes, high blood pressure, and arthritis. She's also quite overweight.",
-            # General responses
-            "clarification": "I'm not sure I understand what you're asking. Could you ask it differently?",
+            # General responses - clarification handled separately with context-aware response
         }
 
         # First check if we have a specific contextual response for this intent
         if intent_id in intent_specific_responses:
             return intent_specific_responses[intent_id]
+
+        # Handle clarification with context-aware helpful guidance
+        if intent_id == "clarification":
+            return self._generate_clarification_response(intent_result, session)
 
         # Check if information was already revealed for this intent and give acknowledging responses
         if intent_id in self.intent_block_mappings:
@@ -638,6 +662,49 @@ class IntentDrivenDisclosureManager:
             intent_id,
             "I understand your question. Let me think about what information might be most relevant...",
         )
+
+    def _generate_clarification_response(self, intent_result: Dict, session) -> str:
+        """
+        Generate LLM-powered clarification response for anamnesis context.
+
+        Uses the patient's son responder to generate natural responses that:
+        - Acknowledge nonsense/unclear questions: "I'm not sure I can answer that particular question, I didn't understand."
+        - Acknowledge unavailable information: "I'm not sure I have information about that specifically."
+        """
+        confidence = intent_result.get("confidence", 0)
+        original_query = intent_result.get("original_input", "")
+
+        # Use AnamnesisSonResponder to generate natural response
+        responder = self.responders.get("anamnesis")
+        if not responder:
+            return "I'm not sure I can answer that particular question."
+
+        # Build prompt for clarification with guidance
+        clarification_guidance = """You need to respond to a question that you either:
+1. Didn't understand (nonsense or unclear) → Say: "I'm not sure I can answer that particular question, I didn't understand."
+2. Don't have information about → Say: "I'm not sure I have information about that specifically."
+
+Be natural and stay in character as the patient's son."""
+
+        prompt = f"""You are the English-speaking son of an elderly Spanish-speaking woman in the emergency department.
+You are translating for your mother who only speaks Spanish. You are concerned but trying to be helpful.
+
+The doctor just asked: "{original_query}"
+
+{clarification_guidance}
+
+Your response:"""
+
+        try:
+            response = self.provider.generate(prompt, temperature=0.3)
+            return self._clean_response_text(response)
+        except Exception as e:
+            sys_logger.log_system("warning", f"LLM clarification generation failed: {e}")
+            # Fallback based on confidence
+            if confidence < 0.3:
+                return "I'm not sure I can answer that particular question, I didn't understand."
+            else:
+                return "I'm not sure I have information about that specifically."
 
     def _get_session_discovery_stats(self, session_id: str) -> Dict[str, Any]:
         """Get discovery statistics for the session."""
@@ -804,14 +871,13 @@ class IntentDrivenDisclosureManager:
                 "hpi_recent_medical_care",
                 "pmh_general",
                 "meds_current_known",
-                "meds_uncertainty",
                 "meds_ra_specific_initial_query",
                 "meds_full_reconciliation_query",
-                "meds_other_meds_initial_query",
                 "profile_age",
                 "profile_language",
                 "profile_social_context_historian",
                 "profile_medical_records",
+                "clarification",  # Allow clarification in anamnesis
             ],
             "exam": [
                 # Physical examination related intents
@@ -819,6 +885,7 @@ class IntentDrivenDisclosureManager:
                 "exam_general_appearance",
                 "exam_respiratory",
                 "exam_cardiovascular",
+                "clarification",  # Allow clarification in exam
             ],
             "labs": [
                 # Laboratory and imaging related intents
@@ -830,6 +897,7 @@ class IntentDrivenDisclosureManager:
                 "imaging_echo",
                 "imaging_ct_chest",
                 "imaging_general",
+                "clarification",  # Allow clarification in labs
             ],
         }
 
@@ -968,9 +1036,9 @@ class IntentDrivenDisclosureManager:
         else:
             # No new discoveries → use context-appropriate fallback
             if context == "exam":
-                text = self._generate_exam_fallback_response(intent_result["intent_id"])
+                text = self._generate_exam_fallback_response(intent_result, session)
             elif context == "labs":
-                text = self._generate_labs_fallback_response(intent_result["intent_id"])
+                text = self._generate_labs_fallback_response(intent_result, session)
             else:
                 text = self._generate_patient_fallback_response(intent_result, session)
 
@@ -994,23 +1062,14 @@ class IntentDrivenDisclosureManager:
 
         return response
 
-    def _generate_exam_fallback_response(self, intent_id: str) -> str:
-        """Generate appropriate response when requested examination findings are not available."""
-        exam_fallbacks = {
-            "exam_vital": "The vital signs have not been obtained yet. Would you like me to measure them?",
-            "exam_cardiovascular": "The cardiovascular examination reveals no abnormalities of clinical significance at this time.",
-            "exam_respiratory": "The respiratory examination does not reveal any significant findings of note.",
-            "exam_neurological": "The neurological examination appears unremarkable at this time.",
-            "exam_abdominal": "The abdominal examination does not reveal any significant abnormalities.",
-            "exam_musculoskeletal": "The musculoskeletal examination shows no obvious deformities or limitations.",
-            "exam_skin": "The skin examination reveals no notable lesions or changes.",
-            "exam_general_appearance": "The patient appears comfortable and in no acute distress.",
-        }
+    def _generate_exam_fallback_response(self, intent_result: Dict, session) -> str:
+        """
+        Generate simple response when requested examination findings are not available.
 
-        return exam_fallbacks.get(
-            intent_id,
-            "This aspect of the physical examination does not reveal anything of particular clinical significance.",
-        )
+        No LLM generation needed - just return a clear message that the information
+        is not available in the case.
+        """
+        return "That examination finding is not available in this case."
 
     def _generate_context_filtered_response(
         self, intent_id: str, context: str

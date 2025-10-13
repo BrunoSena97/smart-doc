@@ -300,12 +300,10 @@ class LLMIntentClassifier:
                 "hpi_recent_medical_care",
                 # Past Medical History
                 "pmh_general",
-                # Medications
+                # Medications - Simplified to 3 intents
                 "meds_current_known",
-                "meds_uncertainty",
                 "meds_ra_specific_initial_query",
                 "meds_full_reconciliation_query",
-                "meds_other_meds_initial_query",
                 # General communication
                 "general_greeting",
                 "clarification",
@@ -440,7 +438,6 @@ class LLMIntentClassifier:
                 ],
                 "category": "history_present_illness",
             },
-            # Medications
             "meds_current_known": {
                 "description": "Questions about current medications (Level 1 - basic medication list)",
                 "examples": [
@@ -450,21 +447,14 @@ class LLMIntentClassifier:
                     "Any prescriptions?",
                     "What drugs is she on?",
                     "Tell me about her medications",
-                ],
-                "category": "medications",
-            },
-            "meds_uncertainty": {
-                "description": "Questions when medication information is unclear or uncertain",
-                "examples": [
-                    "Not sure about medications?",
-                    "Medication uncertainty?",
-                    "Are there other medications we don't know about?",
-                    "Uncertain about her medication list?",
+                    "Any other medications?",  # Merged from meds_other_meds_initial_query
+                    "Other meds we should know about?",
+                    "Additional prescriptions?",
                 ],
                 "category": "medications",
             },
             "meds_ra_specific_initial_query": {
-                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA medication uncertainty)",
+                "description": "Specific questions about rheumatoid arthritis medications (Level 2 - RA meds)",
                 "examples": [
                     "What medications does she take for rheumatoid arthritis?",
                     "What does she take for her arthritis?",
@@ -474,11 +464,13 @@ class LLMIntentClassifier:
                     "Arthritis drugs?",
                     "What does she take for her RA?",
                     "Any arthritis medications?",
+                    "Not sure about RA medications?",  # Merged from meds_uncertainty
+                    "Are there medications for arthritis we don't know about?",
                 ],
                 "category": "medications",
             },
             "meds_full_reconciliation_query": {
-                "description": "Complete medication reconciliation requests (Level 3 - reveals critical infliximab)",
+                "description": "Complete medication reconciliation from records (Level 3 - CRITICAL infliximab)",
                 "examples": [
                     "I need a complete medication reconciliation from previous hospitalizations",
                     "Can you get her complete medication list from previous hospitalizations?",
@@ -490,16 +482,6 @@ class LLMIntentClassifier:
                     "What about infliximab or other biologics?",
                     "Any TNF inhibitors?",
                     "Medication reconciliation from other hospitals",
-                ],
-                "category": "medications",
-            },
-            "meds_other_meds_initial_query": {
-                "description": "Questions about other medications beyond currently known ones",
-                "examples": [
-                    "Any other medications?",
-                    "Other meds we should know about?",
-                    "Additional prescriptions?",
-                    "What other drugs is she taking?",
                 ],
                 "category": "medications",
             },
@@ -559,8 +541,8 @@ class LLMIntentClassifier:
                 "category": "history_present_illness",
             },
             "hpi_chills": {
-                "description": "Questions about chills or feeling cold",
-                "examples": ["Any chills?", "Feeling cold?", "Chills or rigors?"],
+                "description": "Questions about chills, feeling cold or sweats",
+                "examples": ["Any chills?", "Feeling cold?", "Chills or rigors?", "Night sweats?", "Cold sweats?", "Shaking chills?", "Sweats?"],
                 "category": "history_present_illness",
             },
             "hpi_weight_changes": {

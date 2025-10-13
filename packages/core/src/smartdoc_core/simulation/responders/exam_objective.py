@@ -13,8 +13,8 @@ class ExamObjectiveResponder(Responder):
     """
     Responder for exam context using objective clinical findings.
 
-    Provides direct, objective clinical findings without LLM generation,
-    as physical examination results should be factual and unembellished.
+    Provides direct, objective clinical findings when available.
+    Returns simple message when findings are not available - no LLM generation needed.
     """
 
     def build_prompt(
@@ -26,10 +26,7 @@ class ExamObjectiveResponder(Responder):
         context: str
     ) -> str:
         """
-        Build prompt for examination findings (not typically used).
-
-        Physical examination responder typically doesn't use LLM generation,
-        but this method is required by the interface.
+        Build prompt for examination findings (not used for objective exam).
 
         Returns:
             Empty string as prompts are not used for objective findings
@@ -54,7 +51,7 @@ class ExamObjectiveResponder(Responder):
             context: The clinical context (should be 'exam')
 
         Returns:
-            Concatenated objective clinical findings
+            Objective clinical findings or simple message if not available
         """
         # Extract objective findings directly from clinical data
         findings = []
@@ -68,6 +65,8 @@ class ExamObjectiveResponder(Responder):
                 findings.append(finding)
 
         if findings:
+            # Return objective findings directly
             return " ".join(findings)
         else:
-            return "No examination findings available for this request."
+            # Simple message when examination findings not available
+            return "That examination finding is not available in this case."
