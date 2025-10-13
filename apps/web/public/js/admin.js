@@ -85,6 +85,7 @@ function showAuthenticatedState() {
   document.getElementById("login-form").classList.add("hidden");
   document.getElementById("auth-status").classList.remove("hidden");
   document.getElementById("auth-section").classList.add("logged-in");
+  document.getElementById("db-backup-section").classList.remove("hidden");
   document.getElementById("admin-content").classList.remove("hidden");
 }
 
@@ -92,7 +93,61 @@ function showUnauthenticatedState() {
   document.getElementById("login-form").classList.remove("hidden");
   document.getElementById("auth-status").classList.add("hidden");
   document.getElementById("auth-section").classList.remove("logged-in");
+  document.getElementById("db-backup-section").classList.add("hidden");
   document.getElementById("admin-content").classList.add("hidden");
+}
+
+// =============================================================================
+// Database Backup
+// =============================================================================
+
+async function downloadDatabase() {
+  try {
+    const btn = document.getElementById("download-db-btn");
+    btn.disabled = true;
+    btn.textContent = "⏳ Downloading...";
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/admin/download-db`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+
+    // Get the filename from Content-Disposition header or use default
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let filename = "smartdoc_backup.sqlite3";
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    // Create blob and download
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    showSuccess("Database downloaded successfully!");
+  } catch (error) {
+    showError("Failed to download database: " + error.message);
+  } finally {
+    const btn = document.getElementById("download-db-btn");
+    btn.disabled = false;
+    btn.textContent = "📥 Download Database Backup";
+  }
 }
 
 // =============================================================================
@@ -559,6 +614,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Auth events
   document.getElementById("login-btn").addEventListener("click", login);
   document.getElementById("logout-btn").addEventListener("click", logout);
+  document
+    .getElementById("download-db-btn")
+    .addEventListener("click", downloadDatabase);
 
   // Enter key for login
   document

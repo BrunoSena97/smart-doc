@@ -1,11 +1,13 @@
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, send_file
 from sqlalchemy import select, update, delete, text
 from datetime import datetime
+from pathlib import Path
 import json
 
 from ..services.auth_service import require_auth
 from ..db import get_session
 from ..db.models import User, LLMProfile, AgentPrompt, AuditLog
+from smartdoc_core.utils.logger import sys_logger
 
 bp = Blueprint("admin", __name__, url_prefix="/api/v1/admin")
 
@@ -519,3 +521,48 @@ def list_audit_logs():
             })
 
     return jsonify(result)
+
+# =============================================================================
+# DATABASE BACKUP
+# =============================================================================
+
+@bp.get("/download-db")
+@admin_required
+def download_database():
+    """Download the SQLite database file."""
+    try:
+        # Find the database file - try multiple possible locations
+        possible_paths = [
+            Path(__file__).resolve().parents[4] / "instance" / "smartdoc_dev.sqlite3",
+            Path(__file__).resolve().parents[4] / "instance" / "smartdoc.sqlite3",
+            Path("/data/smartdoc.sqlite3"),  # Docker production path
+            Path("/workspace/instance/smartdoc_dev.sqlite3"),  # Docker dev path
+        ]
+        
+        db_path = None
+        for path in possible_paths:
+            if path.exists():
+                db_path = path
+                break
+        
+        if db_path is None:
+            sys_logger.log_system("error", "Database file not found in any expected location")
+            return jsonify({"error": "Database file not found"}), 404
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        download_name = f"smartdoc_backup_{timestamp}.sqlite3"
+        
+        sys_logger.log_system("info", f"Admin downloading database from {db_path}")
+        log_admin_action("download_database", {"db_path": str(db_path)})
+        
+        return send_file(
+            db_path,
+            as_attachment=True,
+            download_name=download_name,
+            mimetype="application/x-sqlite3"
+        )
+        
+    except Exception as e:
+        sys_logger.log_system("error", f"Database download failed: {e}")
+        return jsonify({"error": str(e)}), 500
