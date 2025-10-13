@@ -287,11 +287,11 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
     def _check_response_quality(self, inputs: EvaluationInputs) -> List[str]:
         """Check for obviously poor quality responses that should get very low scores."""
         issues = []
-        
+
         # Check metacognitive responses for obvious poor quality
         for question, answer in inputs.metacognitive_responses.items():
             answer_lower = answer.lower().strip()
-            
+
             # Check for nonsense responses
             if len(answer_lower) < 3:
                 issues.append(f"Extremely short response: '{answer}'")
@@ -299,17 +299,17 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
                 issues.append(f"Nonsense response: '{answer}'")
             elif not any(c.isalpha() for c in answer):
                 issues.append(f"Non-text response: '{answer}'")
-        
+
         # Check diagnosis quality
         if len(inputs.final_diagnosis.strip()) < 3:
             issues.append("Extremely short diagnosis")
-        
+
         return issues
-    
+
     def _low_quality_evaluation(self, inputs: EvaluationInputs, issues: List[str]) -> Dict[str, Any]:
         """Return very low scores for obviously poor quality responses."""
         issue_summary = "; ".join(issues)
-        
+
         evaluation = {
             "information_gathering": {
                 "score": 10,
@@ -333,7 +333,7 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
                 ]
             }
         }
-        
+
         return {
             "success": True,
             "evaluation": evaluation,
@@ -366,8 +366,15 @@ Return ONLY the corrected JSON between {self.json_start} and {self.json_end}:"""
 IMPORTANT: Be very strict with scoring. Poor quality responses should get very low scores (0-30).
 
 CASE CONTEXT:
-- Correct Diagnosis: {ctx.get('correct_diagnosis', 'Not specified')}
-- Case has important clinical features that should be discovered
+- Correct Diagnosis: Miliary Tuberculosis (NOT heart failure)
+- Critical Information Required for Correct Diagnosis:
+  1. INFLIXIMAB discovery (immunosuppression from TNF-alpha inhibitor for RA)
+  2. Chest CT scan showing reticular pattern with 1-2mm pulmonary nodules
+  3. Normal echocardiogram (rules OUT heart failure despite elevated BNP)
+  4. Weight loss and lack of peripheral edema (NOT typical of HF)
+  5. Final formal chest X-ray interpretation noting interstitial pattern (NOT just "pulmonary congestion")
+- Common Misdiagnosis: Heart failure exacerbation (due to anchoring on preliminary CXR interpretation)
+- Case has important clinical features that should be discovered to avoid diagnostic error
 
 STUDENT'S CLINICAL PERFORMANCE:
 
@@ -382,32 +389,47 @@ Metacognitive Reflection Questions and Answers:
 EVALUATE THESE THREE AREAS (0-100 each):
 
 1. INFORMATION GATHERING (0-100):
-   - Did they systematically gather relevant clinical information?
-   - Did they discover key findings, history, physical exam, labs, imaging?
-   - Were they strategic in their approach or scattered/random?
-   - Score 0-20 for minimal information gathering or poor strategy
-   - Score 80+ only for comprehensive, systematic clinical information gathering
+   - Did they discover CRITICAL information needed for diagnosis?
+     * INFLIXIMAB medication (immunosuppression) - ESSENTIAL
+     * Chest CT scan with miliary nodules - ESSENTIAL
+     * Echocardiogram showing normal EF - VERY IMPORTANT
+     * Weight loss history - IMPORTANT
+     * Formal CXR interpretation (interstitial pattern) - IMPORTANT
+   - Did they gather information systematically (history → exam → labs → imaging)?
+   - Score 0-30 if they missed BOTH infliximab AND chest CT
+   - Score 40-60 if they discovered some critical findings but not all
+   - Score 70-85 if they discovered infliximab OR chest CT but not both
+   - Score 90+ only if they discovered BOTH infliximab AND chest CT plus echo
 
 2. DIAGNOSTIC ACCURACY (0-100):
-   - Is their final diagnosis correct or reasonable given the information they gathered?
-   - Do they demonstrate understanding of the clinical findings they discovered?
-   - Are their alternative diagnoses medically sound?
-   - Score 0-20 for obviously poor diagnoses or clear lack of medical knowledge
-   - Score 80+ only for accurate diagnoses with good clinical reasoning
+   - Correct diagnosis is Miliary Tuberculosis
+   - Heart failure is INCORRECT (common anchoring bias trap)
+   - Did they avoid the heart failure trap despite misleading initial CXR?
+   - Do their differentials include infectious causes in immunocompromised patient?
+   - Score 0-20 if diagnosis is heart failure without considering alternatives
+   - Score 30-50 if they mention TB in differentials but choose wrong primary diagnosis
+   - Score 60-80 if they correctly diagnose TB but reasoning is incomplete
+   - Score 85+ only for correct TB diagnosis with sound clinical reasoning linking infliximab
 
 3. COGNITIVE BIAS AWARENESS (0-100):
-   - Do their reflection answers show genuine medical insight and self-awareness?
-   - Are their responses thoughtful, specific, and demonstrate understanding of clinical reasoning?
-   - Do they show awareness of potential biases in their approach?
-   - Score 0-20 for nonsense answers, inappropriate responses, or lack of clinical insight
-   - Score 80+ only for sophisticated metacognitive reflection and bias awareness
+   - Do they recognize anchoring bias from initial CXR interpretation?
+   - Do they acknowledge importance of medication reconciliation?
+   - Do they reflect on how initial "heart failure" framing could mislead?
+   - Are their metacognitive responses thoughtful and demonstrate clinical insight?
+   - Score 0-20 for nonsense answers or no awareness of diagnostic pitfalls
+   - Score 40-60 for basic awareness but superficial reflection
+   - Score 70-85 for good awareness of biases and medication importance
+   - Score 90+ for sophisticated reflection on anchoring, framing, and systematic approach
 
 Be especially harsh on:
+- Missing infliximab discovery (shows poor medication reconciliation)
+- Missing chest CT scan (incomplete workup for persistent dyspnea)
+- Diagnosing heart failure when echo is normal (ignoring contradictory evidence)
+- Not considering TB in immunosuppressed patient (poor clinical reasoning)
 - Spelling errors in medical terms (shows lack of knowledge)
 - Vague, non-medical responses
 - Nonsense or joke answers
-- Poor information gathering strategy
-- Responses that don't demonstrate medical reasoning
+- Responses that don't demonstrate understanding of diagnostic error prevention
 
 Return ONLY JSON:
 
@@ -517,12 +539,12 @@ Return ONLY valid JSON between {self.json_start} and {self.json_end}:
         """Format discovered clinical information for evaluation."""
         if not discovered_info:
             return "No specific discovered information provided - only basic session data available."
-        
+
         output = []
         for category, items in discovered_info.items():
             if not items:
                 continue
-            
+
             output.append(f"\n{category.upper()}:")
             if isinstance(items, dict):
                 for key, value in items.items():
@@ -537,7 +559,7 @@ Return ONLY valid JSON between {self.json_start} and {self.json_end}:
                         output.append(f"  - {content}")
                     else:
                         output.append(f"  - {item}")
-        
+
         return "\n".join(output) if output else "No clinical information discovered."
 
     def _parse_json_or_text(self, s: str) -> Dict[str, Any]:
