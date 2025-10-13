@@ -518,43 +518,22 @@ class IntentDrivenDisclosureManager:
 
     def _generate_labs_fallback_response(self, intent_result: Dict, session) -> str:
         """
-        Generate LLM-powered resident response when requested tests are not available.
+        Generate resident response when requested tests are not available.
 
-        Uses LLM to intelligently handle:
-        - Nonsense/unclear test requests
-        - Tests not available or can't be performed
-        - Clarification requests
+        Simple, direct responses without unnecessary clarification questions.
+        The resident just states that the test hasn't been performed.
         """
         intent_id = intent_result.get("intent_id", "")
         original_query = intent_result.get("original_input", "")
         confidence = intent_result.get("confidence", 0)
 
-        # Build special prompt for unavailable tests
-        prompt = f"""You are a medical resident working in the emergency department.
-You are professional, knowledgeable, and helpful.
-
-The attending physician asked: "{original_query}"
-
-IMPORTANT: This test/imaging HAS NOT been performed and won't be performed. The results are NOT available.
-
-You must respond professionally indicating that:
-- If it's nonsense or unclear: "I'm not sure I understand that question. Could you clarify?"
-- If it's a real test not available: "That test hasn't been performed" or "We don't have those results" or offer to order it
-- Be direct and professional
-
-Your response (do NOT invent results):"""
-
-        try:
-            response = self.provider.generate(prompt, temperature=0.3)
-            return self._clean_response_text(response)
-        except Exception as e:
-            sys_logger.log_system("warning", f"LLM labs fallback generation failed: {e}")
-
-        # Fallback to generic response if LLM fails
+        # For low confidence or actual clarification intents, ask for clarification
         if intent_id == "clarification" or confidence < 0.3:
-            return "I'm not sure I understand that question. Could you clarify what you're asking?"
-        else:
-            return "That test isn't available. What other studies would you like me to order?"
+            return "I'm not sure I understand. Could you clarify what test or imaging you're asking about?"
+
+        # For all other cases, simply state the test hasn't been performed
+        # No need for LLM - just a direct, professional response
+        return "That test hasn't been performed at this time."
 
     def _generate_patient_fallback_response(self, intent_result: Dict, session) -> str:
         """
