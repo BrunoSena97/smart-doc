@@ -1,0 +1,204 @@
+\chapter{Background} \label{chap:ch2}
+
+This chapter establishes the theoretical foundation for this dissertation. It introduces the cognitive mechanisms that underpin diagnostic reasoning, examines the pervasive role of cognitive biases, and situates simulation---and in particular AI-powered virtual patients---as a promising medium for advancing medical education. By grounding the technical development of the SmartDoc system in established cognitive science and educational principles, this chapter provides the conceptual scaffolding for the subsequent literature review (Chapter~\ref{chap:ch3}) and system design (Chapter~\ref{chap:ch4}).
+
+\section{The Cognitive Foundations of Medical Diagnosis}
+
+The act of arriving at a medical diagnosis is one of the most demanding cognitive tasks in healthcare. Rather than following a linear progression, diagnostic reasoning is iterative, probabilistic, and highly context-dependent. It integrates biomedical knowledge, patient narratives, and pattern recognition under the constraints of time and uncertainty. Understanding the mechanisms that govern this reasoning, and the vulnerabilities inherent in them, is essential for designing educational interventions that enhance accuracy and safety.
+
+\subsection{The Diagnostic Process: An Iterative Quest for Coherency} \label{sec:se211}
+
+Clinical diagnosis unfolds as an iterative cycle of hypothesis generation, evidence gathering, and hypothesis refinement. Initial patient cues often trigger the formation of early hypotheses, which are then tested against further clinical data. This process is dynamic: clinicians continuously adjust their working model as new findings emerge. While this iterative approach is powerful, it is also vulnerable to premature closure if alternative hypotheses are insufficiently considered.
+
+\subsection{Dual-Process Theory in Clinical Reasoning} \label{sec:se311}
+
+The cognitive engine of diagnosis is commonly described through the lens of dual-process theory~\parencite{berge_cognitive_2013}. This framework, widely accepted in cognitive psychology and medical education, posits that human reasoning operates via two interacting systems:
+
+\begin{itemize}
+\item \textbf{System 1: Non-analytical Reasoning (NAR)} --- Fast, intuitive, and automatic. In medicine, this manifests as pattern recognition, where a presentation is matched to an ``illness script'' developed through experience. For example, identifying a bull's-eye rash as Lyme disease is a System 1 process. While efficient and often accurate for common cases, System 1 is also the main source of cognitive error. Biases typically arise when heuristics are applied inappropriately or unchecked.
+
+\item \textbf{System 2: Analytical Reasoning (AR)} --- Slow, deliberate, and effortful. This involves hypothesis-driven reasoning, systematic evidence gathering, and critical evaluation of competing diagnoses. System 2 requires greater cognitive resources but functions as a safeguard, monitoring and correcting intuitive judgments that may be flawed.
+\end{itemize}
+
+Diagnostic expertise lies in the fluid interplay between these systems: effective clinicians leverage System 1 for efficiency while engaging System 2 when uncertainty, complexity, or atypical presentations demand deeper scrutiny.
+
+\section{Cognitive Biases: The Pathologies of Clinical Reasoning}
+
+Although dual-process theory describes how reasoning ideally balances efficiency and accuracy, in practice the system is fallible. Cognitive biases are systematic deviations from rational judgment that emerge from heuristic shortcuts. They are now recognized as a leading contributor to diagnostic error and thus to preventable patient harm~\parencite{graber_diagnostic_2005}.
+
+\subsection{A Taxonomy of Diagnostic Error: Identifying Common Cognitive Biases}
+
+Numerous biases have been catalogued in clinical reasoning research. The most prevalent include:
+
+\begin{table}[h]
+\centering
+\caption{Common Cognitive Biases in Clinical Diagnosis}
+\label{tab:bias-taxonomy}
+\begin{tabular}{p{3cm} p{10cm}}
+\toprule
+\textbf{Bias} & \textbf{Description and Clinical Implications} \\
+\midrule
+\textbf{Anchoring} & Fixating on initial impressions or salient features of the case, leading to insufficient adjustment when new, contradictory evidence emerges~\parencite{croskerry_importance_2003,mull_cognitive_2015}. \\
+\textbf{Confirmation Bias} & Selectively seeking or interpreting information that confirms an existing hypothesis, while overlooking evidence that might refute it~\parencite{berge_cognitive_2013,mull_cognitive_2015}. \\
+\textbf{Premature Closure} & Accepting a diagnosis before it has been fully verified, halting further diagnostic exploration and increasing the risk of missed or incorrect diagnoses~\parencite{graber_diagnostic_2005,mull_cognitive_2015}. \\
+\textbf{Framing Effect} & Diagnostic reasoning shaped by the way information is presented (e.g., “elderly patient with heart failure”), which can steer attention toward certain explanations and away from others~\parencite{croskerry_importance_2003,mull_cognitive_2015}. \\
+\textbf{Availability Bias} & Overestimating the likelihood of diagnoses that are more recent, memorable, or dramatic in the clinician’s experience (e.g., diagnosing pulmonary embolism after seeing several recent cases)~\parencite{graber_diagnostic_2005,croskerry_importance_2003}. \\
+\textbf{Overconfidence Bias} & Excessive faith in one’s own diagnostic accuracy, which reduces openness to alternative hypotheses and corrective feedback~\parencite{mamede_structure_2004,berner_overconfidence_2008}. \\
+\textbf{Search Satisfaction} & Stopping the diagnostic search once a plausible explanation has been found, often resulting in missed comorbid or secondary conditions~\parencite{croskerry_importance_2003,graber_diagnostic_2005}. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\noindent Table~\ref{tab:bias-taxonomy} consolidates the most frequently cited
+cognitive biases in clinical reasoning and highlights their implications for
+diagnostic accuracy. While many biases have been described, SmartDoc focuses
+particularly on \textbf{anchoring}, \textbf{confirmation bias}, and
+\textbf{premature closure}, as these are both common in clinical practice and
+highly teachable within simulation contexts. Recognizing these pathologies of
+reasoning provides the foundation for exploring strategies to mitigate them,
+which are discussed in the following subsection.
+
+
+
+\subsection{Debiasing Strategies: Interventions to Improve Clinical Judgment}
+\label{sec:debiasing}
+
+Given the susceptibility of diagnostic reasoning to systematic error, a variety of \emph{debiasing} approaches have been proposed to mitigate the influence of cognitive biases. These approaches typically aim to engage slower, analytic processing (System~2) to monitor, challenge, or override intuitive (System~1) judgments, and they can be grouped into complementary families: cognitive forcing strategies, structured reflection, diagnostic checklists and time-outs, and simulation-based training with targeted feedback.
+
+\paragraph{Cognitive forcing strategies.}
+Cognitive forcing strategies (CFS) are metacognitive prompts that deliberately ``force'' a pause in intuitive reasoning, encouraging clinicians to consider alternative explanations, seek disconfirming evidence, or re-frame the problem~\parencite{croskerry_cfs_2003}. CFS can be taught at different levels (universal, generic, and specific), and are designed to inoculate against known pitfalls (e.g., anchoring on an early hypothesis) by prompting questions such as ``What else could this be?'' or ``What would I look for if my current hypothesis were wrong?''
+
+\paragraph{Structured (deliberate) reflection.}
+Deliberate reflection is a structured procedure in which learners explicitly articulate and compare competing diagnostic hypotheses, list supporting and disconfirming features for each, and revisit the fit between data and diagnosis. This engages analytic processing and has been shown to improve recall of discriminating features and support more balanced reasoning, particularly when learners are taught how and when to apply it~\parencite{mamede_reflection_review_2022,kuhn_teaching_reflection_2023, mamede_structure_2004}. In education, deliberate reflection operationalizes the ``think about your thinking'' goal of metacognition by scaffolding hypothesis verification and consideration of alternatives.
+
+\paragraph{Diagnostic checklists and time-outs.}
+Checklists provide structured prompts to widen differential diagnosis, surface red flags, and reduce premature closure. Systematic reviews report that checklists can support diagnostic verification and broaden information search, although effects on diagnostic accuracy are mixed and context-dependent~\parencite{bmjopen_checklists_2022,ahrq_checklists_2020,graber_cognitive_interventions_2012}. Team-based ``diagnostic time-outs'' extend this idea by creating a deliberate pause to query assumptions and potential biases before committing to a diagnosis.
+
+\paragraph{Simulation with just-in-time metacognitive feedback.}
+Simulation environments can trigger authentic information-seeking behavior and make reasoning processes observable. When combined with progressive disclosure (information revealed conditionally on learner queries) and just-in-time metacognitive prompts, simulation can surface bias-prone moments (e.g., anchoring after an early test result) and provide targeted feedback that encourages reconsideration of alternatives~\parencite{graber_cognitive_interventions_2012,croskerry_advances_2005}. This aligns with experiential learning cycles in which action is followed by feedback and reflection, and it motivates the bias-aware design choices described later for SmartDoc.
+
+\paragraph{Summary and implications for design.}
+Across these strategies, the common mechanism is the deliberate engagement of
+analytic reasoning at critical junctures in the diagnostic process. Educational
+systems should therefore (i) \emph{detect} bias-prone patterns (e.g., early
+diagnostic closure, selective information seeking), (ii) \emph{interrupt} with
+concise, context-aware prompts (CFS), (iii) \emph{structure} reflection on
+alternatives (deliberate reflection), and (iv) \emph{support} verification via
+lightweight checklists or time-outs. Collectively, these strategies demonstrate
+that cognitive errors are not inevitable but can be mitigated through deliberate
+educational design. These principles later inform the SmartDoc architecture
+(Chapter~\ref{chap:ch4}), where they are operationalised into concrete design
+features.
+
+
+\section{Large Language Models for Educational Simulation}
+\label{sec:llm_edu}
+
+The practical implementation of bias-aware simulation requires modern natural
+language processing (NLP) techniques. Large Language Models (LLMs) provide the
+foundation for conversational agents capable of supporting medical education,
+and their behaviour can be shaped through prompting strategies, alignment with
+human feedback, and structured control mechanisms. This section reviews four
+key techniques: (i) prompting for structured reasoning, (ii) alignment through
+reinforcement learning from human feedback (RLHF), (iii) context management via
+retrieval-augmented generation (RAG), and (iv) intent recognition for dialogue
+orchestration. These concepts will later be applied in Chapter~\ref{chap:ch4}
+to the design of the SmartDoc platform.
+
+\subsection{Prompting for Structure and Reasoning}
+Prompting allows developers to constrain and direct model behaviour by specifying
+roles, context, and output formats. In educational settings, prompts can be
+structured to elicit reasoning steps or provide outputs in standardised formats
+for downstream analysis. For example, chain-of-thought (CoT) prompting enables
+stepwise reasoning, making intermediate steps explicit and more inspectable
+for feedback~\parencite{wei_chain_2022}. While powerful, prompting must balance
+depth of reasoning with response latency and cognitive load for learners.
+
+\subsection{Alignment with Human Feedback (RLHF)}
+Instruction-following behaviour in state-of-the-art models has been enhanced
+through reinforcement learning from human feedback (RLHF), which fine-tunes
+models on preference data to produce more helpful, safe, and controllable
+outputs~\parencite{ouyang_instructgpt_2022}. In educational contexts, this
+alignment reduces the risk of incoherent or unsafe responses and ensures that
+models remain in character (e.g., simulating a patient) while honouring
+pedagogical constraints.
+
+\subsection{Context Management and Retrieval-Augmented Generation}
+Because the parametric memory of LLMs is limited and can be outdated,
+retrieval-augmented generation (RAG) combines neural generation with access
+to external knowledge sources~\parencite{lewis_rag_2020}. This reduces the
+likelihood of hallucinated facts and grounds responses in authoritative
+references. In medical education, RAG can be valuable for evidence-based
+feedback or guideline support. However, in bias-aware simulations its use must
+be carefully scoped: uncontrolled retrieval during interviews risks
+short-circuiting the intended reasoning process by providing answers without
+inquiry. For this reason, RAG is more appropriate for post-hoc feedback rather
+than real-time patient interactions.
+
+
+\subsection{Intent Recognition in Dialogue Systems}
+Task-oriented dialogue systems often rely on intent recognition and slot
+filling to map free-text queries to structured actions. Modern approaches
+apply transformer-based classifiers, sometimes jointly trained for intent
+detection and slot filling~\parencite{louvan_intent_slot_survey_2020,zhang_joint_2021}.
+In safety-critical contexts such as healthcare chatbots, robust handling of
+uncertain or out-of-scope inputs is essential, motivating research in unknown
+intent detection~\parencite{liang_unknown_intent_2024}. For educational
+simulations, intent recognition enables structured progression through
+learning scenarios while maintaining the natural feel of conversation.
+
+\paragraph{Summary.}
+Together, prompting, RLHF, RAG, and intent recognition form the conceptual
+toolkit by which LLMs can be adapted to support safe, realistic, and
+educationally effective simulations. These techniques enable conversational
+agents to be both flexible and controllable, aligning with pedagogical
+principles such as progressive disclosure and structured reflection
+(Sections~\ref{sec:se211}--\ref{sec:debiasing}). Their concrete application
+to medical education will be detailed in Chapter~\ref{chap:ch4}.
+
+
+
+
+\section{AI Virtual Patients as a Crucible for Clinical Reasoning}
+
+To translate the theoretical insights of dual-process reasoning and bias awareness
+into practice, medical education has increasingly turned to simulation. Among the
+available approaches, \textbf{Virtual Patients (VPs)}—interactive, computer-based
+scenarios—have become an important tool for practicing diagnostic reasoning in
+safe, standardized, and repeatable environments~\parencite{Chan2019,Potter2024}.
+Their pedagogical value lies in making reasoning both visible and improvable:
+students must externalize their thinking, and the system can provide structured
+feedback~\parencite{Sapci2020}.
+
+\subsection{The Evolving Role of Simulation in Medical Education}
+
+Traditional VPs are designed to mimic clinical encounters, offering opportunities
+to practice history-taking, decision-making, and reasoning without risk to real
+patients~\parencite{Potter2024}. More recently, \textbf{AI-powered Virtual
+Standardized Patients (VSPs)} extend this paradigm by enabling natural language
+dialogue and adaptive responses, enhancing the realism of the encounter
+~\parencite{Chan2019,Lee2024}. Conceptually, this aligns with
+\emph{experiential learning theory} (Kolb), which emphasizes learning through
+cycles of action, feedback, and reflection~\parencite{book}. By situating learners
+in an authentic yet controlled interaction, AI-VSPs provide a fertile context for
+bias-prone reasoning to surface and be addressed~\parencite{Carl2023}.
+
+\subsection{Designing the Virtual Encounter: The Principle of Progressive Disclosure}
+
+A critical design principle for effective simulation is \textbf{progressive
+disclosure}: clinical information is revealed incrementally in response to learner
+queries, mirroring real-world diagnostic practice~\parencite{Iqbal2021}. This
+structure ensures that learners actively seek information rather than receiving it
+passively, creating opportunities for biases such as anchoring or premature closure
+to appear~\parencite{graber_diagnostic_2005,croskerry_importance_2003}. When
+combined with metacognitive scaffolding, progressive disclosure transforms the
+simulation from a scripted case into a dynamic learning environment where both
+strengths and vulnerabilities in reasoning can be observed~\parencite{mamede_structure_2004}.
+
+\paragraph{From Concept to Evidence.}
+The conceptual framework highlights the potential of AI-powered VPs, but their
+actual impact depends on empirical validation. Chapter~\ref{chap:ch3} therefore
+reviews the existing evidence base, identifying strengths, limitations, and
+gaps in current research.
+

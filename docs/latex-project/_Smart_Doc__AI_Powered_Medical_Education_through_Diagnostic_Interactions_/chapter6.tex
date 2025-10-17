@@ -1,0 +1,158 @@
+\chapter{Discussion and Conclusion}
+\label{chap:ch6}
+
+\section{Overview}
+
+This chapter interprets the results presented in Chapter~\ref{chap:results}
+and situates them within the broader literature on cognitive bias and diagnostic
+error in medicine.  
+The discussion focuses on how SmartDoc reproduced the cognitive patterns described
+in the real-world case by Mull and colleagues~\parencite{mull_cognitive_2015},
+how learners responded to these bias-prone situations, and what implications
+this has for the design of educational simulations and the prevention of diagnostic
+error.
+
+\section{Interpreting the Findings}
+
+\subsection{Bias Patterns Reproduced by SmartDoc}
+
+The SmartDoc case faithfully mirrored the cognitive trajectory outlined in
+Mull’s original clinical report of an elderly Spanish-speaking woman misdiagnosed
+with heart failure:contentReference[oaicite:1]{index=1}.  
+In that scenario, premature closure, framing, and anchoring led successive clinicians
+to persist with a heart-failure diagnosis despite contradictory evidence such as a
+normal echocardiogram and a history of immunosuppressive therapy.  
+In SmartDoc, the same constellation of traps emerged:
+participants who misdiagnosed heart failure (S3–S5) anchored on elevated BNP
+and preliminary chest radiograph findings, while those who reached the correct
+diagnosis (S1, S2, S6) explicitly cited the CT miliary pattern and infliximab therapy
+as decisive evidence.  
+This behavioural similarity suggests that SmartDoc successfully recreated the
+cognitive environment of the original case, enabling authentic bias-prone reasoning
+to surface safely within an educational context.
+
+\subsection{Reflection and Metacognitive Engagement}
+
+The structured reflection phase prompted learners to apply deliberate,
+analytic reasoning consistent with System 2 processes described by Croskerry
+and later by Mull et al.:contentReference[oaicite:2]{index=2}.
+Most participants demonstrated some awareness of anchoring and the
+limitations of initial framing, even when their final diagnosis remained incorrect.
+However, the depth of metacognitive insight varied:
+high-performing participants explicitly integrated counter-evidence
+(e.g., normal echocardiogram), while lower-performing ones
+acknowledged bias conceptually but failed to operationalise it in reasoning.
+This aligns with previous work showing that recognising a bias does not
+automatically translate into correction unless guided practice and feedback are provided.
+
+\subsection{Usability, Workload, and Cognitive Load}
+
+Usability scores were acceptable (median ≈ 67) and workload moderate.
+The NASA-TLX results indicated higher temporal demand and frustration,
+attributable to the six-second mean system latency.  
+These findings parallel Mull’s discussion of contextual stressors—time pressure,
+information gaps, and fragmented handoffs—as contributors to diagnostic error
+in clinical settings:contentReference[oaicite:3]{index=3}.  
+Although SmartDoc’s delays were technical rather than systemic, they
+nonetheless simulated realistic cognitive constraints, reminding that
+diagnostic reasoning rarely occurs under ideal conditions.
+
+\section{Comparison with the Case Inspiration}
+
+\subsection{Cognitive Bias Typology}
+
+Table 1 in Mull’s article identified seven relevant cognitive biases:
+\emph{framing, anchoring, diagnostic momentum, availability, confirmation,
+blind obedience,} and \emph{overconfidence}:contentReference[oaicite:4]{index=4}.  
+SmartDoc reproduced at least four of these within learner interactions:
+anchoring (premature fixation on heart failure),
+confirmation bias (selective weighting of supportive findings),
+availability bias (preference for common cardiopulmonary causes of dyspnea),
+and premature closure (ending information search after a plausible early diagnosis).
+The simulation therefore captured the essential cognitive dynamics of the original
+clinical error while allowing them to be observed, measured, and debriefed.
+
+\subsection{Systemic Versus Cognitive Contributions}
+
+Mull’s analysis emphasised the interplay between cognitive and systemic errors:
+language barriers, incomplete records, and delayed imaging interpretation
+all compounded faulty reasoning.  
+SmartDoc abstracts away such institutional factors but maintains the informational
+asymmetry that provoked bias—limited initial data, ambiguous imaging, and missing
+medication details.  
+This design choice isolates cognition from logistics, providing a clearer window into
+how heuristics shape reasoning even in the absence of systemic noise.
+
+\subsection{Educational Implications}
+
+By embedding cognitive bias within a simulated interview rather than a retrospective
+case discussion, SmartDoc transforms a sentinel event into a learning scaffold.
+Learners can experience the same reasoning pitfalls that led to a patient’s death
+in the original case, yet with immediate reflective feedback and no clinical risk.
+This operationalises what Mull et al. proposed as a “diagnostic time-out”:
+a deliberate pause to question assumptions and ask, “What else could this be?”
+:contentReference[oaicite:5]{index=5}.  
+SmartDoc’s post-diagnosis reflection effectively served this function, guiding users
+to re-evaluate their initial framing and consider alternative explanations.
+
+\section{Implications for Medical Education}
+
+The results highlight three implications for the design of bias-aware simulation:
+
+\begin{enumerate}
+  \item \textbf{Progressive Disclosure as a Bias Trigger.}
+  Releasing information gradually reproduces the evolving uncertainty of real
+  encounters, where premature closure is likely.
+  This makes cognitive errors observable and therefore teachable.
+
+  \item \textbf{Structured Reflection as a Corrective Mechanism.}
+  Metacognitive prompts—especially those that request explicit counter-evidence—
+  help learners “slow down,” echoing the deliberate reasoning recommended by
+  Croskerry’s dual-process framework and Mull’s “diagnostic time-out.”
+
+  \item \textbf{AI-Mediated Feedback as Scalable Mentorship.}
+  Although automated scoring lacks human nuance, it provides immediate,
+  standardised feedback that can be refined through expert calibration.
+  This may enable wider access to diagnostic-reasoning training beyond traditional
+  bedside teaching.
+\end{enumerate}
+
+\section{Limitations}
+
+This pilot study has several limitations.
+Only six sessions were fully analysed, all using a single case and an all-female
+participant group.  
+The evaluation relied solely on automated scoring without external expert validation.
+Technical latency affected perceived usability and temporal workload.
+Finally, SmartDoc in this iteration assessed reflection post-hoc rather than intervening
+in real time; therefore, its effect on immediate reasoning remains untested.
+
+\section{Future Work}
+
+Future developments will include:
+
+\begin{itemize}
+  \item activating real-time bias prompts to compare live versus retrospective reflection,
+  \item expanding the case library to cover additional bias archetypes,
+  \item incorporating clinician-expert review to calibrate AI assessments, and
+  \item longitudinally evaluating retention of bias-awareness skills.
+\end{itemize}
+
+A multi-institutional study is also planned to investigate how system usability and
+cognitive load affect diagnostic accuracy across diverse learners.
+
+\section{Conclusion}
+
+The SmartDoc simulation reproduced the reasoning trajectory of the
+Mull et al. (2015) case, demonstrating that cognitive biases leading to fatal
+diagnostic errors in real patients can be replicated and studied safely in a
+virtual environment.  
+Participants displayed the same anchoring and framing tendencies described in
+the original publication, yet the structured reflection phase encouraged
+re-evaluation and conceptual learning.  
+Despite moderate usability and temporal strain, SmartDoc provided meaningful,
+bias-aware feedback and a reproducible framework for analysing diagnostic cognition.  
+These findings support the role of AI-powered virtual patients as a scalable
+complement to clinical supervision and a promising tool for teaching reflective,
+error-resistant reasoning in medical education.
+

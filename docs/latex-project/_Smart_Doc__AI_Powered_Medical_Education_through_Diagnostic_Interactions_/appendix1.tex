@@ -1,0 +1,211 @@
+% =========================
+% APPENDICES (Instruments)
+% =========================
+
+\appendix
+
+\chapter*{Appendix A — System Usability Scale (SUS)}
+\addcontentsline{toc}{chapter}{Appendix A — System Usability Scale (SUS)}
+\label{app:sus}
+
+\noindent
+\textbf{Instructions:}  
+For each statement, rate from 1 (\emph{Strongly Disagree}) to 5 (\emph{Strongly Agree}).
+Items alternate in polarity.
+
+\begin{enumerate}
+  \item I think that I would like to use this system frequently.
+  \item I found the system unnecessarily complex.
+  \item I thought the system was easy to use.
+  \item I think that I would need the support of a technical person to use this system.
+  \item I found the various functions in this system were well integrated.
+  \item I thought there was too much inconsistency in this system.
+  \item I would imagine that most people would learn to use this system very quickly.
+  \item I found the system very cumbersome to use.
+  \item I felt very confident using the system.
+  \item I needed to learn a lot of things before I could get going with this system.
+\end{enumerate}
+
+\noindent
+\textbf{Scoring:}  
+For odd items, subtract 1 from the user response; for even items, subtract the response
+from 5.  
+Sum the adjusted values and multiply by 2.5 (range 0–100).
+
+\chapter*{Appendix B — NASA-TLX (Adapted)}
+\addcontentsline{toc}{chapter}{Appendix B — NASA-TLX (Adapted)}
+\label{app:nasa}
+
+\noindent
+\textbf{Instructions:}  
+Please rate each dimension from 0 (\emph{Very Low}) to 100 (\emph{Very High})
+for the recent SmartDoc session.
+
+\begin{itemize}
+  \item \textbf{Mental Demand:} How mentally demanding was the task?
+  \item \textbf{Temporal Demand:} How hurried or time-pressured was the task?
+  \item \textbf{Effort:} How hard did you have to work to achieve your performance?
+  \item \textbf{Frustration:} How insecure, discouraged, irritated, or stressed were you?
+  \item \textbf{Performance:} How successful were you in accomplishing what you set out to
+  do? (Inverted so that higher indicates worse perceived performance for workload scoring.)
+\end{itemize}
+
+\noindent
+\textbf{Note:}  
+In this study, unweighted subscales (0–100) are reported with median and IQR summaries.
+
+% =========================
+% APPENDIX C — REPRESENTATIVE SESSION (S6)
+% =========================
+\chapter*{Appendix C — Representative Session (S6)}
+\addcontentsline{toc}{chapter}{Appendix C — Representative Session (S6)}
+\label{app:session_s6}
+
+\noindent
+This appendix presents a representative SmartDoc session (S6) from the Mull case. It includes: a compact dialogue transcript with intent tags and brief justifications; the submitted diagnosis; the learner's reflective responses; and the automated LLM evaluation summary.
+
+\section*{C.1 \quad Dialogue Transcript (compact with intents)}
+\label{app:session_s6:transcript}
+
+\noindent
+For each turn: \emph{Intent} refers to the SmartDoc taxonomy (in \texttt{type\_subtype} form); \emph{Justification} explains why the turn maps to that intent.
+
+\begin{enumerate}
+  \item \textbf{Doctor:} ``First, what is her past medical history?'' \\
+  \emph{Intent:} \texttt{pmh\_general}. \emph{Justification:} Direct inquiry about past diseases/conditions.
+
+  \item \textbf{Patient:} ``Morbid obesity, diabetes, hypertension, rheumatoid arthritis.'' \\
+  \emph{Intent:} --- (informational reply). \emph{Justification:} Supplies PMH requested.
+
+  \item \textbf{Doctor:} ``What brings you here today?'' \\
+  \emph{Intent:} \texttt{hpi\_chief\_complaint}. \emph{Justification:} Asks for presenting problem.
+
+  \item \textbf{Patient:} ``Trouble breathing with activity; dry cough.'' \\
+  \emph{Intent:} --- (symptom content). \emph{Justification:} Provides chief complaint detail.
+
+  \item \textbf{Doctor:} ``For how long is she having trouble breathing?'' \\
+  \emph{Intent:} \texttt{hpi\_onset\_duration\_primary}. \emph{Justification:} Elicits onset/duration.
+
+  \item \textbf{Patient:} ``Gradually worsening for about two months.'' \\
+  \emph{Intent:} --- (timeline content).
+
+  \item \textbf{Doctor:} ``Any regular medication?'' \\
+  \emph{Intent:} \texttt{meds\_current\_known}. \emph{Justification:} Asks for routine meds.
+
+  \item \textbf{Patient:} ``Lisinopril, atenolol, glipizide, metformin; not sure about others.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``And is she taking anything for her rheumatoid arthritis?'' \\
+  \emph{Intent:} \texttt{meds\_ra\_specific\_initial\_query}. \emph{Justification:} Targets RA therapies (possible immunosuppression).
+
+  \item \textbf{Patient:} ``I'm not sure; I don't have that information.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Does she have fevers?'' \\
+  \emph{Intent:} \texttt{hpi\_fever}. \emph{Justification:} Checks for systemic infection signs.
+
+  \item \textbf{Patient:} ``No fevers.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``What about night chills?'' \\
+  \emph{Intent:} \texttt{hpi\_chills}. \emph{Justification:} Explores constitutional symptoms.
+
+  \item \textbf{Patient:} ``Denies night chills.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Any pain? On the chest?'' \\
+  \emph{Intent:} \texttt{hpi\_chest\_pain}. \emph{Justification:} Screens for cardiopulmonary red flags.
+
+  \item \textbf{Patient:} ``No chest pain.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Vital signs.'' \\
+  \emph{Intent:} \texttt{exam\_vital}. \emph{Justification:} Requests vitals.
+
+  \item \textbf{Patient:} ``T 37.7°C, HR 105, BP 140/70, RR 24, O$_2$ 89\% RA.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Cardiac sounds.'' \\
+  \emph{Intent:} \texttt{exam\_cardiovascular}. \emph{Justification:} Focused cardiovascular exam.
+
+  \item \textbf{Patient:} ``Normal heart sounds; no leg edema.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Lung sounds.'' \\
+  \emph{Intent:} \texttt{exam\_respiratory}. \emph{Justification:} Focused respiratory exam.
+
+  \item \textbf{Patient:} ``Crackles in all lung fields.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Is there any chest X-ray?'' \\
+  \emph{Intent:} \texttt{imaging\_chest\_xray}. \emph{Justification:} Requests CXR information.
+
+  \item \textbf{Patient:} ``Preliminary read: pulmonary vascular congestion.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Is she on any biologics or immunosuppressants?'' \\
+  \emph{Intent:} \texttt{meds\_ra\_specific\_initial\_query}. \emph{Justification:} Re-checks for RA biologics (bias-aware medication reconciliation).
+
+  \item \textbf{Patient:} ``Not sure; perhaps check previous records.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Retrieve the complete medication list from prior hospitalizations.'' \\
+  \emph{Intent:} \texttt{meds\_full\_reconciliation\_query}. \emph{Justification:} Formal med reconciliation.
+
+  \item \textbf{Patient:} ``Prior records show infliximab for RA.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Can we have a chest CT?'' \\
+  \emph{Intent:} \texttt{imaging\_ct\_chest}. \emph{Justification:} Requests higher-resolution imaging.
+
+  \item \textbf{Patient:} ``Reticular pattern with innumerable 1--2\,mm nodules; CT can further characterize.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Bloodwork?'' \\
+  \emph{Intent:} \texttt{labs\_general}. \emph{Justification:} Requests lab overview.
+
+  \item \textbf{Patient:} ``Pro-BNP elevated; WBC 13.0$\times$10$^{9}$/L; Hb 10 g/dL.'' \\
+  \emph{Intent:} ---.
+
+  \item \textbf{Doctor:} ``Echocardiogram?'' \\
+  \emph{Intent:} \texttt{imaging\_echo}. \emph{Justification:} Cardiac function to arbitrate HF vs.\ alternative causes.
+
+  \item \textbf{Patient:} ``Normal EF; no elevated filling pressures.'' \\
+  \emph{Intent:} ---.
+\end{enumerate}
+
+\paragraph{Summary.} The learner systematically escalated information gathering: baseline PMH $\rightarrow$ targeted RA meds $\rightarrow$ objective signs (vitals, exams) $\rightarrow$ imaging (CXR then CT) $\rightarrow$ labs and echo; medication reconciliation uncovered \emph{infliximab}, a key risk factor for TB reactivation.
+
+\section*{C.2 \quad Final Diagnosis}
+\label{app:session_s6:diagnosis}
+\noindent
+\textbf{Submitted diagnosis:} \emph{Miliary tuberculosis} \\
+\textbf{Session ID:} \texttt{SESS\_0W451OZEJ}
+
+\section*{C.3 \quad Reflective Responses (five prompts)}
+\label{app:session_s6:reflection}
+\begin{enumerate}
+  \item \textbf{Most compelling evidence.} Chest CT with diffuse tiny nodules/reticular pattern plus recent infliximab therapy (TNF-$\alpha$ inhibition) strongly supports disseminated \emph{M.\ tuberculosis}.
+  \item \textbf{Counter-evidence.} Elevated BNP and crackles could suggest HF, but are nonspecific; absence of edema and normal cardiac exam argue against a cardiac origin.
+  \item \textbf{Alternatives.} Acute heart failure exacerbation; interstitial lung disease (RA-related or drug toxicity).
+  \item \textbf{Rule-in/out detail (for HF).} Echo assessing systolic/diastolic function and filling pressures: normal EF and no elevated filling pressures argue against HF; lack of edema and subacute course further reduce likelihood.
+  \item \textbf{Must-not-miss conditions.} Acute HF, pulmonary embolism, severe bacterial pneumonia—considered and deprioritized given chronicity, lack of pleuritic pain/focal infiltrates, and diffuse interstitial pattern.
+\end{enumerate}
+
+\section*{C.4 \quad LLM Evaluation — Scores and Narrative Excerpts}
+\label{app:session_s6:llm}
+
+\subsection*{C.4.1 \quad Sub-scores}
+\noindent
+Information Gathering: \textbf{75} \quad|\quad Diagnostic Accuracy: \textbf{88} \quad|\quad Cognitive Bias Awareness: \textbf{80} \\
+Overall (system): \textbf{81}
+
+\subsection*{C.4.2 \quad Narrative excerpts}
+\begin{itemize}
+  \item \emph{Information gathering.} Identified infliximab and CT tiny-nodule pattern; recognized normal echo; could document weight-loss history more explicitly.
+  \item \emph{Diagnostic accuracy.} Correctly avoided the HF anchor by integrating the echo; linked infliximab to TB reactivation; alternative of acute HF noted but justification brief.
+  \item \emph{Bias awareness.} Explicit anchoring recognition (preliminary CXR vs.\ echo/CT); good medication reconciliation; reflection could further explore confirmation bias.
+  \item \emph{Actionable feedback.} (i) Use an immunosuppressant checklist for med reconciliation; (ii) Actively challenge early interpretations (prelim CXR) with definitive tests; (iii) Make evidence-to-inference links explicit in notes.
+\end{itemize}
+
+\paragraph{Assessor settings.} Rubric-based LLM evaluator (temperature 0.1; strict anchors; JSON-validated outputs). No human adjudication in this pilot.
