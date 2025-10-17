@@ -1,6 +1,6 @@
 # SmartDoc Chapter 4: Comprehensive Comparative Analysis
 
-**Date:** 17 October 2025  
+**Date:** 17 October 2025
 **Comparing against:** Rui Pedro's dissertation (Medical Anamnesis) & Ana Guedes' dissertation (CTCAE Symptom Monitoring)
 
 ---
@@ -163,7 +163,7 @@ However, from your Chapter 4, I can compare the **evaluation methodology** you d
 | **Clinical validation** | None | Full oncologist review | Diagnostic accuracy | ✅ Strong |
 | **Quantitative data** | Usability only | Usability + accuracy | Usability + accuracy + bias | ✅ **Most complete** |
 
-**✅ YOUR ADVANTAGE:** 
+**✅ YOUR ADVANTAGE:**
 - **42 participants** vs. Rui's 5 and Ana's 1
 - **Clinical outcome metrics** (diagnostic accuracy, bias detection)
 - **Both usability AND educational effectiveness**
@@ -187,7 +187,7 @@ However, from your Chapter 4, I can compare the **evaluation methodology** you d
    - Correct diagnosis rate
    - Common errors
    - Time to diagnosis
-   
+
 2. **Bias Detection Effectiveness**
    - Bias warnings triggered
    - Student response to warnings
@@ -368,8 +368,8 @@ Both Rui and Ana have this early in Chapter 4. It's essential for reader orienta
 
 ### 8.2 Paragraph Structure
 
-**Rui's Average:** 4-5 sentences per paragraph  
-**Ana's Average:** 3-4 sentences per paragraph  
+**Rui's Average:** 4-5 sentences per paragraph
+**Ana's Average:** 3-4 sentences per paragraph
 **Yours Average:** **6-8 sentences** per paragraph
 
 **ISSUE:** Your paragraphs are longer than both references, reducing readability.
