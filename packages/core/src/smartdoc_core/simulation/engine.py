@@ -599,7 +599,18 @@ You MUST base your answer ONLY on the information above. Do NOT invent or add an
 
         # Build context-aware prompt
         if already_revealed_info:
-            specific_note = f"\n\nYou have ALREADY told the doctor about this topic: {already_revealed_info}\n\nAcknowledge this briefly but naturally."
+            # Special case: if asking about RA meds again after Level 2 revelation, hint at medical records
+            if intent_id == "meds_ra_specific_initial_query" and "meds_ra_uncertainty" in session.revealed_blocks:
+                specific_note = f"""
+
+You have ALREADY told the doctor: "{already_revealed_info}"
+
+The doctor is asking again about the same topic. Acknowledge you already mentioned this, and helpfully suggest they might want to check previous hospital records or medical records from other facilities for complete information about her medications.
+
+Example response: "Like I mentioned, I'm not sure about her rheumatoid arthritis medications. Maybe you could check her previous hospital records? I know she's had some treatments at other facilities."
+"""
+            else:
+                specific_note = f"\n\nYou have ALREADY told the doctor about this topic: {already_revealed_info}\n\nAcknowledge this briefly but naturally."
         else:
             specific_note = "\n\nYou don't have specific detailed information to provide about this particular question. Be honest about not having those details."
 
@@ -609,38 +620,14 @@ You are translating for your mother who only speaks Spanish. You are concerned b
 The doctor just asked: "{original_query}"
 {specific_note}
 
-Respond naturally as the patient's son. Stay strictly within what you know from the information provided above.
-If you already mentioned something, acknowledge it briefly. If you don't have specific details, be honest.
+Respond naturally as the patient's son. CRITICAL RULES:
+1. ONLY use information EXPLICITLY provided above - nothing else
+2. Answer ONLY the specific question asked - don't mention unrelated topics
+3. If you don't have information about what was asked, say "I'm not sure about that" or "I don't have information about that specifically"
+4. NEVER invent details, numbers, dates, symptoms, or medical events
+5. Stay focused on the doctor's actual question
 
-CRITICAL RULES - YOU MUST FOLLOW THESE (VIOLATION IS UNACCEPTABLE):
-1. ONLY answer the SPECIFIC question the doctor asked - don't volunteer unrelated information
-2. If the question asks about something NOT EXPLICITLY in the information above, you MUST say you don't know
-3. Do NOT invent ANY clinical information: NO surgeries, NO procedures, NO medical events, NO diagnoses
-4. Do NOT invent any numbers (weights, measurements, dates, counts, ages, years ago, etc.)
-5. Do NOT add symptoms or complaints not explicitly listed in the information above
-6. Do NOT make up specific details about ANYTHING medical
-7. You can only repeat information that is EXPLICITLY stated in the information above
-
-ABSOLUTE PROHIBITIONS (NEVER DO THIS):
-❌ "She had gallbladder surgery" ← NEVER invent surgical history
-❌ "She's usually around 160 pounds" ← NEVER invent weights/numbers
-❌ "She's been having dizziness" ← NEVER add symptoms not in the information
-❌ "She had a scope done" ← NEVER invent medical procedures
-❌ "Fifteen years ago" ← NEVER invent timeframes
-❌ "She had X taken care of" ← NEVER invent vague medical events
-
-WHAT TO SAY INSTEAD:
-✅ "I don't think she's had any surgeries, but I'm not completely sure"
-✅ "I'm not aware of any surgical history"
-✅ "I don't have information about that specifically"
-✅ "I'm not sure about those details"
-
-Examples:
-- Q: "Any surgical procedures?" → A: "I'm not aware of any surgical history" (if NOT in information above)
-- Q: "How much weight lost?" → A: "I've noticed she's lost weight, but I don't know exactly how much" (if weight loss mentioned but no number)
-- Q: "What medications?" → Answer ONLY if medications are listed in information above
-
-Your response:"""
+Your response (brief and natural):"""
 
         try:
             response = self.provider.generate(prompt, temperature=0.3)

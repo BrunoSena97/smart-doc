@@ -1,0 +1,11 @@
+# Chapter 4
+
+# Developing SmartDoc: A Bias-Aware Clinical Simulation Platform
+
+The gaps identified in Chapter 3, where AI-powered virtual patients show promise but lack mechanisms for explicit bias detection and metacognitive scaffolding, were used to inspire this project. Although numerous digital solutions exist for clinical simulation, the majority of these tools focus on knowledge transfer or procedural training rather than diagnostic reasoning under uncertainty. Bias-aware educational systems remain rare, and those that exist typically rely on post-hoc analysis rather than real-time intervention.
+
+To address these gaps, this project proposes the development of SmartDoc, a conversational clinical simulation platform that enables medical students to practice diagnostic reasoning while receiving targeted feedback on cognitive biases. The system's aim is to provide a more authentic diagnostic experience than traditional virtual patients, while maintaining pedagogical rigor, by combining intent-driven information disclosure with large language models for natural dialogue, bias detection, and clinical evaluation.
+
+The modern conversational AI architectures reviewed in Chapter 3 were analyzed to provide architectural direction. Fully end-to-end neural approaches were not considered suitable for high-stakes medical education since they lack transparency, do not constrain reasoning paths, and make validation of internal decision-making difficult. In contrast, hybrid systems that combine structured dialogue control with LLM capabilities proved that linguistic flexibility and pedagogical control can coexist, making such approaches more suitable for educational simulation systems.
+
+This chapter describes the development of SmartDoc. **Part I** (Section 4.1) presents the conceptual system design and architectural principles. **Part II** (Section 4.2) details the technical implementation, including language model integration, database architecture, and deployment configuration. Section 4.3 illustrates a complete diagnostic workflow through a real clinical case, demonstrating how the design principles translate into educational practice. Finally, Section 4.4 summarizes the key contributions and bridges to the empirical evaluation presented in Chapter 5.

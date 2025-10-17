@@ -1,0 +1,241 @@
+\section{Transcrição de Conversação Clínica com Sistema SmartDoc}
+\label{appendix:conversation_transcript}
+
+Esta seção apresenta uma transcrição completa de uma sessão de simulação clínica utilizando o sistema SmartDoc (Sessão SESS\_0W451OZEJ, Conversação ID 8, realizada em 13 de outubro de 2025). A transcrição inclui as perguntas do estudante, as respostas do sistema, e a classificação automática de intenção clínica com sua justificativa.
+
+\subsection{Histórico de Conversação}
+
+\subsubsection*{Troca 1 - Anamnese: História Médica Pregressa}
+
+\textbf{Estudante:} First, what is her past medical history?
+
+\textit{Intenção detectada:} \texttt{pmh\_general} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is asking about the patient's past medical history, which falls under the definition of 'pmh\_general' - questions about diseases, conditions, and diagnoses, and does not include medications.
+
+\textbf{Assistente:} Uh, she has a history of morbid obesity, diabetes, hypertension, and rheumatoid arthritis.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 2 - Anamnese: Queixa Principal}
+
+\textbf{Estudante:} And what brings you here today?
+
+\textit{Intenção detectada:} \texttt{hpi\_chief\_complaint} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is asking what brings the patient to the clinic, which directly addresses the chief complaint (hpi\_chief\_complaint) within the anamnesis phase.
+
+\textbf{Assistente:} Uh, she's been having trouble breathing, especially when she's trying to do things. And she has a cough, but it's not bringing up anything.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 3 - Anamnese: Duração dos Sintomas}
+
+\textbf{Estudante:} For how long is she having trouble breathing?
+
+\textit{Intenção detectada:} \texttt{hpi\_onset\_duration\_primary} (confiança: 0.95)
+
+\textit{Justificativa:} The question asks about the duration of trouble breathing, directly addressing the onset and duration of symptoms, a key component of the history taking process.
+
+\textbf{Assistente:} Uh, it's been gradually worsening for about two months, you know? It hasn't gotten suddenly worse, just slowly.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 4 - Anamnese: Medicamentos Atuais}
+
+\textbf{Estudante:} Any regular medication?
+
+\textit{Intenção detectada:} \texttt{meds\_current\_known} (confiança: 0.95)
+
+\textit{Justificativa:} The question is asking about current medications, explicitly using the word 'medication'. This falls directly into the definition of 'meds\_current\_known'.
+
+\textbf{Assistente:} Uh, she's currently taking lisinopril, atenolol, glipizide, and metformin, I think. I'm not sure about anything else she might be on.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 5 - Anamnese: Medicamentos para Artrite Reumatoide}
+
+\textbf{Estudante:} And is she taking anything for her rheumatoid arthritis?
+
+\textit{Intenção detectada:} \texttt{meds\_ra\_specific\_initial\_query} (confiança: 0.98)
+
+\textit{Justificativa:} The question explicitly asks about medications for rheumatoid arthritis, indicating a focus on medication history related to this specific condition.
+
+\textbf{Assistente:} Uh, I'm not sure I have information about that specifically. I don't have records of what she's taking for her rheumatoid arthritis, I'm sorry.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 6 - Anamnese: Sintomas Constitucionais (Febre)}
+
+\textbf{Estudante:} Does she have fevers?
+
+\textit{Intenção detectada:} \texttt{hpi\_fever} (confiança: 0.95)
+
+\textit{Justificativa:} The question directly asks about fever, which falls under the category of inquiring about symptoms related to the patient's current complaint during the history taking phase.
+
+\textbf{Assistente:} Uh, yes, she says she doesn't have fevers, Doctor.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 7 - Anamnese: Sintomas Constitucionais (Calafrios)}
+
+\textbf{Estudante:} What about night chills?
+
+\textit{Intenção detectada:} \texttt{hpi\_chills} (confiança: 0.95)
+
+\textit{Justificativa:} The question 'What about night chills?' directly relates to a symptom (chills) and its temporal relationship (night), fitting the HPI intent for investigating the onset and characteristics of a presenting complaint.
+
+\textbf{Assistente:} Uh, she says she doesn't have night chills, Doctor. She denies them.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 8 - Anamnese: Dor Torácica}
+
+\textbf{Estudante:} Any pain? On the chest?
+
+\textit{Intenção detectada:} \texttt{hpi\_chest\_pain} (confiança: 0.95)
+
+\textit{Justificativa:} The patient is asking about pain on the chest, specifically chest pain, which falls under the category of questions regarding chest pain during the history taking phase.
+
+\textbf{Assistente:} Uh, she says no, she doesn't have chest pain, doctor.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 9 - Exame Físico: Sinais Vitais}
+
+\textbf{Estudante:} Vital signs
+
+\textit{Intenção detectada:} \texttt{exam\_vital} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is explicitly requesting vital signs, which falls directly under the 'exam\_vital' intent.
+
+\textbf{Assistente:} Vital signs: Temperature 99.9°F (37.7°C), HR 105, BP 140/70, RR 24, O2 sat 89\% on room air.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 10 - Exame Físico: Sistema Cardiovascular}
+
+\textbf{Estudante:} cardiac sound
+
+\textit{Intenção detectada:} \texttt{exam\_cardiovascular} (confiança: 0.98)
+
+\textit{Justificativa:} The doctor is requesting an examination of the heart, specifically referring to 'cardiac sound,' which directly relates to a cardiovascular examination.
+
+\textbf{Assistente:} Heart sounds are normal and there is no lower-extremity edema.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 11 - Exame Físico: Sistema Respiratório}
+
+\textbf{Estudante:} lung sounds
+
+\textit{Intenção detectada:} \texttt{exam\_respiratory} (confiança: 0.98)
+
+\textit{Justificativa:} The doctor is requesting an examination of the lungs, which directly relates to a respiratory exam.
+
+\textbf{Assistente:} Pulmonary examination demonstrates crackles in all lung fields.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 12 - Exames Complementares: Radiografia de Tórax}
+
+\textbf{Estudante:} is there any chest x-ray?
+
+\textit{Intenção detectada:} \texttt{imaging\_chest\_xray} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is asking about a chest X-ray, which falls under the category of imaging studies.
+
+\textbf{Assistente:} Yes, a preliminary chest radiograph was obtained. The interpretation is consistent with pulmonary vascular congestion.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 13 - Anamnese: Confirmação de Medicamentos Imunossupressores}
+
+\textbf{Estudante:} Are you sure that your mother is not on any biologics or immunosuppressive medications?
+
+\textit{Intenção detectada:} \texttt{meds\_ra\_specific\_initial\_query} (confiança: 0.95)
+
+\textit{Justificativa:} The question specifically asks about biologics or immunosuppressive medications, which falls under the category of RA medications and seeks initial clarification regarding current medication use for rheumatoid arthritis.
+
+\textbf{Assistente:} Like I said, I'm not sure about her rheumatoid arthritis medications. Maybe you could check her previous hospital records? I know she's had some treatments at other facilities.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 14 - Anamnese: Reconciliação Completa de Medicamentos}
+
+\textbf{Estudante:} Can you get her complete medication list from previous hospitalizations?
+
+\textit{Intenção detectada:} \texttt{meds\_full\_reconciliation\_query} (confiança: 0.98)
+
+\textit{Justificativa:} The doctor is explicitly requesting a 'complete medication list from previous hospitalizations,' which directly relates to medication reconciliation and retrieving information from medical records – a core component of the anamnesis phase.
+
+\textbf{Assistente:} Uh, yes, she was receiving infliximab for rheumatoid arthritis. That's the only medication listed from her previous hospital stays, as far as I know.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 15 - Exames Complementares: Tomografia Computadorizada}
+
+\textbf{Estudante:} Can we have a computed tomography scan?
+
+\textit{Intenção detectada:} \texttt{imaging\_ct\_chest} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is requesting a computed tomography (CT) scan of the chest, which falls under the category of imaging studies.
+
+\textbf{Assistente:} The chest X-ray demonstrates a reticular pattern with innumerable, tiny, 1- to 2-mm pulmonary nodules. We can order a computed tomography scan of the chest to further characterize these findings. Would you like me to proceed with that order?
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 16 - Exames Complementares: Exames Laboratoriais}
+
+\textbf{Estudante:} Bloodwork?
+
+\textit{Intenção detectada:} \texttt{labs\_general} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is asking about bloodwork, which falls under general laboratory questions.
+
+\textbf{Assistente:} The cardiac lab results show a pro-BNP level greater than the upper limit of normal. We also have an elevated white blood cell count of 13.0 x 10\textsuperscript{9}/L and a low hemoglobin level of 10 g/dL. I recommend further investigation into the etiology of the anemia and leukocytosis.
+
+\vspace{0.5cm}
+
+\subsubsection*{Troca 17 - Exames Complementares: Ecocardiograma}
+
+\textbf{Estudante:} Echocardiogram?
+
+\textit{Intenção detectada:} \texttt{imaging\_echo} (confiança: 0.95)
+
+\textit{Justificativa:} The doctor is asking about an echocardiogram, which is a specific imaging study.
+
+\textbf{Assistente:} The echocardiogram shows a normal ejection fraction with no evidence of elevated filling pressures.
+
+\vspace{0.5cm}
+
+\subsection{Análise da Sessão}
+
+Esta sessão de simulação demonstra o funcionamento do sistema SmartDoc em um caso clínico complexo envolvendo tuberculose miliar em paciente imunossuprimida. O sistema classificou corretamente 17 intenções clínicas com confiança média de 0.96, cobrindo as fases de anamnese, exame físico e solicitação de exames complementares.
+
+\subsubsection*{Descobertas Realizadas}
+
+Durante a conversação, o estudante revelou 18 blocos de informação organizados nas seguintes categorias:
+\begin{itemize}
+    \item \textbf{Sintomas de apresentação:} 6 descobertas (história médica, dispneia, duração dos sintomas, negativos pertinentes)
+    \item \textbf{Medicamentos atuais:} 3 descobertas (medicamentos conhecidos, incerteza sobre medicamentos RA, infliximabe - crítico)
+    \item \textbf{Exame físico:} 3 descobertas (sinais vitais, exame cardíaco, exame respiratório)
+    \item \textbf{Exames de imagem:} 3 descobertas (radiografia inicial, TC de tórax com nódulos miliares, ecocardiograma)
+    \item \textbf{Resultados diagnósticos:} 3 descobertas (BNP elevado, leucocitose, anemia)
+\end{itemize}
+
+\subsubsection*{Viés Cognitivo Detectado}
+
+O sistema identificou 1 alerta de viés de ancoragem após a solicitação da radiografia de tórax, quando a interpretação preliminar sugeria congestão vascular pulmonar, potencialmente direcionando o raciocínio para insuficiência cardíaca.
+
+\subsubsection*{Diagnóstico e Avaliação}
+
+O estudante chegou ao diagnóstico correto de \textbf{tuberculose miliar}, demonstrando:
+\begin{itemize}
+    \item Pontuação geral: 81/100
+    \item Coleta de informações: 75/100
+    \item Precisão diagnóstica: 88/100
+    \item Consciência de viés cognitivo: 80/100
+\end{itemize}
+
+O estudante evitou com sucesso a armadilha diagnóstica de insuficiência cardíaca, reconhecendo a importância crítica do uso de infliximabe e do padrão de nódulos miliares na TC de tórax. A reflexão metacognitiva demonstrou consciência adequada dos potenciais vieses cognitivos, embora pudesse ter sido mais sistemática na documentação dos achados-chave.

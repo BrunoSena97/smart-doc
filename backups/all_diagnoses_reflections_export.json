@@ -1,0 +1,290 @@
+{
+  "database": "smartdoc_backup_new.sqlite3",
+  "extracted_at": "2025-10-14T00:45:35.341357",
+  "diagnosis_submissions": [
+    {
+      "id": 1,
+      "session_id": "SESS_M9T4EJ54Y",
+      "diagnosis_text": "miliary tuberculosis",
+      "score_overall": 76,
+      "score_breakdown": "{\"information_gathering\": 65, \"cognitive_bias_awareness\": 85, \"diagnostic_accuracy\": 78, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 65, \"analysis\": \"The student identified several key findings \\u2013 the reticular pattern, elevated WBC, low hemoglobin, and elevated BNP. However, the approach felt somewhat reactive rather than proactive. While they acknowledged the son\\u2019s reports of weight loss and decreased oral intake, a more thorough exploration of the patient\\u2019s functional status and potential sources of malnutrition would have been beneficial. The student correctly identified the key imaging and lab findings, but missed opportunities to delve deeper into the patient\\u2019s history and potential contributing factors. The response regarding the son\\u2019s language barrier is noted, but the student could have explored this further to understand the accuracy of the reported symptoms.\"}, \"diagnostic_accuracy\": {\"score\": 78, \"analysis\": \"The final diagnosis of miliary tuberculosis is reasonable given the presented evidence. The reticular pattern and elevated WBC strongly support this diagnosis. The student\\u2019s consideration of alternative diagnoses (heart failure and lymphoma) is appropriate, though the normal echocardiogram somewhat weakens the heart failure hypothesis. The inclusion of the patient\\u2019s immunosuppression (infliximab) was a crucial element in the reasoning. The student\\u2019s response regarding potential biases is good, demonstrating an awareness of the limitations of the data. A score of 78 reflects a solid, albeit slightly conservative, diagnostic approach.\"}, \"cognitive_bias_awareness\": {\"score\": 85, \"analysis\": \"The student\\u2019s metacognitive reflection demonstrates a good level of self-awareness. The responses regarding potential biases are thoughtful and specific. The student correctly identified the limitations of the BNP and WBC, acknowledging their nonspecificity. The consideration of alternative diagnoses and the request for a PET-CT or lymph node biopsy are excellent examples of critical thinking. The student\\u2019s responses are well-reasoned and demonstrate an understanding of the complexities of differential diagnosis. The student\\u2019s reflection shows a good grasp of the potential pitfalls of relying solely on imaging and laboratory findings.\"}, \"comprehensive_feedback\": {\"strengths\": \"The student demonstrated a reasonable level of diagnostic reasoning, particularly in considering alternative diagnoses and acknowledging potential biases. The inclusion of the patient\\u2019s immunosuppression was a key strength.\", \"areas_for_improvement\": \"A more proactive approach to information gathering is needed. Specifically, the student should have explored the patient\\u2019s functional status, nutritional intake, and potential sources of immunosuppression in greater detail. Further exploration of the patient\\u2019s social history and potential exposure risks would also be beneficial.\", \"key_recommendations\": [\"Practice a more structured approach to history taking, focusing on functional status, nutritional assessment, and potential exposures.\", \"Develop a checklist of key questions to ensure no important information is overlooked during the history taking process.\", \"Consider the impact of immunosuppression on the interpretation of laboratory and imaging findings.\"]}}}",
+      "feedback": "Strengths: The student demonstrated a reasonable level of diagnostic reasoning, particularly in considering alternative diagnoses and acknowledging potential biases. The inclusion of the patient’s immunosuppression was a key strength. | Areas for improvement: A more proactive approach to information gathering is needed. Specifically, the student should have explored the patient’s functional status, nutritional intake, and potential sources of immunosuppression in greater detail. Further exploration of the patient’s social history and potential exposure risks would also be beneficial.",
+      "created_at": "2025-10-11 23:50:18.829313"
+    },
+    {
+      "id": 2,
+      "session_id": "SESS_V2T89X9QA",
+      "diagnosis_text": "Miliary tuberculosis",
+      "score_overall": 70,
+      "score_breakdown": "{\"information_gathering\": 65, \"cognitive_bias_awareness\": 70, \"diagnostic_accuracy\": 75, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 65, \"analysis\": \"The student identified several key findings \\u2013 shortness of breath, cough, weight loss, elevated WBC, low hemoglobin, BNP, and the chest radiograph. However, the approach felt somewhat reactive rather than proactive. They missed the critical detail of the patient\\u2019s recent infliximab use and its potential link to TB reactivation. A more systematic approach would have involved a thorough medication reconciliation process, including specifically inquiring about TNF-alpha inhibitors and their timing relative to the onset of symptoms. The response also lacked a detailed exploration of the patient\\u2019s social history and potential exposures. The response could be improved by prioritizing a detailed medication history and exploring potential risk factors for TB given the patient's age and comorbidities.\"}, \"diagnostic_accuracy\": {\"score\": 75, \"analysis\": \"The final diagnosis of miliary tuberculosis is reasonable given the presented information. The student correctly identified the key findings supporting this diagnosis, particularly the reticular pattern and elevated BNP. The inclusion of infliximab use was a crucial and well-reasoned element. The alternative diagnoses \\u2013 heart failure and interstitial lung disease \\u2013 are plausible and demonstrate a degree of clinical awareness. However, the response could be strengthened by acknowledging the relative rarity of TB in this patient population and considering other less common etiologies. The student\\u2019s reasoning is generally sound, but a more nuanced approach would have been beneficial.\"}, \"cognitive_bias_awareness\": {\"score\": 70, \"analysis\": \"The student\\u2019s reflection answers demonstrate a reasonable level of self-awareness, particularly regarding the potential impact of infliximab. The consideration of alternative diagnoses and the proposed investigations are appropriate. However, the responses are somewhat generic and lack depth. The student could benefit from a more critical examination of their own thought process, including acknowledging potential cognitive biases such as confirmation bias (focusing on the infliximab link while potentially overlooking other possibilities) and anchoring bias (over-relying on the chest radiograph findings). The reflection shows a basic understanding of bias, but needs more sophisticated development.\"}, \"comprehensive_feedback\": {\"strengths\": \"Correctly identified the key diagnostic features and the potential role of infliximab. Demonstrated a reasonable understanding of alternative diagnoses.\", \"areas_for_improvement\": \"Needs a more proactive and systematic approach to information gathering, including a thorough medication history and exploration of risk factors. Requires a deeper engagement with cognitive biases and a more nuanced assessment of the clinical data. The reflection answers could be more specific and insightful.\", \"key_recommendations\": [\"Implement a structured medication reconciliation process, focusing on TNF-alpha inhibitors and their timing.\", \"Practice a more thorough exploration of patient history, including social and environmental factors.\", \"Develop a framework for identifying and mitigating cognitive biases in clinical decision-making.\", \"Consider a broader differential diagnosis, including less common causes of pulmonary infiltrates.\"]}}}",
+      "feedback": "Strengths: Correctly identified the key diagnostic features and the potential role of infliximab. Demonstrated a reasonable understanding of alternative diagnoses. | Areas for improvement: Needs a more proactive and systematic approach to information gathering, including a thorough medication history and exploration of risk factors. Requires a deeper engagement with cognitive biases and a more nuanced assessment of the clinical data. The reflection answers could be more specific and insightful.",
+      "created_at": "2025-10-12 17:54:34.742393"
+    },
+    {
+      "id": 3,
+      "session_id": "SESS_EL089MTCB",
+      "diagnosis_text": "Heart failure exacerbation",
+      "score_overall": 72,
+      "score_breakdown": "{\"information_gathering\": 65, \"cognitive_bias_awareness\": 72, \"diagnostic_accuracy\": 78, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 65, \"analysis\": \"The student identified several key findings \\u2013 elevated BNP, pulmonary vascular congestion on chest x-ray, elevated WBC, and anemia. However, the approach feels somewhat reactive. While they correctly identified the BNP as compelling, they didn't proactively explore further history related to the patient's comorbidities (hypertension, diabetes, obesity) which are significant risk factors for heart failure. The son\\u2019s role in translation is acknowledged, but the student didn\\u2019t actively probe for more detailed information from the son regarding the patient\\u2019s symptoms or medication history. A more systematic approach would have included a thorough medication reconciliation, a detailed history of symptoms (including characterization of dyspnea), and a focused physical exam looking for signs of fluid overload. The response regarding the son\\u2019s role is adequate but could be more robust.\"}, \"diagnostic_accuracy\": {\"score\": 40, \"analysis\": \"The final diagnosis of heart failure exacerbation is reasonable but wrong given the available data. The elevated BNP, pulmonary congestion, and anemia all point towards this diagnosis. The normal ejection fraction is a key piece of information that the student correctly acknowledged as potentially conflicting. The alternative diagnoses of anemia dyspnea and pneumonia are also plausible, and the student\\u2019s response regarding a repeat chest x-ray or sputum sample to rule out pneumonia is appropriate. However, the student could have more strongly considered the possibility of diastolic dysfunction, given the normal ejection fraction and the patient\\u2019s age and comorbidities. A more nuanced approach would have included considering other potential causes of anemia (e.g., chronic kidney disease, blood loss).\"}, \"cognitive_bias_awareness\": {\"score\": 72, \"analysis\": \"The student\\u2019s reflection answers demonstrate a basic level of self-awareness. They correctly identified the normal ejection fraction as a potential challenge to the heart failure diagnosis and considered alternative diagnoses. However, the responses are somewhat generic and lack depth. The student\\u2019s consideration of potential must-not-miss conditions (PE and ACS) is commendable, but the reflection doesn\\u2019t demonstrate a strong understanding of how these conditions might present differently in an elderly patient with comorbidities. The student\\u2019s responses show a recognition of the importance of considering alternative diagnoses, but could benefit from a more critical examination of their own thought process and potential biases \\u2013 for example, a tendency to latch onto the most obvious explanation.\"}, \"comprehensive_feedback\": {\"strengths\": \"Correctly identified key diagnostic findings (BNP, pulmonary congestion, anemia). Considered alternative diagnoses and potential must-not-miss conditions.\", \"areas_for_improvement\": \"Needs to proactively gather more detailed history, particularly regarding comorbidities and medication history. Requires a more systematic approach to information gathering. Needs to demonstrate deeper clinical reasoning and a more critical examination of their own thought process.\", \"key_recommendations\": [\"Implement a structured approach to history taking, including targeted questions about the patient\\u2019s symptoms, medications, and comorbidities. Utilize the son\\u2019s translation effectively to obtain more detailed information. Consider a differential diagnosis that includes diastolic dysfunction and other potential causes of anemia. Practice formulating specific questions to elicit relevant information from the patient and their family.\"]}}}",
+      "feedback": "Strengths: Correctly identified key diagnostic findings (BNP, pulmonary congestion, anemia). Considered alternative diagnoses and potential must-not-miss conditions. | Areas for improvement: Needs to proactively gather more detailed history, particularly regarding comorbidities and medication history. Requires a more systematic approach to information gathering. Needs to demonstrate deeper clinical reasoning and a more critical examination of their own thought process.",
+      "created_at": "2025-10-13 01:16:19.644381"
+    },
+    {
+      "id": 4,
+      "session_id": "SESS_OGEK62C1X",
+      "diagnosis_text": "Heart failure",
+      "score_overall": 40,
+      "score_breakdown": "{\"information_gathering\": 40, \"cognitive_bias_awareness\": 50, \"diagnostic_accuracy\": 30, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 40, \"analysis\": \"The student identified the INFLIXIMAB medication, a crucial piece of information. However, they failed to adequately investigate the chest CT scan, which is absolutely essential for the diagnosis of miliary TB. While they noted weight loss, this was not thoroughly explored in the context of immunosuppression. The echocardiogram was acknowledged, but the significance of the normal EF was not fully appreciated in relation to the other findings. Overall, the information gathering was incomplete and lacked a systematic approach to uncovering the key diagnostic clues.\"}, \"diagnostic_accuracy\": {\"score\": 30, \"analysis\": \"The student\\u2019s primary diagnosis of heart failure was a significant error, directly attributable to anchoring on the initial CXR interpretation. Despite the normal echocardiogram and the immunosuppressive medication, they failed to consider infectious etiologies, particularly miliary TB. The differential was weak and lacked critical elements. The correct diagnosis \\u2013 miliary TB \\u2013 was not explicitly stated, further highlighting the diagnostic failure.\"}, \"cognitive_bias_awareness\": {\"score\": 50, \"analysis\": \"The student demonstrated a basic awareness of the anchoring bias, acknowledging the initial CXR interpretation. However, their metacognitive responses were superficial and lacked depth. They correctly identified the importance of medication reconciliation but didn't fully articulate how this influenced their thinking. Their reflection on potential alternative diagnoses was rudimentary. A more sophisticated response would have explicitly addressed the conflict between the CXR and the echocardiogram.\"}, \"comprehensive_feedback\": {\"strengths\": \"Recognition of the INFLIXIMAB medication is a minor strength.\", \"areas_for_improvement\": \"Critical failure to investigate the chest CT scan, persistent anchoring bias, inadequate differential, weak metacognitive reflection. Medication reconciliation needs deeper exploration.\", \"key_recommendations\": [\"Prioritize investigation of all imaging findings, particularly the chest CT scan, when presented with ambiguous findings.\", \"Develop a systematic approach to evaluating imaging and laboratory data, actively challenging initial interpretations.\", \"Practice \\u2018thinking outside the box\\u2019 \\u2013 consider alternative diagnoses based on the totality of the clinical picture, not just the most readily apparent.\", \"Master medication reconciliation techniques, focusing on the impact of immunosuppression on disease presentation.\"]}}}",
+      "feedback": "Strengths: Recognition of the INFLIXIMAB medication is a minor strength. | Areas for improvement: Critical failure to investigate the chest CT scan, persistent anchoring bias, inadequate differential, weak metacognitive reflection. Medication reconciliation needs deeper exploration.",
+      "created_at": "2025-10-13 02:23:38.599950"
+    },
+    {
+      "id": 5,
+      "session_id": "SESS_WJ7ZMB8IA",
+      "diagnosis_text": "Acute Heart Failure",
+      "score_overall": 45,
+      "score_breakdown": "{\"information_gathering\": 45, \"cognitive_bias_awareness\": 55, \"diagnostic_accuracy\": 35, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 45, \"analysis\": \"The student partially discovered critical information. They identified the patient's morbid obesity and diabetes, and correctly noted the elevated BNP. However, the crucial discovery of the patient\\u2019s infliximab medication was missed, representing a significant failure in medication reconciliation. The student also failed to explicitly acknowledge or pursue the chest CT scan, despite the persistent dyspnea and the initial CXR interpretation. The history of rheumatoid arthritis was mentioned but not fully explored in the context of immunosuppression. Overall, the information gathering was incomplete and lacked a systematic approach to uncovering the key diagnostic clues.\"}, \"diagnostic_accuracy\": {\"score\": 35, \"analysis\": \"The student\\u2019s primary diagnosis of acute heart failure was a significant error, driven by anchoring on the initial CXR interpretation and elevated BNP. While they acknowledged the pro-BNP, their reasoning was incomplete and failed to adequately consider the patient\\u2019s immunosuppressive medication (infliximab) and the presence of a miliary pattern on imaging. The differential was weak, lacking consideration of infectious etiologies in an immunosuppressed patient. The student\\u2019s failure to recognize the potential for miliary TB represents a critical diagnostic failure.\"}, \"cognitive_bias_awareness\": {\"score\": 55, \"analysis\": \"The student demonstrated some awareness of the anchoring bias from the initial CXR interpretation, acknowledging the elevated BNP. They also touched upon the importance of medication reconciliation. However, their metacognitive responses were somewhat superficial, lacking a deep understanding of how framing the initial presentation could lead to diagnostic error. The reflection on the potential for TB was present but not fully integrated into the diagnostic process. A more sophisticated reflection would have involved a detailed discussion of the interplay between immunosuppression and infectious disease.\"}, \"comprehensive_feedback\": {\"strengths\": \"The student correctly identified the elevated BNP and acknowledged the anchoring bias. \", \"areas_for_improvement\": \"Critical failure in medication reconciliation (infliximab), failure to pursue the chest CT scan, incomplete differential diagnosis, and lack of a truly systematic approach to uncovering the underlying cause of the patient\\u2019s symptoms. Needs to prioritize medication history and imaging studies.\", \"key_recommendations\": [\"Develop a rigorous protocol for medication reconciliation, specifically focusing on immunosuppressive agents.\", \"Always pursue imaging studies (CT scan) when presented with persistent dyspnea, especially in an immunosuppressed patient.\", \"Practice \\u2018thinking outside the box\\u2019 \\u2013 challenge initial interpretations and consider alternative diagnoses based on all available evidence.\", \"Develop a systematic approach to diagnostic workup, prioritizing key investigations based on the clinical presentation and risk factors.\"]}}}",
+      "feedback": "Strengths: The student correctly identified the elevated BNP and acknowledged the anchoring bias.  | Areas for improvement: Critical failure in medication reconciliation (infliximab), failure to pursue the chest CT scan, incomplete differential diagnosis, and lack of a truly systematic approach to uncovering the underlying cause of the patient’s symptoms. Needs to prioritize medication history and imaging studies.",
+      "created_at": "2025-10-13 14:29:39.909873"
+    },
+    {
+      "id": 6,
+      "session_id": "SESS_0W451OZEJ",
+      "diagnosis_text": "miliary tuberculosis",
+      "score_overall": 81,
+      "score_breakdown": "{\"information_gathering\": 75, \"cognitive_bias_awareness\": 80, \"diagnostic_accuracy\": 88, \"llm_evaluation_raw\": {\"information_gathering\": {\"score\": 75, \"analysis\": \"The student correctly identified the critical importance of the infliximab medication and the reticular pattern with nodules on the CT scan. The normal echocardiogram was also recognized. However, the initial CXR interpretation was correctly noted as potentially misleading. The student missed explicitly stating the weight loss history as a key finding, and while they acknowledged the formal CXR interpretation, it wasn't explicitly highlighted as a point of contention. Overall, the information gathering was reasonably thorough, but could have been more systematic and explicitly linked to the diagnostic challenge.\"}, \"diagnostic_accuracy\": {\"score\": 88, \"analysis\": \"The student arrived at the correct diagnosis of miliary tuberculosis, demonstrating a good understanding of the case. Crucially, they avoided the heart failure trap, recognizing the normal echocardiogram. The reasoning linking infliximab to the increased risk of TB reactivation was sound. The differential included a reasonable alternative diagnosis (acute heart failure exacerbation), though the justification for this was somewhat superficial. The score is high because the student correctly identified the key diagnostic clues and avoided a common anchoring bias.\"}, \"cognitive_bias_awareness\": {\"score\": 80, \"analysis\": \"The student demonstrated a good level of awareness regarding anchoring bias, explicitly addressing the potential for the initial CXR interpretation to mislead. They also acknowledged the importance of medication reconciliation, correctly identifying infliximab as a key factor. Their metacognitive responses were thoughtful, particularly in questioning the initial framing of the case as heart failure. However, the reflection could have been more deeply explored, perhaps with a more detailed discussion of how confirmation bias might have influenced the initial assessment. The student\\u2019s responses were clear and clinically relevant.\"}, \"comprehensive_feedback\": {\"strengths\": \"Correct diagnosis, avoidance of heart failure trap, recognition of infliximab's role, thoughtful metacognitive responses.\", \"areas_for_improvement\": \"More systematic documentation of key findings (weight loss), deeper exploration of anchoring bias, more detailed discussion of potential biases influencing diagnostic reasoning.\", \"key_recommendations\": [\"Implement a structured approach to medication reconciliation, specifically focusing on immunosuppressant therapies and their potential impact on infectious disease risk. Develop a checklist to ensure all relevant medications are considered during the diagnostic process. Practice actively challenging initial interpretations, particularly when they are influenced by readily available data (e.g., CXR findings).\"]}}}",
+      "feedback": "Strengths: Correct diagnosis, avoidance of heart failure trap, recognition of infliximab's role, thoughtful metacognitive responses. | Areas for improvement: More systematic documentation of key findings (weight loss), deeper exploration of anchoring bias, more detailed discussion of potential biases influencing diagnostic reasoning.",
+      "created_at": "2025-10-13 23:08:40.238928"
+    }
+  ],
+  "reflection_responses": [
+    {
+      "id": 1,
+      "diagnosis_id": 1,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "The chest CT revealing a reticular pattern with innumerable tiny nodules consistent with miliary spread. This information in combination with immunosuppression due to infliximab, is highly suggestive of miliary tuberculosis.",
+      "created_at": "2025-10-11 23:50:18.830760"
+    },
+    {
+      "id": 2,
+      "diagnosis_id": 1,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "Obesity, age and slightly elevated white blood cell count and mildly elevated pro-BNP level could initially suggest infection or heart failure but they are nonspecific and may mislead diagnosis if overemphasized.",
+      "created_at": "2025-10-11 23:50:18.830762"
+    },
+    {
+      "id": 3,
+      "diagnosis_id": 1,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "Heart failure exacerbation\nLymphoma",
+      "created_at": "2025-10-11 23:50:18.830762"
+    },
+    {
+      "id": 4,
+      "diagnosis_id": 1,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "Obtain a PET-CT or lymph node biopsy to identify malignant infiltration or granulomatous changes",
+      "created_at": "2025-10-11 23:50:18.830763"
+    },
+    {
+      "id": 5,
+      "diagnosis_id": 1,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "Yes, I have considered pulmonary embolism, acute coronary syndrome, and severe pneumonia as must not miss conditions.\nAll were ruled out by the chronic course absence of chest pain or focal infiltrates and normal echocardiogram findings.",
+      "created_at": "2025-10-11 23:50:18.830764"
+    },
+    {
+      "id": 6,
+      "diagnosis_id": 2,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "The chest ct revealing a diffuse reticular pattern with innumerable tiny nodules, consistent with miliary spread, combined with the patient's recent infliximab use.\nThe findings are classic for disseminated infection and TNF-alpha inhibition by infliximab substantially increases susceptibility to latent tuberculosis reactivation",
+      "created_at": "2025-10-12 17:54:34.743074"
+    },
+    {
+      "id": 7,
+      "diagnosis_id": 2,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "The elevated BNP and lack of fever at presentation could suggest alternative explanations such as heart failure or noninfectious interstitial disease. however, they are nonspecific and do not rule out miliary tuberculosis.",
+      "created_at": "2025-10-12 17:54:34.743075"
+    },
+    {
+      "id": 8,
+      "diagnosis_id": 2,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "heart failure or interstitial lung disease secondary to rheumatoid arthritis or medication toxicity",
+      "created_at": "2025-10-12 17:54:34.743076"
+    },
+    {
+      "id": 9,
+      "diagnosis_id": 2,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "Interstitial lung disease secondary to rheumatoid arthritis or drug toxicity\nObtain pulmonary function tests and a high-resolution CT pattern comparison, review for methotrexate or leflunomide use and assess for autoimmune markers.",
+      "created_at": "2025-10-12 17:54:34.743076"
+    },
+    {
+      "id": 10,
+      "diagnosis_id": 2,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "Yes, pulmonary embolism, severe pneumonia, and acute decompensated heart failure were considered and excluded as subacute progression, absence of pleuritic pain, normal echocardiogram, and diffuse interstitial imaging pattern make these less likely.",
+      "created_at": "2025-10-12 17:54:34.743077"
+    },
+    {
+      "id": 11,
+      "diagnosis_id": 3,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "High level of bnp. The chest x ray with pulmon vascular congestion and specially in elder patient with hypertention, diabetes and obesity, this is consistent",
+      "created_at": "2025-10-13 01:16:19.645011"
+    },
+    {
+      "id": 12,
+      "diagnosis_id": 3,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "echo cardiogram is normal, this go against heart failure but diastolic dysfunction could still explain her symptoms.",
+      "created_at": "2025-10-13 01:16:19.645012"
+    },
+    {
+      "id": 13,
+      "diagnosis_id": 3,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "Anemia dyspnea\nPneumonia",
+      "created_at": "2025-10-13 01:16:19.645013"
+    },
+    {
+      "id": 14,
+      "diagnosis_id": 3,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "A repeat chest X-ray or sputum would help confirm or exclude pneumonia",
+      "created_at": "2025-10-13 01:16:19.645014"
+    },
+    {
+      "id": 15,
+      "diagnosis_id": 3,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "pulmonary embolism and acute coronary syndrome.",
+      "created_at": "2025-10-13 01:16:19.645014"
+    },
+    {
+      "id": 16,
+      "diagnosis_id": 4,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "X-ray showing pulmonary vascular congestion along with an elevated BNP point to heart failure which fits age and comorbidities.",
+      "created_at": "2025-10-13 02:23:38.601371"
+    },
+    {
+      "id": 17,
+      "diagnosis_id": 4,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "Echocardiogram showing normal ejection fraction and no elevated filling pressures argues against systolic heart failure, though is normal and she could still have diastolic dysfunction given her age and hypertension.",
+      "created_at": "2025-10-13 02:23:38.601373"
+    },
+    {
+      "id": 18,
+      "diagnosis_id": 4,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "Interstitial lung disease from rheumatoid arthritis",
+      "created_at": "2025-10-13 02:23:38.601374"
+    },
+    {
+      "id": 19,
+      "diagnosis_id": 4,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "A chest CT or pulmonary function testing could help confirm or rule out an interstitial process.",
+      "created_at": "2025-10-13 02:23:38.601374"
+    },
+    {
+      "id": 20,
+      "diagnosis_id": 4,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "pulmonary embolism and acute coronary syndrome.\nBut the absence of chest pain, the chronic progression and the chest x ray pattern make these less likely",
+      "created_at": "2025-10-13 02:23:38.601375"
+    },
+    {
+      "id": 21,
+      "diagnosis_id": 5,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "Past Medical History of Morbid obesity, diabetes, hypertension - which represent cardiovascular risk factors.\nClinical manifestations: shortness of breath, cough.\nPhysical examination: crackles \nExams: elevated BNPs",
+      "created_at": "2025-10-13 14:29:39.910502"
+    },
+    {
+      "id": 22,
+      "diagnosis_id": 5,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "Absence of edema. \nHipoxemia.\nDoesn't explain the leukocytosis (but the trigger for the acute heart failure could be an infection).\nAbsence of pulmonary edema.",
+      "created_at": "2025-10-13 14:29:39.910504"
+    },
+    {
+      "id": 23,
+      "diagnosis_id": 5,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "Pulmonary infection\nLung cancer",
+      "created_at": "2025-10-13 14:29:39.910504"
+    },
+    {
+      "id": 24,
+      "diagnosis_id": 5,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "CT-scan",
+      "created_at": "2025-10-13 14:29:39.910505"
+    },
+    {
+      "id": 25,
+      "diagnosis_id": 5,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "Considering the given information, yes.",
+      "created_at": "2025-10-13 14:29:39.910505"
+    },
+    {
+      "id": 26,
+      "diagnosis_id": 6,
+      "question": "What is the single most compelling piece of evidence that supports your chosen diagnosis?",
+      "answer": "The chest ct  showing tiny pulmonary nodules in a diffuse reticular pattern, in combination with the patient’s recent infliximab therapy, is the most compelling evidence supporting miliary tuberculosis.\nThis imaging pattern is classic for disseminated hematogenous spread of Mycobacterium tuberculosis, and TNF alpha inhibitor therapy significantly increases the risk of reactivation of latent tubercolosis",
+      "created_at": "2025-10-13 23:08:40.244894"
+    },
+    {
+      "id": 27,
+      "diagnosis_id": 6,
+      "question": "What is one piece of evidence that might argue against your diagnosis?",
+      "answer": "An elevated BNP and crackles on auscultation could suggest heart failure but these findings are nonspecific and can occur in many conditions involving lung parenchymal disease or inflammation\nThe absence of peripheral edema and the normal cardiac exam make a cardiac origin of her dyspnea unlikely.",
+      "created_at": "2025-10-13 23:08:40.244901"
+    },
+    {
+      "id": 28,
+      "diagnosis_id": 6,
+      "question": "What else could this be? List at least two reasonable alternative diagnoses.",
+      "answer": "Acute heart failure exacerbation\nInterstitial lung disease (possibly secondary to rheumatoid arthritis or drug toxicity)",
+      "created_at": "2025-10-13 23:08:40.244905"
+    },
+    {
+      "id": 29,
+      "diagnosis_id": 6,
+      "question": "For one of your alternative diagnoses, what specific information would help rule it in or out?",
+      "answer": "The echocardiogram evaluating left ventricular systolic and diastolic function, as well as filling pressures, would decisively clarify whether cardiac dysfunction explains the symptoms.\nIn this case, the normal ejection fraction and absence of elevated filling pressures effectively rule out acute heart failure as the cause of dyspnea.\nAdditional the lack of leg edema, normal heart sounds, subacute course further confirm that cardiac failure is not the culprit.",
+      "created_at": "2025-10-13 23:08:40.244908"
+    },
+    {
+      "id": 30,
+      "diagnosis_id": 6,
+      "question": "Have you considered and ruled out any potential must-not-miss or life-threatening conditions?",
+      "answer": "I considered and systematically excluded acute heart failure, pulmonary embolism, and severe bacterial pneumonia.\nThe chronic and progressive nature of the patient’s symptoms, absence of pleuritic pain or focal infiltrates, and the imaging pattern all argue against these.",
+      "created_at": "2025-10-13 23:08:40.244911"
+    }
+  ],
+  "statistics": {
+    "total_diagnosis_submissions": 5,
+    "total_reflection_responses": 25,
+    "diagnoses_by_session": {
+      "SESS_M9T4EJ54Y": 1,
+      "SESS_V2T89X9QA": 1,
+      "SESS_EL089MTCB": 1,
+      "SESS_OGEK62C1X": 1,
+      "SESS_WJ7ZMB8IA": 1
+    },
+    "unique_sessions": 5,
+    "score_stats": {
+      "average": 60.6,
+      "min": 40,
+      "max": 76,
+      "count": 5
+    }
+  }
+}
