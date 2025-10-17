@@ -36,7 +36,7 @@ including language-model integration, database architecture, and deployment conf
 Section~\ref{sec:workflow} then illustrates a complete diagnostic workflow based on a
 real clinical case, demonstrating how these design principles translate into educational
 practice.
-Finally, Section~\ref{sec:summary_ch4} summarises the system’s key contributions
+Finally, Section~\ref{sec:summary} summarises the system’s key contributions
 and links to the empirical evaluation presented in Chapter~\ref{chap:results}.
 
 \section{System Design}
@@ -50,7 +50,7 @@ SmartDoc.
 The SmartDoc system was conceived from the principles of progressive disclosure
 and metacognitive scaffolding introduced in Chapter~\ref{chap:ch2}.
 It adopts a modular, rule-guided architecture aligned with large language model (LLM)
-capabilities.  
+capabilities.
 Unlike traditional virtual patients based on fixed branching scripts, SmartDoc
 supports free-form clinical inquiry while maintaining pedagogical control through
 intent-driven information revelation.
@@ -109,7 +109,7 @@ Learner utterances are mapped to a predefined taxonomy of 33 diagnostic intents
 \texttt{imaging\_chest\_xray}, \texttt{meds\_ra\_specific\_initial\_query}).
 Rather than using rigid templates or question trees, SmartDoc employs
 LLM-based natural language classification, allowing learners to phrase questions
-freely.  
+freely.
 The classifier is context-aware, filtering available intents based on the current
 phase (anamnesis, examination, or investigations) to enhance accuracy and reduce
 ambiguity.
@@ -121,10 +121,10 @@ explore hypotheses while the system traces their reasoning trajectory.
 \subsubsection{Discovery Processor}
 
 Clinical data are disclosed progressively in response to learner queries and
-their classified intents.  
+their classified intents.
 Information is organised into modular \textit{information blocks}, each
 representing a discrete clinical fact (e.g., a vital sign, medication, or test
-result).  
+result).
 Each block is annotated with metadata:
 
 \begin{itemize}
@@ -137,7 +137,7 @@ Each block is annotated with metadata:
 \end{itemize}
 
 This mechanism implements the principle of progressive disclosure, ensuring that
-data emerge only through active inquiry rather than passive presentation.  
+data emerge only through active inquiry rather than passive presentation.
 It reflects constructivist learning theory by promoting exploration and
 meaningful engagement with clinical information.
 
@@ -153,14 +153,14 @@ processing} → \textit{Bias analysis} → \textit{Response generation} →
 
 It maintains the simulation state, tracks revealed information, monitors
 hypothesis focus, and determines when educational interventions (e.g., hints,
-bias warnings, reflection prompts) should occur.  
+bias warnings, reflection prompts) should occur.
 By integrating reasoning traces with pedagogical scaffolds, the engine ensures
 each interaction is both technically coherent and educationally meaningful.
 
 \subsubsection{Bias Analyzer}
 
 Bias detection combines rule-based heuristics with LLM-supported reasoning
-analysis.  
+analysis.
 Grounded in the taxonomy from Section~\ref{sec:debiasing}, it monitors for:
 
 \begin{itemize}
@@ -234,7 +234,7 @@ All interactions are logged with precise timestamps, producing comprehensive
 \end{itemize}
 
 These records support both formative feedback (individual debriefs) and summative
-assessment (performance metrics).  
+assessment (performance metrics).
 They also enable empirical research on diagnostic behaviour, responding to calls
 in Chapter~\ref{chap:ch3} for more transparent evaluation of AI-mediated learning
 systems.
@@ -301,7 +301,7 @@ controlled simulation.
 \subsubsection{Information Blocks and Progressive Disclosure}
 
 Clinical information is stored as modular \textit{information blocks}, each annotated
-with metadata that governs its revelation.  
+with metadata that governs its revelation.
 Typical attributes include:
 
 \begin{itemize}
@@ -337,7 +337,7 @@ Typical attributes include:
 
 In this example, the infliximab information—crucial to recognising miliary
 tuberculosis—is revealed only when learners perform thorough medication reconciliation
-and specifically request prior hospital records.  
+and specifically request prior hospital records.
 This design counters \textit{premature closure} by rewarding persistence and systematic
 inquiry.
 
@@ -378,7 +378,7 @@ This approach reinforces targeted, hypothesis-driven inquiry.
 
 \paragraph{Group-based escalation.}
 Used when repeated questioning within a domain should progressively reveal more
-detail.  
+detail.
 For example:
 
 \begin{itemize}
@@ -405,7 +405,7 @@ mirroring the pedagogical goals introduced in Chapter~\ref{chap:ch2}.
 \subsubsection{Educational Scaffolding}
 
 Beyond information gating, SmartDoc implements adaptive hints when learners exhibit
-signs of stagnation.  
+signs of stagnation.
 This addresses a key limitation of discovery-based learning—frustration due to lack of
 progress—without compromising the challenge of inquiry.
 
@@ -723,7 +723,7 @@ Baseline (generic defs.)        & 57\% & 23\% & 78\% \\
 
 When confidence is low or multiple intents are equally plausible, the system
 requests clarification rather than forcing a fragile classification:
-\emph{``Did you mean X (history) or Y (medications)?''}  
+\emph{``Did you mean X (history) or Y (medications)?''}
 All decisions are logged with query text, phase, selected intent, confidence,
 justification, and timestamp, supporting quality assurance, iterative refinement,
 and research on learner questioning patterns.
@@ -1177,7 +1177,7 @@ Three specialised responder modules handle distinct interaction modes.
 \paragraph{AnamnesisSonResponder.}
 Simulates dialogue with the patient's son during history taking.
 It balances realism with pedagogy via:
-(i) uncertainty modelling (``I think...'',''I'm not sure...''), 
+(i) uncertainty modelling (``I think...'',''I'm not sure...''),
 (ii) simplified terminology,
 (iii) gentle educational hints when learners appear stuck, and
 (iv) varied phrasing to avoid robotic repetition.
@@ -1874,8 +1874,8 @@ When the student feels ready to conclude the case, clicking ``Submit Diagnosis''
   Forces explicit articulation of reasoning, preventing ``gut feeling'' diagnoses.
   \item \textbf{What evidence argues against your diagnosis?} \\
   Prompts consideration of contradictory data, engaging System~2 deliberation.
-  \item \textbf{What else could this be? List at least two reasonable alternative diagnoses. } \\ 
-  Assesses the breadth of differential diagnosis and systematic thinking. 
+  \item \textbf{What else could this be? List at least two reasonable alternative diagnoses. } \\
+  Assesses the breadth of differential diagnosis and systematic thinking.
   \item \textbf{For one of your alternative diagnoses, what specific information (test or question) would help rule it in or out?} \\
   Evaluates understanding of diagnostic test characteristics and clinical decision-making.
   \item \textbf{Have you considered and ruled out any potential 'must-not-miss' or life-threatening conditions?} \\
@@ -2038,3 +2038,63 @@ When enabled, the configuration is stored server-side via \texttt{/api/v1/config
 
 \medskip
 The user interface design reflects SmartDoc's core pedagogical philosophy: \textbf{make cognitive processes visible, support metacognitive reflection, and minimize extraneous cognitive load}. These principles translate technical capability into educational impact, bridging AI-powered backends with meaningful learning experiences.
+
+\section{Summary}
+\label{sec:summary}
+
+This chapter presented the complete development of \textbf{SmartDoc}, an AI-powered simulation platform designed to strengthen clinical reasoning and mitigate cognitive biases in diagnostic education. The work integrates principles from cognitive psychology, advances in large language models (LLMs), and evidence-based pedagogical strategies into a unified framework for medical training.
+
+\subsection{Key Contributions}
+
+\subsubsection*{Conceptual Innovations}
+SmartDoc introduces an \textbf{intent-driven, progressive-disclosure} mechanism, in which learner queries are semantically classified into 33 diagnostic intents. This approach departs from static, script-based cases, rewarding clinically precise questioning and reproducing the uncertainty inherent to authentic diagnostic practice.
+
+Cognitive bias detection was embedded directly into the case structure, allowing learners to experience and recognise \emph{anchoring}, \emph{confirmation}, and \emph{premature closure} biases in realistic contexts. The system’s \textbf{escalation-based scaffolding} (Levels 1 → 3) demonstrated how adaptive hints can guide learners toward critical insights—such as medication reconciliation—without undermining autonomy or realism in reasoning.
+
+\subsubsection*{Technical Achievements}
+From a technical standpoint, SmartDoc evolved from an early prototype with moderate classification accuracy to a robust, reproducible implementation. Key refinements included context-aware intent filtering, structured JSON parsing with automated validation, and calibrated temperature settings (0.3–0.5) to ensure deterministic behaviour where required.
+
+A \textbf{multi-responder architecture} enabled tailored conversational styles—patient, clinician, or examination contexts—achieving natural language interaction while preserving pedagogical control. Additionally, a dual-layer state management and logging system captured full reasoning traces, supporting both real-time feedback and longitudinal analysis of learner behaviour for research reproducibility.
+
+\subsection{Design Principles Validated}
+The \textit{miliary tuberculosis} case validated SmartDoc’s theoretical alignment with dual-process reasoning. Learners engaged in realistic history-taking, encountered genuine diagnostic traps (such as anchoring on preliminary chest X-ray findings), and demonstrated reflective reasoning when prompted to reconsider their hypotheses. The case thus confirmed that realism, bias awareness, and deliberate reflection can coexist within a single, coherent simulation environment.
+
+\subsection{Addressing Prior Gaps}
+This research directly addressed the limitations identified in Chapter~\ref{chap:ch3}:
+
+\begin{itemize}
+    \item \textbf{Evaluation rigour:} Diagnostic accuracy, bias awareness, and reflection quality were quantified through structured metrics and standardised evaluation.
+    \item \textbf{Cognitive bias integration:} The simulation actively modelled bias formation and mitigation, moving beyond factual recall to metacognitive training.
+    \item \textbf{Technical transparency:} The chapter provided complete algorithmic specifications, empirical data, and reproducible design documentation, enabling validation and extension by future researchers.
+\end{itemize}
+
+\subsection{Limitations and Future Directions}
+
+\paragraph{Single-Case Implementation.}
+The current prototype focuses on a single case (miliary tuberculosis), prioritising pedagogical depth over breadth. This approach yields detailed cognitive engagement but limits content variety. Future work will expand the system through template-based case authoring to enable scalable content creation by educators.
+
+\paragraph{Intent Classification Constraints.}
+The 33-intent taxonomy captures a wide range of diagnostic questioning but requires periodic refinement to account for evolving medical phrasing and student language patterns. Future iterations will incorporate adaptive learning from session logs to continuously update intent recognition.
+
+\paragraph{LLM Dependency.}
+SmartDoc currently relies on the local Gemma 3:4b model for all dynamic components, ensuring reproducibility and data privacy. However, performance remains bounded by the model’s language capabilities. The provider-abstraction layer allows future integration of higher-capacity models without architectural redesign.
+
+\paragraph{Bias Detection Specificity.}
+Bias detection focuses on three dominant types—anchoring, confirmation, and premature closure—through rule-based triggers. While these mechanisms are effective for major reasoning errors, subtler biases such as availability and representativeness remain difficult to detect. Future development will explore machine-learning-based classifiers trained on expert-labelled sessions to extend coverage.
+
+\subsection{Bridge to Chapter~5}
+This chapter outlined \emph{what SmartDoc does} (intent-driven, bias-aware simulation) and \emph{how it works} (LLM integration, progressive disclosure, multi-responder design). The following chapter transitions from development to empirical evaluation, examining how these design principles translate into measurable learning outcomes.
+
+Chapter~\ref{chap:results} presents the evaluation study conducted with medical interns, analysing:
+\begin{itemize}
+    \item \textbf{Diagnostic performance:} The proportion of learners achieving the correct diagnosis versus those anchored to misleading cues.
+    \item \textbf{Bias awareness:} The extent to which structured reflection improved recognition of cognitive biases.
+    \item \textbf{Information-gathering behaviour:} Whether intent-driven disclosure fostered systematic inquiry compared with traditional case formats.
+    \item \textbf{User experience:} Learner perceptions of usability, realism, and educational value.
+\end{itemize}
+
+Importantly, the study also investigates sessions where SmartDoc did not meet its educational objectives, providing insights into the boundaries of current AI-assisted simulation and directions for future innovation in medical education.
+
+\medskip
+\noindent
+\textbf{In summary,} Chapter~4 established SmartDoc’s theoretical rationale and technical realisation. The next chapter moves from system design to empirical validation, where the platform’s pedagogical and cognitive objectives are tested in authentic clinical reasoning scenarios.
