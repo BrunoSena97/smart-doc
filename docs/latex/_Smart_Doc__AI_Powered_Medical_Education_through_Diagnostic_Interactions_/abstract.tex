@@ -1,0 +1,82 @@
+%% abstract.tex: abstract in PT and EN  (FEUP regulations)
+%% -------------------------------------------------------
+\chapter*{Resumo}
+
+O erro de diagnóstico continua a ser uma das principais causas de danos evitáveis aos pacientes, frequentemente
+resultante de vieses cognitivos como ancoragem, confirmação e encerramento prematuro. As abordagens educacionais
+tradicionais enfrentam dificuldades para abordar estes padrões de raciocínio invisíveis, carecendo de ambientes
+seguros onde os clínicos possam praticar o reconhecimento e correção de erros diagnósticos sem risco para os
+pacientes. Esta dissertação apresenta o SmartDoc, uma plataforma de paciente virtual alimentada por IA,
+explicitamente concebida para ensinar raciocínio diagnóstico através da deteção e mitigação ativa de vieses
+cognitivos.
+
+A plataforma integra três componentes inovadores: (i)~diálogo não-roteirizado impulsionado por grandes modelos de
+linguagem (LLM) com revelação progressiva de informação através de classificação de intenções clínicas,
+(ii)~deteção em tempo real de marcadores comportamentais de viés através de análise híbrida baseada em regras e
+semântica, e (iii)~andaimes metacognitivos estruturados através de prompts de reflexão direcionados. O sistema
+implementa o caso de Mull et~al.\ de tuberculose miliar, onde uma mulher idosa de língua espanhola foi erroneamente
+diagnosticada com insuficiência cardíaca devido a múltiplos vieses cognitivos.
+
+Um estudo piloto com seis internos clínicos (idade mediana 27 anos) demonstrou que o SmartDoc reproduz com sucesso
+trajetórias de raciocínio propensas a vieses: 50\% (n=3) chegaram a diagnósticos incorretos, espelhando o erro
+clínico original através de ancoragem em achados de imagem sugestivos e reconciliação inadequada de medicamentos.
+Os participantes que alcançaram diagnósticos corretos demonstraram raciocínio explícito de contra-evidências e
+avaliação sistemática de hipóteses—precisamente as estratégias de desenviesamento que o sistema visa ensinar. A
+estrutura de avaliação automatizada gerou pontuações dimensionais (mediana de consciência de viés 71/100) e feedback
+narrativo abrangente, demonstrando viabilidade para implementação em larga escala.
+
+Os resultados da usabilidade foram aceitáveis (SUS mediana 66,5) apesar da latência técnica (~6~s por turno),
+com carga de trabalho moderada e engajamento metacognitivo bem-sucedido. A arquitetura modular do sistema—motor de
+intenções, gestor de revelação progressiva, avaliador automatizado—suporta extensão rápida a casos adicionais sem
+reengenharia, permitindo escalabilidade curricular. As limitações incluem tamanho de amostra pequeno (n=6), caso
+único, e ausência de validação por especialistas, justificando estudos multi-institucionais maiores.
+
+Esta investigação estabelece que as simulações impulsionadas por LLM podem tornar os processos cognitivos invisíveis
+visíveis e ensináveis, criando ambientes seguros onde os erros diagnósticos se tornam oportunidades de aprendizagem
+em vez de eventos de segurança do paciente. O SmartDoc demonstra viabilidade como complemento escalável à supervisão
+clínica, oferecendo uma ferramenta concreta para cultivar raciocínio diagnóstico reflexivo e resistente a erros. O
+trabalho futuro deve priorizar otimização de latência (<2~s por turno), validação por especialistas (confiabilidade
+inter-avaliador), bibliotecas de casos expandidas, e testes controlados medindo melhorias na precisão diagnóstica
+versus treino tradicional.
+
+\newpage
+
+\chapter*{Abstract}
+
+Diagnostic error remains a leading cause of preventable patient harm, frequently resulting from cognitive biases
+such as anchoring, confirmation bias, and premature closure. Traditional educational approaches struggle to address
+these invisible reasoning patterns, lacking safe environments where clinicians can practice recognizing and
+correcting diagnostic mistakes without patient risk. This dissertation presents SmartDoc, an AI-powered virtual
+patient platform explicitly designed to teach diagnostic reasoning through active detection and mitigation of
+cognitive biases.
+
+The platform integrates three innovative components: (i)~unscripted dialogue powered by large language models
+(LLMs) with progressive information disclosure through clinical intent classification, (ii)~real-time detection of
+behavioral bias markers through hybrid rule-based and semantic analysis, and (iii)~structured metacognitive
+scaffolding through targeted reflection prompts. The system implements the Mull et~al.\ case of miliary
+tuberculosis, where an elderly Spanish-speaking woman was misdiagnosed with heart failure due to multiple cognitive
+biases.
+
+A pilot study with six clinical interns (median age 27) demonstrated that SmartDoc successfully reproduces
+bias-prone reasoning trajectories: 50\% (n=3) reached incorrect diagnoses, mirroring the original clinical error
+through anchoring on suggestive imaging findings and inadequate medication reconciliation. Participants achieving
+correct diagnoses demonstrated explicit counter-evidence reasoning and systematic hypothesis evaluation—precisely
+the debiasing strategies the system aims to teach. The automated evaluation framework generated dimensional scores
+(median bias awareness 71/100) and comprehensive narrative feedback, demonstrating feasibility for large-scale
+deployment.
+
+Usability results were acceptable (SUS median 66.5) despite technical latency (~6~s per turn), with moderate
+workload and successful metacognitive engagement. The system's modular architecture—intent engine, progressive
+disclosure manager, automated evaluator—supports rapid extension to additional cases without re-engineering,
+enabling curricular scalability. Limitations include small sample size (n=6), single case, and absence of expert
+validation, warranting larger multi-institutional studies.
+
+This research establishes that LLM-driven simulations can render invisible cognitive processes visible and
+teachable, creating safe environments where diagnostic errors become learning opportunities rather than patient
+safety events. SmartDoc demonstrates feasibility as a scalable complement to clinical supervision, offering a
+concrete tool to cultivate reflective, error-resistant diagnostic reasoning. Future work should prioritize latency
+optimization (<2~s per turn), expert validation (inter-rater reliability), expanded case libraries, and controlled
+trials measuring diagnostic accuracy improvements versus traditional training.
+
+
+\newpage

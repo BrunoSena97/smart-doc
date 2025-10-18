@@ -1,0 +1,52 @@
+\chapter{Introduction}
+\label{chap:chap1}
+
+Diagnostic error remains a persistent threat to patient safety, with cognitive biases a major contributor to avoidable harm~\parencite{graber_diagnostic_2005}. These biases—systematic deviations from rational judgement—can derail even experienced clinicians, leading to premature closure, selective information use, or unwarranted confidence in a favoured hypothesis. As \textcite{croskerry_importance_2003} argues, traditional training often fails to help students recognise and mitigate these pitfalls under real-world pressure.
+
+Transitioning from student to clinician requires robust clinical reasoning that integrates knowledge, pattern recognition, and reflective awareness~\parencite{audetat_diagnosis_2017}. Conventional approaches emphasise outcomes but rarely make the \emph{process} of reasoning visible, let alone train learners to detect and counter bias in their own thinking. Addressing this gap demands pedagogy that elicits reasoning patterns, exposes bias, and scaffolds reflection—reliably and at scale.
+
+This dissertation introduces \textbf{SmartDoc}, an AI-powered virtual patient platform that meets this need. Leveraging large language models (LLMs), SmartDoc provides naturalistic clinical interviews and embeds mechanisms to detect cognitive biases in real time. Beyond replicating encounters, it delivers structured metacognitive feedback that prompts deliberate reflection. In short, SmartDoc moves from teaching \emph{what} to diagnose toward teaching \emph{how} to think—addressing root causes of diagnostic error in a controlled, scalable environment~\parencite{mamede_structure_2004,berge_cognitive_2013}.
+
+\section{Motivation}
+\label{sec:se1}
+
+Two forces motivate this work. First, an educational gap: reasoning errors, not knowledge deficits, account for a substantial share of diagnostic mistakes, yet explicit support for bias awareness is rare~\parencite{berge_cognitive_2013}. Second, a technological opportunity: modern LLMs and principles from Intelligent Tutoring Systems enable simulations that combine realism with adaptive, reflective support. SmartDoc sits at this intersection: it elicits naturalistic reasoning, surfaces bias-prone moments, and scaffolds reflective practice.
+
+\section{Research Questions}
+\label{sec:rq}
+
+\begin{quote}
+\textit{How can AI-powered virtual patients be designed to help medical students recognise and mitigate cognitive biases in diagnostic reasoning?}
+\end{quote}
+
+From this, three questions follow:
+
+\begin{itemize}
+  \item \textbf{RQ1:} To what extent can an LLM-powered simulation elicit and detect cognitive biases during diagnostic interviews?
+  \item \textbf{RQ2:} How effective are metacognitive prompts—delivered in real time or post hoc—in fostering reflection and reducing diagnostic bias?
+  \item \textbf{RQ3:} Which technical and pedagogical principles enable scalable deployment of bias-aware virtual patient simulations?
+\end{itemize}
+
+\section{Objectives}
+\label{sec:ae2}
+
+\begin{itemize}
+  \item \textbf{Simulation:} Design and implement an AI-powered virtual patient capable of realistic, unscripted interviews based on bias-eliciting cases.
+  \item \textbf{Bias detection:} Identify behavioural markers of anchoring, confirmation bias, and premature closure using rule-based and LLM-assisted methods.
+  \item \textbf{Metacognitive tutoring:} Deliver context-aware prompts that stimulate reflection and encourage reconsideration of reasoning paths when bias is detected.
+  \item \textbf{Evaluation framework:} Develop analytics for diagnostic accuracy, information gathering, and manifestations of cognitive bias to support formative and summative feedback.
+  \item \textbf{Effectiveness study:} Conduct a pilot with clinical interns to assess usability, educational effectiveness, and impact on bias awareness.
+\end{itemize}
+
+\section{Dissertation Structure}
+\label{sec:structure}
+
+\begin{itemize}
+  \item \textbf{Chapter~\ref{chap:ch2}} presents the theoretical background: clinical reasoning, dual-process theory, cognitive bias taxonomy, debiasing strategies, and simulation principles that inform SmartDoc.
+  \item \textbf{Chapter~\ref{chap:ch3}} reviews AI-powered virtual patients, mapping feasibility, effectiveness, and design gaps that SmartDoc addresses.
+  \item \textbf{Chapter~\ref{chap:ch4}} details SmartDoc’s development, linking the two previous chapters—theory and evidence, to architecture, case design, and bias detection.
+  \item \textbf{Chapter~\ref{chap:chap5}} evaluates SmartDoc with clinical interns, reporting methods, results, and reflections on usability, realism, and educational impact.
+  \item \textbf{Chapter~\ref{chap:ch6}} discusses implications, limitations, and directions for future research and curriculum integration.
+\end{itemize}
+
+With the problem, questions, and objectives established, the next step is to ground the study in theory. Chapter~\ref{chap:ch2} introduces the cognitive foundations of clinical reasoning, the taxonomy of diagnostic bias, and debiasing strategies, then motivates AI-powered virtual patients as a pedagogical vehicle for SmartDoc’s design.

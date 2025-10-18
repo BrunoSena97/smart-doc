@@ -1,0 +1,375 @@
+
+% ============================================================
+\chapter{Discussion and Conclusion}
+\label{chap:ch6}
+
+\section{Overview}
+This chapter interprets the findings from Chapter~\ref{chap:chap5} in the context of the
+literature on cognitive bias and diagnostic error. We discuss how SmartDoc reproduced the
+reasoning trajectory in Mull et~al.'s case~\parencite{mull_cognitive_2015}, how learners
+responded to bias-prone situations, and the implications for simulation design.
+
+\section{Interpreting the Findings}
+
+\subsection{Bias Patterns Reproduced by SmartDoc}
+SmartDoc mirrored the cognitive trajectory in Mull’s case of an elderly Spanish-speaking
+woman misdiagnosed with heart failure~\parencite{mull_cognitive_2015}.
+In our sessions, premature fixation on a cardiac explanation followed a suggestive CXR and
+BNP, while contradictory evidence (normal echocardiogram) and incomplete medication
+reconciliation were under-weighted in missed diagnoses. In contrast, correct cases cited
+the miliary CT pattern and infliximab therapy as decisive. This behavioural similarity
+suggests SmartDoc recreated the bias-prone environment of the original case within a safe,
+debriefable setting.
+
+\subsection{Reflection and Metacognitive Engagement}
+Structured reflection prompted deliberate (System~2) reasoning. High performers explicitly
+integrated counter-evidence; lower performers acknowledged bias conceptually but struggled
+to operationalise it in their diagnostic path. This aligns with prior work showing that
+recognising a bias does not automatically correct it without guided practice and feedback.
+
+\subsection{Usability, Workload, and Cognitive Load}
+Usability was acceptable (median SUS \(\approx 67\)) and workload moderate. Temporal demand
+and frustration reflected the \(\sim 6\)~s response latency. Although technical rather than
+organisational, such constraints approximate real-world cognitive stressors (time pressure,
+information gaps), reinforcing the authenticity of the training context.
+
+\section{Comparison with the Case Inspiration}
+
+\subsection{Cognitive Bias Typology}
+Mull et~al.\ described multiple biases relevant to the index case, including framing,
+anchoring, diagnostic momentum, availability, confirmation, and overconfidence.
+SmartDoc reproduced at least four within learner interactions: anchoring, confirmation,
+availability, and premature closure. This enabled bias to be observed, measured, and
+debriefed rather than merely described.
+
+\subsection{Systemic Versus Cognitive Contributions}
+While Mull’s analysis highlighted systemic factors (language barriers, incomplete records),
+SmartDoc isolates cognition by controlling information symmetry and timing. The design
+makes heuristics visible without confounding institutional noise, clarifying where
+metacognitive support can help.
+
+\section{Educational Implications}
+Embedding cognitive bias into an interactive interview transforms a sentinel event into a
+learning scaffold. SmartDoc's post-diagnosis reflection functions as a "diagnostic
+time-out"~\parencite{mull_cognitive_2015}, prompting learners to articulate support,
+counter-evidence, and alternatives before closure.
+
+\section{Addressing the Research Questions}
+\label{sec:rq-addressed}
+
+This pilot study set out to answer three core research questions (RQ1--RQ3), as
+established in Chapter~\ref{chap:chap1}.
+
+\subsection{RQ1: Eliciting and Detecting Cognitive Biases}
+
+\textit{To what extent can an LLM-powered simulation realistically elicit and detect
+cognitive biases in diagnostic interviews?}
+
+\noindent
+\textbf{Answer:} SmartDoc successfully reproduced bias-prone trajectories in 50\% of
+sessions (3/6 missed diagnoses). Anchoring on preliminary imaging and elevated BNP was
+identified through rule-based checks (e.g., inadequate medication reconciliation) and
+LLM-supported reflection scoring. The system detected premature closure and confirmation
+bias through session analytics and reflection content. However, bias detection relied
+primarily on automated rubrics without expert validation, limiting the strength of these
+claims.
+
+\noindent
+\textbf{Evidence:} Three sessions demonstrated anchoring on cardiac hypotheses; automated
+scoring flagged insufficient evidence integration (Dx Accuracy scores 30--45 for incorrect
+cases). Reflection analysis showed learners acknowledged bias conceptually but struggled to
+operationalise counter-strategies.
+
+\subsection{RQ2: Effectiveness of Metacognitive Prompts}
+
+\textit{How effective are metacognitive prompts—delivered in real time or post-hoc—in
+fostering reflection and reducing diagnostic bias?}
+
+\noindent
+\textbf{Answer:} Post-hoc structured reflection prompts successfully elicited metacognitive
+engagement. Learners in correct-diagnosis sessions (S1, S2, S6) demonstrated explicit
+counter-evidence reasoning and systematic hypothesis evaluation. However, live bias prompts
+were disabled in this pilot, preventing direct comparison of real-time versus retrospective
+interventions.
+
+\noindent
+\textbf{Evidence:} Reflection analysis showed that high performers explicitly integrated
+contradictory evidence (e.g., normal echocardiogram against heart failure). Bias awareness
+scores (median 71/100) suggest moderate metacognitive engagement, though the educational
+impact of prompts requires longitudinal follow-up to assess behaviour change in subsequent
+cases.
+
+\subsection{RQ3: Design Principles for Scalable Deployment}
+
+\textit{What technical and pedagogical design principles enable the scalable deployment of
+bias-aware virtual patient simulations?}
+
+\noindent
+\textbf{Answer:} SmartDoc's hybrid architecture—progressive disclosure via intent
+classification, LLM-powered dialogue, and automated evaluation rubrics—proved feasible for
+clinical intern use. Usability was acceptable (SUS median 66.5), though technical latency
+(~6s per turn) and temporal demand scores indicate areas for optimization. The system's
+modular design (intent engine, disclosure manager, evaluator) supports extension to
+additional cases and bias archetypes.
+
+\noindent
+\textbf{Evidence:} All six participants completed the full interaction independently with no
+technical failures. The case-agnostic architecture and JSON-based case definitions enable
+rapid case authoring. However, scale-up will require latency reduction, multi-institutional
+testing, and expert calibration of evaluation rubrics.
+
+\noindent
+\textbf{Summary:} Research questions RQ1 and RQ3 are affirmatively answered with caveats
+regarding validation scale. RQ2 is partially answered—post-hoc prompts show promise, but
+real-time prompt effectiveness remains untested.
+
+\section{Achievement of Research Objectives}
+\label{sec:objectives-achieved}
+
+Table~\ref{tab:objectives-achievement} summarises how the five research objectives
+established in Chapter~\ref{chap:chap1} were addressed throughout this dissertation.
+
+\begin{table}[h]
+\centering
+\caption{Achievement of Research Objectives}
+\label{tab:objectives-achievement}
+\small
+\begin{tabular}{p{0.35\textwidth} p{0.55\textwidth}}
+\toprule
+\textbf{Objective} & \textbf{How Addressed} \\
+\midrule
+
+\textbf{Simulation:} Design and implement an AI-powered VP capable of realistic, unscripted interviews based on bias-eliciting cases. &
+Developed SmartDoc platform with LLM-powered dialogue, intent-driven progressive disclosure, and the Mull et~al. miliary TB case. Achieved naturalistic interaction with 100\% intent classification accuracy in pilot testing. \\
+\midrule
+
+\textbf{Bias detection:} Identify behavioural markers of anchoring, confirmation bias, and premature closure using rule-based and LLM-assisted methods. &
+Implemented hybrid detection combining rule-based checks (medication reconciliation, information completeness) with LLM-powered reflection analysis. Successfully identified bias patterns in 50\% of pilot sessions (3/6 incorrect diagnoses). \\
+\midrule
+
+\textbf{Metacognitive tutoring:} Deliver context-aware prompts that stimulate reflection and encourage reconsideration of reasoning paths when bias is detected. &
+Designed and deployed five structured reflection prompts requiring explicit articulation of supporting/counter-evidence and alternative diagnoses. Post-hoc prompts demonstrated effectiveness; real-time prompts remain to be evaluated. \\
+\midrule
+
+\textbf{Evaluation framework:} Develop analytics for diagnostic accuracy, information gathering, and manifestations of cognitive bias to support formative and summative feedback. &
+Created automated LLM-based evaluation framework across three dimensions (information gathering, diagnostic accuracy, cognitive bias awareness) with JSON-validated scoring rubrics and comprehensive narrative feedback. \\
+\midrule
+
+\textbf{Effectiveness study:} Conduct a pilot with clinical interns to assess usability, educational effectiveness, and impact on bias awareness. &
+Completed pilot study with 6 clinical interns achieving acceptable usability, moderate cognitive load, and evidence of bias reproduction and detection. Results inform future scale-up and validation studies.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+All five objectives were successfully addressed, with the simulation, bias detection, and
+evaluation framework objectives fully achieved in the current implementation. The
+metacognitive tutoring objective was partially achieved (post-hoc prompts validated;
+real-time prompts awaiting future work), and the effectiveness study objective completed as
+planned for this pilot phase, with larger validation studies recommended as next steps.
+
+\section{Positioning SmartDoc in the Simulation Landscape}
+\label{sec:comparison}
+
+To contextualise SmartDoc's contribution, it is instructive to contrast its design with the
+AI-powered virtual patient systems reviewed in Chapter~\ref{chap:ch3}. That scoping review
+identified several platforms demonstrating feasibility and effectiveness for foundational
+skill development, particularly in history-taking and clinical communication. Systems such
+as Hepius~\parencite{furlan_natural_2021} leverage natural language processing and
+intelligent tutoring system architectures to provide structured feedback, while others like
+ViPATalk~\parencite{lippitsch_development_2024} have shown equivalence to traditional
+role-play for history-taking completeness. More recently, platforms have begun integrating
+large language models for more naturalistic dialogue, as demonstrated by
+Holderried~et~al.~\parencite{holderried_generative_2024,holderried_language_2024} and
+Brügge~et~al.~\parencite{brugge_large_2024}, who showed that LLM-generated feedback can
+significantly improve clinical decision-making scores.
+
+However, a key gap identified in Chapter~\ref{chap:ch3} was the absence of systems
+explicitly designed to surface and address \emph{cognitive biases} during diagnostic
+reasoning. While some platforms employ progressive disclosure or provide feedback on
+decision-making, none systematically detect bias-prone behaviours (such as anchoring,
+premature closure, or confirmation bias) or scaffold metacognitive reflection specifically
+targeting these errors. SmartDoc addresses this gap by uniquely combining three elements:
+(i)~LLM-powered open-ended dialogue that allows natural information-seeking behaviour to
+emerge, (ii)~real-time detection of bias markers through rule-based and semantic analysis of
+interaction patterns, and (iii)~structured metacognitive prompts that require learners to
+explicitly articulate supporting evidence, counter-evidence, and alternative hypotheses.
+This integration of bias-aware design with conversational realism distinguishes SmartDoc
+from existing educational simulations, which typically prioritise either naturalistic
+interaction \emph{or} pedagogical structure, but rarely both in service of debiasing
+training. Furthermore, SmartDoc's case-agnostic architecture—where bias triggers and
+disclosure logic are defined declaratively rather than hard-coded—enables rapid authoring of
+additional scenarios without re-engineering the underlying system, supporting scalability
+and curriculum integration.
+
+\section{Implications for Medical Education}
+Three design implications follow:
+\begin{enumerate}
+  \item \textbf{Progressive disclosure as a bias trigger:} staged revelation recreates
+  evolving uncertainty, making errors observable (and therefore teachable).
+  \item \textbf{Structured reflection as a corrective:} prompts that require explicit
+  counter-evidence help learners “slow down” and engage analytic reasoning.
+  \item \textbf{AI-mediated feedback as scalable mentorship:} automated, standardised
+  feedback can extend access to diagnostic-reasoning training, and can be calibrated with
+  expert review.
+\end{enumerate}
+
+\section{Limitations}
+This pilot analysed six sessions with a single case and a demographically homogeneous
+sample (all female, age 27). Scoring was fully automated without expert adjudication.
+Latency influenced perceived temporal workload. Bias prompts were disabled during the
+interview; effects on in-the-moment reasoning are therefore not measured.
+
+\section{Future Work}
+
+Building upon the pilot findings, future development should address identified limitations
+and extend SmartDoc's educational and technical capabilities. The following priorities are
+organised to balance immediate improvements with longer-term research goals.
+
+\subsection{Immediate Technical Enhancements}
+
+\paragraph{Response Latency Optimization.}
+Reducing median turn time from 6 seconds to under 2 seconds is critical for improving
+temporal workload scores and learner engagement. Strategies include model caching,
+asynchronous intent classification, and optimised prompt engineering.
+
+\paragraph{Expert Validation Framework.}
+Establishing inter-rater reliability between automated bias detection and expert clinician
+assessment is essential for validation. A protocol involving faculty review of session
+transcripts, with Cohen's kappa calculated for bias identification and diagnostic accuracy
+scoring, should be implemented.
+
+\paragraph{Expanded Case Library.}
+Developing additional bias-engineered cases (e.g., pulmonary embolism, acute MI,
+pneumonia) will enable assessment of system generalizability and prevent case-specific
+overfitting. Case templates should codify bias triggers and expected reasoning pathways.
+
+\subsection{Pedagogical Feature Expansion}
+
+\paragraph{Real-Time Bias Prompts.}
+Activating live metacognitive prompts during interviews (e.g., "Have you considered
+alternative explanations?") when bias markers are detected will enable comparative
+evaluation of in-situ versus post-hoc reflection. A/B testing should measure impact on
+diagnostic accuracy and reasoning depth.
+
+\paragraph{Comparative Analytics Dashboard.}
+Building educator-facing tools to visualise cohort-level performance, bias frequency, and
+longitudinal skill progression will support formative assessment and curriculum refinement.
+Anonymised benchmarking across sessions can identify common reasoning pitfalls.
+
+\paragraph{Longitudinal Skill Tracking.}
+Implementing learner accounts with session history will allow measurement of bias
+mitigation over repeated cases, addressing whether SmartDoc training transfers to improved
+reasoning patterns in subsequent encounters.
+
+\subsection{Research Validation Studies}
+
+\paragraph{Multi-Institutional Trials.}
+Scaling evaluation to multiple institutions (target: n > 50 participants) will assess
+generalizability across training contexts, demographics, and curriculum models. Controlled
+trials comparing SmartDoc-trained versus standard-trained learners on diagnostic accuracy
+in standardised patient assessments can quantify educational impact.
+
+\paragraph{Long-Term Competency Assessment.}
+Following learners into clinical practice to measure diagnostic error rates, case closure
+times, and patient outcomes would provide the strongest evidence for SmartDoc's
+effectiveness in reducing real-world bias-related errors.
+
+\paragraph{Hybrid Evaluation Approaches.}
+Combining quantitative metrics (accuracy, bias scores) with qualitative methods (think-aloud
+protocols, focus groups) will yield richer understanding of how learners internalise and
+apply metacognitive strategies learned through simulation.
+
+\subsection{Technical Architecture Evolution}
+
+\paragraph{Modular Bias Detection Pipelines.}
+Separating rule-based heuristics (e.g., information-gathering completeness) from
+LLM-powered semantic analysis (e.g., reflection coherence) will enable independent tuning
+and transparent algorithmic auditing. Explainability mechanisms should clarify why specific
+bias flags were triggered.
+
+\paragraph{Integration with Learning Management Systems.}
+Developing Learning Tools Interoperability (LTI) connectors and SCORM-compliant exports
+will facilitate embedding SmartDoc into institutional curricula, with grade passback and
+competency tracking aligned to ACGME milestones.
+
+\paragraph{Multimodal Interaction Support.}
+Incorporating voice input and synthesis would better approximate authentic clinical
+encounters and reduce cognitive load from typing, though this introduces additional latency
+and accuracy challenges.
+
+\noindent
+These priorities collectively aim to transform SmartDoc from a pilot system into a validated
+educational tool, ready for curriculum integration and rigorous effectiveness research.
+
+\section{Conclusion}
+
+This dissertation introduced SmartDoc, an AI-powered virtual patient platform that operationalizes
+cognitive bias training within realistic clinical simulations. By successfully reproducing the
+diagnostic error pathway from Mull et~al.'s sentinel case, this work demonstrates that LLM-driven
+systems can transform real-world diagnostic failures into safe, structured learning opportunities.
+
+\subsection{Principal Contributions}
+
+This research advances medical education technology in three key ways. \textbf{First}, it
+demonstrates that cognitive biases—traditionally invisible aspects of clinical reasoning—can be
+deliberately elicited, detected, and measured within AI-powered simulations. The 50\% diagnostic
+error rate, mirroring the original clinical case, validates the platform's capacity to recreate
+authentic bias-prone reasoning trajectories.
+
+\textbf{Second}, SmartDoc establishes a hybrid architectural pattern combining rule-based
+progressive disclosure with LLM flexibility, offering a template for educational AI systems requiring
+both pedagogical structure and conversational naturalism. This architecture proves that LLMs can
+serve specialized roles—as evaluators, bias detectors, and metacognitive tutors—when appropriately
+constrained by domain-specific frameworks.
+
+\textbf{Third}, the automated evaluation framework provides a scalable alternative to
+labor-intensive expert assessment, generating dimensional feedback across information gathering,
+diagnostic accuracy, and cognitive bias awareness. While requiring validation against expert
+judgment, this approach demonstrates feasibility for large-scale deployment in resource-constrained
+educational settings.
+
+\subsection{Implications for Clinical Education}
+
+The findings validate three core design principles for bias-aware medical simulation:
+(i)~progressive disclosure recreates evolving diagnostic uncertainty, making heuristic reasoning
+patterns observable; (ii)~structured metacognitive reflection transforms implicit biases into
+explicit reasoning artifacts amenable to analysis and correction; and (iii)~AI-mediated feedback
+can provide immediate, standardized guidance at scale, extending access beyond traditional
+apprenticeship models.
+
+Beyond medical education, this work has broader implications for any high-stakes decision-making
+domain where cognitive biases influence outcomes—from aviation incident investigation to financial
+risk assessment to legal case analysis. The principles of bias-aware simulation and metacognitive
+scaffolding are transferable wherever expert judgment under uncertainty determines critical outcomes.
+
+\subsection{Path Forward}
+
+The pilot results establish proof-of-concept but demand systematic validation. Immediate priorities
+include technical optimization (latency reduction to <2~s per turn), expert calibration of automated
+assessments (inter-rater reliability studies), and expanded case libraries enabling transfer-of-learning
+measurement. Medium-term goals encompass real-time bias prompt activation with A/B testing,
+longitudinal skill tracking across multiple cases, and educator-facing analytics for cohort-level
+performance monitoring.
+
+Longer-term research must pursue multi-institutional trials (n>50 participants), controlled
+comparisons quantifying diagnostic accuracy improvements versus traditional training, and ultimately,
+longitudinal competency assessment following learners into clinical practice to measure real-world
+impact on error reduction. Only through such rigorous validation can SmartDoc transition from
+promising prototype to evidence-based educational intervention.
+
+\subsection{Closing Perspective}
+
+SmartDoc demonstrates that technology can render invisible cognitive processes visible and teachable,
+creating safe environments where diagnostic errors become learning opportunities rather than patient
+safety events. The convergence of cognitive science, clinical expertise, and artificial intelligence
+opens pathways to scalable bias-awareness training that traditional apprenticeship models cannot
+achieve alone.
+
+While technical and pedagogical refinements remain essential, this dissertation establishes both
+the feasibility and educational value of embedding cognitive bias training within realistic clinical
+simulations. The findings affirm AI-powered virtual patients as scalable complements to clinical
+supervision, offering concrete tools to cultivate reflective, error-resistant diagnostic reasoning.
+The path from pilot system to validated intervention is clear, and the potential impact on
+diagnostic competency is substantial—transforming how we prepare clinicians to recognize and
+correct the reasoning flaws that lead to preventable medical errors.

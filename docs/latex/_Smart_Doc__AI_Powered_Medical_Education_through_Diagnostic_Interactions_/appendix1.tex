@@ -1,0 +1,264 @@
+% =========================
+% APPENDICES (Instruments)
+% =========================
+
+\appendix
+
+\chapter*{Appendix A — System Usability Scale (SUS)}
+\addcontentsline{toc}{chapter}{Appendix A — System Usability Scale (SUS)}
+\label{app:sus}
+
+\noindent
+\textbf{Instructions:}  
+For each statement, rate from 1 (\emph{Strongly Disagree}) to 5 (\emph{Strongly Agree}).
+Items alternate in polarity.
+
+\begin{enumerate}
+  \item I think that I would like to use this system frequently.
+  \item I found the system unnecessarily complex.
+  \item I thought the system was easy to use.
+  \item I think that I would need the support of a technical person to use this system.
+  \item I found the various functions in this system were well integrated.
+  \item I thought there was too much inconsistency in this system.
+  \item I would imagine that most people would learn to use this system very quickly.
+  \item I found the system very cumbersome to use.
+  \item I felt very confident using the system.
+  \item I needed to learn a lot of things before I could get going with this system.
+\end{enumerate}
+
+\noindent
+\textbf{Scoring:}  
+For odd items, subtract 1 from the user response; for even items, subtract the response
+from 5.  
+Sum the adjusted values and multiply by 2.5 (range 0–100).
+
+\chapter*{Appendix B — NASA-TLX (Adapted)}
+\addcontentsline{toc}{chapter}{Appendix B — NASA-TLX (Adapted)}
+\label{app:nasa}
+
+\noindent
+\textbf{Instructions:}  
+Please rate each dimension from 0 (\emph{Very Low}) to 100 (\emph{Very High})
+for the recent SmartDoc session.
+
+\begin{itemize}
+  \item \textbf{Mental Demand:} How mentally demanding was the task?
+  \item \textbf{Temporal Demand:} How hurried or time-pressured was the task?
+  \item \textbf{Effort:} How hard did you have to work to achieve your performance?
+  \item \textbf{Frustration:} How insecure, discouraged, irritated, or stressed were you?
+  \item \textbf{Performance:} How successful were you in accomplishing what you set out to
+  do? (Inverted so that higher indicates worse perceived performance for workload scoring.)
+\end{itemize}
+
+\noindent
+\textbf{Note:}  
+In this study, unweighted subscales (0–100) are reported with median and IQR summaries.
+
+% =========================
+% APPENDIX C — REPRESENTATIVE SESSION (S6)
+% =========================
+
+\chapter*{Appendix C — Representative Session (S6)}
+\addcontentsline{toc}{chapter}{Appendix C — Representative Session (S6)}
+\label{app:session_s6}
+
+\noindent
+This appendix presents a representative SmartDoc session (S6) from the Mull case. It includes: a compact dialogue transcript with intent tags and brief justifications; the submitted diagnosis; the learner's reflective responses; and the automated LLM evaluation summary.
+
+\section*{C.1 \quad Dialogue Transcript (complete with intents)}
+\label{app:session_s6:transcript}
+
+\noindent
+For each turn: \emph{Intent} refers to the SmartDoc taxonomy (in \texttt{type\_subtype} form); \emph{Confidence} shows the LLM's classification confidence; \emph{Justification} explains the intent mapping.
+
+\begin{enumerate}
+  \item \textbf{Doctor:} ``First, what is her past medical history?'' \\
+  \emph{Intent:} \texttt{pmh\_general} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is asking about the patient's past medical history, which falls under the definition of `pmh\_general' --- questions about diseases, conditions, and diagnoses, and does not include medications.''
+
+  \item \textbf{Patient:} ``Uh, she has a history of morbid obesity, diabetes, hypertension, and rheumatoid arthritis.''
+
+  \item \textbf{Doctor:} ``And what brings you here today?'' \\
+  \emph{Intent:} \texttt{hpi\_chief\_complaint} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is asking what brings the patient to the clinic, which directly addresses the chief complaint (hpi\_chief\_complaint) within the anamnesis phase.''
+
+  \item \textbf{Patient:} ``Uh, she's been having trouble breathing, especially when she's trying to do things. And she has a cough, but it's not bringing up anything.''
+
+  \item \textbf{Doctor:} ``For how long is she having trouble breathing?'' \\
+  \emph{Intent:} \texttt{hpi\_onset\_duration\_primary} (confidence: 0.95). \\
+  \emph{Justification:} ``The question asks about the duration of trouble breathing, directly addressing the onset and duration of symptoms, a key component of the history taking process.''
+
+  \item \textbf{Patient:} ``Uh, it's been gradually worsening for about two months, you know? It hasn't gotten suddenly worse, just slowly.''
+
+  \item \textbf{Doctor:} ``Any regular medication?'' \\
+  \emph{Intent:} \texttt{meds\_current\_known} (confidence: 0.95). \\
+  \emph{Justification:} ``The question is asking about current medications, explicitly using the word `medication'. This falls directly into the definition of `meds\_current\_known'.''
+
+  \item \textbf{Patient:} ``Uh, she's currently taking lisinopril, atenolol, glipizide, and metformin, I think. I'm not sure about anything else she might be on.''
+
+  \item \textbf{Doctor:} ``And is she taking anything for her rheumatoid arthritis?'' \\
+  \emph{Intent:} \texttt{meds\_ra\_specific\_initial\_query} (confidence: 0.98). \\
+  \emph{Justification:} ``The question explicitly asks about medications for rheumatoid arthritis, indicating a focus on medication history related to this specific condition.''
+
+  \item \textbf{Patient:} ``Uh, I'm not sure I have information about that specifically. I don't have records of what she's taking for her rheumatoid arthritis, I'm sorry.''
+
+  \item \textbf{Doctor:} ``Does she have fevers?'' \\
+  \emph{Intent:} \texttt{hpi\_fever} (confidence: 0.95). \\
+  \emph{Justification:} ``The question directly asks about fever, which falls under the category of inquiring about symptoms related to the patient's current complaint during the history taking phase.''
+
+  \item \textbf{Patient:} ``Uh, yes, she says she doesn't have fevers, Doctor.''
+
+  \item \textbf{Doctor:} ``What about night chills?'' \\
+  \emph{Intent:} \texttt{hpi\_chills} (confidence: 0.95). \\
+  \emph{Justification:} ``The question `What about night chills?' directly relates to a symptom (chills) and its temporal relationship (night), fitting the HPI intent for investigating the onset and characteristics of a presenting complaint.''
+
+  \item \textbf{Patient:} ``Uh, she says she doesn't have night chills, Doctor. She denies them.''
+
+  \item \textbf{Doctor:} ``Any pain? On the chest?'' \\
+  \emph{Intent:} \texttt{hpi\_chest\_pain} (confidence: 0.95). \\
+  \emph{Justification:} ``The patient is asking about pain on the chest, specifically chest pain, which falls under the category of questions regarding chest pain during the history taking phase.''
+
+  \item \textbf{Patient:} ``Uh, she says no, she doesn't have chest pain, doctor.''
+
+  \item \textbf{Doctor:} ``Vital signs.'' \\
+  \emph{Intent:} \texttt{exam\_vital} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is explicitly requesting vital signs, which falls directly under the `exam\_vital' intent.''
+
+  \item \textbf{Patient:} ``Vital signs: Temperature 99.9°F (37.7°C), HR 105, BP 140/70, RR 24, O$_2$ sat 89\% on room air.''
+
+  \item \textbf{Doctor:} ``Cardiac sound.'' \\
+  \emph{Intent:} \texttt{exam\_cardiovascular} (confidence: 0.98). \\
+  \emph{Justification:} ``The doctor is requesting an examination of the heart, specifically referring to `cardiac sound,' which directly relates to a cardiovascular examination.''
+
+  \item \textbf{Patient:} ``Heart sounds are normal and there is no lower-extremity edema.''
+
+  \item \textbf{Doctor:} ``Lung sounds.'' \\
+  \emph{Intent:} \texttt{exam\_respiratory} (confidence: 0.98). \\
+  \emph{Justification:} ``The doctor is requesting an examination of the lungs, which directly relates to a respiratory exam.''
+
+  \item \textbf{Patient:} ``Pulmonary examination demonstrates crackles in all lung fields.''
+
+  \item \textbf{Doctor:} ``Is there any chest X-ray?'' \\
+  \emph{Intent:} \texttt{imaging\_chest\_xray} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is asking about a chest X-ray, which falls under the category of imaging studies.''
+
+  \item \textbf{Patient:} ``Yes, a preliminary chest radiograph was obtained. The interpretation is consistent with pulmonary vascular congestion.''
+
+  \item \textbf{Doctor:} ``Are you sure that your mother is not on any biologics or immunosuppressive medications?'' \\
+  \emph{Intent:} \texttt{meds\_ra\_specific\_initial\_query} (confidence: 0.95). \\
+  \emph{Justification:} ``The question specifically asks about biologics or immunosuppressive medications, which falls under the category of RA medications and seeks initial clarification regarding current medication use for rheumatoid arthritis.''
+
+  \item \textbf{Patient:} ``Like I said, I'm not sure about her rheumatoid arthritis medications. Maybe you could check her previous hospital records? I know she's had some treatments at other facilities.''
+
+  \item \textbf{Doctor:} ``Can you get her complete medication list from previous hospitalizations?'' \\
+  \emph{Intent:} \texttt{meds\_full\_reconciliation\_query} (confidence: 0.98). \\
+  \emph{Justification:} ``The doctor is explicitly requesting a `complete medication list from previous hospitalizations,' which directly relates to medication reconciliation and retrieving information from medical records --- a core component of the anamnesis phase.''
+
+  \item \textbf{Patient:} ``Uh, yes, she was receiving infliximab for rheumatoid arthritis. That's the only medication listed from her previous hospital stays, as far as I know.''
+
+  \item \textbf{Doctor:} ``Can we have a computed tomography scan?'' \\
+  \emph{Intent:} \texttt{imaging\_ct\_chest} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is requesting a computed tomography (CT) scan of the chest, which falls under the category of imaging studies.''
+
+  \item \textbf{Patient:} ``The chest X-ray demonstrates a reticular pattern with innumerable, tiny, 1- to 2-mm pulmonary nodules. We can order a computed tomography scan of the chest to further characterize these findings. Would you like me to proceed with that order?''
+
+  \item \textbf{Doctor:} ``Bloodwork?'' \\
+  \emph{Intent:} \texttt{labs\_general} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is asking about bloodwork, which falls under general laboratory questions.''
+
+  \item \textbf{Patient:} ``The cardiac lab results show a pro-BNP level greater than the upper limit of normal. We also have an elevated white blood cell count of 13.0 × 10$^{9}$/L and a low hemoglobin level of 10 g/dL. I recommend further investigation into the etiology of the anemia and leukocytosis.''
+
+  \item \textbf{Doctor:} ``Echocardiogram?'' \\
+  \emph{Intent:} \texttt{imaging\_echo} (confidence: 0.95). \\
+  \emph{Justification:} ``The doctor is asking about an echocardiogram, which is a specific imaging study.''
+
+  \item \textbf{Patient:} ``The echocardiogram shows a normal ejection fraction with no evidence of elevated filling pressures.''
+\end{enumerate}
+
+\paragraph{Summary.} The learner systematically escalated information gathering: baseline PMH $\rightarrow$ targeted RA meds $\rightarrow$ objective signs (vitals, exams) $\rightarrow$ imaging (CXR then CT) $\rightarrow$ labs and echo. Critical pivot: medication reconciliation uncovered \emph{infliximab}, a TNF-$\alpha$ inhibitor that significantly elevates TB reactivation risk. The learner also challenged the preliminary CXR interpretation by ordering a CT scan and echocardiogram to arbitrate between heart failure and alternative pulmonary diagnoses.
+
+\section*{C.2 \quad Final Diagnosis}
+\label{app:session_s6:diagnosis}
+\noindent
+\textbf{Submitted diagnosis:} \emph{Miliary tuberculosis} \\
+\textbf{Session ID:} \texttt{SESS\_0W451OZEJ}
+
+\section*{C.3 \quad Reflective Responses (five prompts)}
+\label{app:session_s6:reflection}
+
+\noindent
+The following are the learner's complete metacognitive responses to the five structured reflection prompts.
+
+\begin{enumerate}
+  \item \textbf{Question:} What is the single most compelling piece of evidence that supports your chosen diagnosis?
+
+  \textbf{Answer:} ``The chest CT showing tiny pulmonary nodules in a diffuse reticular pattern, in combination with the patient's recent infliximab therapy, is the most compelling evidence supporting miliary tuberculosis. This imaging pattern is classic for disseminated hematogenous spread of Mycobacterium tuberculosis, and TNF alpha inhibitor therapy significantly increases the risk of reactivation of latent tuberculosis.''
+
+  \item \textbf{Question:} What is one piece of evidence that might argue against your diagnosis?
+
+  \textbf{Answer:} ``An elevated BNP and crackles on auscultation could suggest heart failure but these findings are nonspecific and can occur in many conditions involving lung parenchymal disease or inflammation. The absence of peripheral edema and the normal cardiac exam make a cardiac origin of her dyspnea unlikely.''
+
+  \item \textbf{Question:} What else could this be? List at least two reasonable alternative diagnoses.
+
+  \textbf{Answer:} ``Acute heart failure exacerbation; Interstitial lung disease (possibly secondary to rheumatoid arthritis or drug toxicity).''
+
+  \item \textbf{Question:} For one of your alternative diagnoses, what specific information would help rule it in or out?
+
+  \textbf{Answer:} ``The echocardiogram evaluating left ventricular systolic and diastolic function, as well as filling pressures, would decisively clarify whether cardiac dysfunction explains the symptoms. In this case, the normal ejection fraction and absence of elevated filling pressures effectively rule out acute heart failure as the cause of dyspnea. Additionally, the lack of leg edema, normal heart sounds, subacute course further confirm that cardiac failure is not the culprit.''
+
+  \item \textbf{Question:} Have you considered and ruled out any potential must-not-miss or life-threatening conditions?
+
+  \textbf{Answer:} ``I considered and systematically excluded acute heart failure, pulmonary embolism, and severe bacterial pneumonia. The chronic and progressive nature of the patient's symptoms, absence of pleuritic pain or focal infiltrates, and the imaging pattern all argue against these.''
+\end{enumerate}
+
+\section*{C.4 \quad LLM Evaluation — Scores and Detailed Feedback}
+\label{app:session_s6:llm}
+
+\subsection*{C.4.1 \quad Scores}
+\noindent
+\textbf{Overall Score:} 81/100 \\
+\textbf{Information Gathering:} 75/100 \\
+\textbf{Diagnostic Accuracy:} 88/100 \\
+\textbf{Cognitive Bias Awareness:} 80/100
+
+\subsection*{C.4.2 \quad Detailed Analysis by Dimension}
+
+\paragraph{Information Gathering (75/100).}
+``The student correctly identified the critical importance of the infliximab medication and the reticular pattern with nodules on the CT scan. The normal echocardiogram was also recognized. However, the initial CXR interpretation was correctly noted as potentially misleading. The student missed explicitly stating the weight loss history as a key finding, and while they acknowledged the formal CXR interpretation, it wasn't explicitly highlighted as a point of contention. Overall, the information gathering was reasonably thorough, but could have been more systematic and explicitly linked to the diagnostic challenge.''
+
+\paragraph{Diagnostic Accuracy (88/100).}
+``The student arrived at the correct diagnosis of miliary tuberculosis, demonstrating a good understanding of the case. Crucially, they avoided the heart failure trap, recognizing the normal echocardiogram. The reasoning linking infliximab to the increased risk of TB reactivation was sound. The differential included a reasonable alternative diagnosis (acute heart failure exacerbation), though the justification for this was somewhat superficial. The score is high because the student correctly identified the key diagnostic clues and avoided a common anchoring bias.''
+
+\paragraph{Cognitive Bias Awareness (80/100).}
+``The student demonstrated a good level of awareness regarding anchoring bias, explicitly addressing the potential for the initial CXR interpretation to mislead. They also acknowledged the importance of medication reconciliation, correctly identifying infliximab as a key factor. Their metacognitive responses were thoughtful, particularly in questioning the initial framing of the case as heart failure. However, the reflection could have been more deeply explored, perhaps with a more detailed discussion of how confirmation bias might have influenced the initial assessment. The student's responses were clear and clinically relevant.''
+
+\subsection*{C.4.3 \quad Comprehensive Feedback}
+
+\paragraph{Strengths.}
+\begin{itemize}
+  \item Correct diagnosis of miliary tuberculosis
+  \item Successful avoidance of heart failure trap (anchoring bias)
+  \item Recognition of infliximab's role as a TNF-$\alpha$ inhibitor increasing TB reactivation risk
+  \item Thoughtful metacognitive responses demonstrating critical evaluation of evidence
+  \item Appropriate use of echocardiogram to arbitrate between cardiac and pulmonary etiologies
+\end{itemize}
+
+\paragraph{Areas for Improvement.}
+\begin{itemize}
+  \item More systematic documentation of key findings (e.g., weight loss history)
+  \item Deeper exploration of anchoring bias mechanisms in reflection
+  \item More detailed discussion of potential biases influencing diagnostic reasoning
+  \item Explicit highlighting of discrepancies between preliminary and definitive test results
+\end{itemize}
+
+\paragraph{Key Recommendations.}
+\begin{enumerate}
+  \item \textbf{Implement a structured approach to medication reconciliation}, specifically focusing on immunosuppressant therapies and their potential impact on infectious disease risk. Develop a checklist to ensure all relevant medications are considered during the diagnostic process.
+
+  \item \textbf{Practice actively challenging initial interpretations}, particularly when they are influenced by readily available data (e.g., preliminary CXR findings). Establish a habit of seeking confirmatory or refuting evidence through definitive tests.
+
+  \item \textbf{Enhance systematic documentation} of clinical findings by creating a structured template that ensures all critical data points (including social history, weight changes, constitutional symptoms) are explicitly noted and linked to differential diagnoses.
+\end{enumerate}
+
+\paragraph{Assessor Configuration.}
+Rubric-based LLM evaluator using GPT-4 (temperature 0.1; strict scoring anchors; JSON-validated structured outputs). Evaluation conducted without human adjudication in this pilot phase.
